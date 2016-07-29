@@ -1,0 +1,16 @@
+---
+Name: perfect_cms_images_custom
+---
+PerfectCMSImageDataExtension:
+  perfect_cms_images_background_padding_color: "#ffffff"
+  perfect_cms_images_image_definitions:
+    "nameBAR":
+      width: 100
+      height: 100
+      folder: my-image-folder
+      filetype: "jpg or a png with a transparant background"
+    "nameFOO":
+      width: 100
+      height: 100
+      folder: my-image-folder
+      filetype: "jpg or a png with a transparant background"

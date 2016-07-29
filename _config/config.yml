@@ -1,0 +1,6 @@
+---
+Name: perfect_cms_images
+---
+Image:
+  extensions:
+    - PerfectCMSImageDataExtension
