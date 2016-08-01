@@ -1,0 +1,22 @@
+{
+    "name": "sunnysideup/perfect_cms_images",
+    "type": "silverstripe-module",
+    "description": "Silverstripe Module that makes it easier for CMS Editors to upload the right size image. It allows the developer to set the size for each image (width, height or both) in one place and apply this throughout the project in the CMS and on the front-end.",
+    "keywords": ["Image", "Images", "Width", "Height", "Resize", "CMS Editing", "Upload Field", "Upload", "Form Field"],
+    "license": "Sunny Side Up (BSD-3-Clause and CUSTOM)",
+    "authors":[
+        {
+            "name": "Nicolaas Francken",
+            "homepage": "https://github.com/sunnysideup",
+            "email" : "modules@sunnysideup.co.nz",
+            "role" : "lead developer"
+        }
+    ],
+    "require":{
+        "silverstripe/framework": "^3.4"
+    },
+    "extra": {
+        "installer-name": "perfect_cms_images"
+    }
+
+}
