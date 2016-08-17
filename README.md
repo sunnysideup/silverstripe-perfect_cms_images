@@ -1,7 +1,7 @@
 Perfect CMS Image
 ================
 
-why we build this module
+Why we build this module ...
 ------------
 To make it easier to manage image sizes in the various places (CMS, templates) we have set up a system to manage image sizes in just one place (the config layer).  Each unique image collection (e.g. HomePageBanner) has its own standard settings (all optional):
  - `width` 
@@ -17,15 +17,16 @@ This is specifically meant for images that are always the same size (e.g. Page B
 
 What it does
 -------------
- * provides clear instructions in upload field
+ * provides clear instructions with upload field
  * takes care of double size for retina
  * always saves the image in a specific folder
  * makes sure image is valid and not too big in file size
- * provides a back-up image
- * in case there is no back-up, then it adds a placeholder image
+ * provides a backup image
+ * in case there is no backup, it adds a placeholder image
 
 
-# Instructions
+Instructions
+------------
 
   1. add an image in Page or MyDataObject
   2. add a back-up image to siteconfig
@@ -42,7 +43,7 @@ What it does
 
 # add an image in Page or MyDataObject
 
-```
+```php
     class MyPage extends Page
     {
         private $has_one = array("MyImage" => "Image");
@@ -51,7 +52,7 @@ What it does
 
 # in a class that decorates / extends SiteConfig, add the same image
 
-```
+```php
     class MySiteConfigExtension extends DataExtension
     {
         private $has_one = array("MyImage" => "Image");
@@ -64,7 +65,7 @@ copy `perfect_cms_images/_config/perfect_cms_images.yml.example`
 to `mysite/_config/perfect_cms_images.yml`
 and rewrite like this:
 
-```
+```yml
     ---
     Name: perfect_cms_images_custom
     ---
@@ -86,7 +87,7 @@ and rewrite like this:
 # set up CMS Field in Page
 
 
-```
+```php
     class MyPage extends Page
     {
         private $has_one = array("MyImage" => "Image");
@@ -108,7 +109,7 @@ and rewrite like this:
 you can also use a different formatting standard
 
 
-```
+```php
     class MyPage extends Page
     {
         private $has_one = array("MyImage" => "Image");
@@ -130,7 +131,7 @@ you can also use a different formatting standard
 # set up CMS Field in SiteConfig
 
 
-```
+```php
     class MySiteConfigExtension extends DataExtension
     {
         private $has_one = array("MyImage" => "Image");
@@ -152,13 +153,13 @@ you can also use a different formatting standard
 
 # templage Usage
 
-```
+```html
     <img src="$MyImage.PerfectCMSImageLink(MyImage)" alt="$Title.ATT" />
 ```
 
 OR
 
-```
+```html
     <img src="$MyImage.PerfectCMSImageLink(MyOtherImage)" alt="$Title.ATT" />
 ```
 
