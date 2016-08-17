@@ -1,11 +1,15 @@
 Perfect CMS Image
 ================
 
-Prerequisite:
+why we build this module
+------------
+To make it easier to manage image sizes in the various places we have set up a system to manage image sizes in just one place.
+
+Prerequisites
 -------------
 This is specifically meant for images that are always the same size (e.g. Page Banner, Team Member, etc...).
 
-What it does:
+What it does
 -------------
  * provides clear instructions in upload field
  * takes care of double size for retina
