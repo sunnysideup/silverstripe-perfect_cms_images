@@ -109,7 +109,7 @@ you can also use a different formatting standard:
                 PerfectCMSImagesUploadField::create(
                     $name = "MyImage",
                     $title = "My Cool Image"
-                )-selectFormattingStandard('MyOtherImage')
+                )->selectFormattingStandard('MyOtherImage')
             );
             //...
         }
@@ -143,4 +143,10 @@ you can also use a different formatting standard:
 
 ```
     <img src="$MyImage.PerfectCMSImageLink(MyImage)" alt="$Title.ATT" />
+```
+
+OR
+
+```
+    <img src="$MyImage.PerfectCMSImageLink(MyOtherImage)" alt="$Title.ATT" />
 ```
