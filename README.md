@@ -19,7 +19,7 @@ What it does
  * in case there is no back-up, then it adds a placeholder image
 
 
-# Instructions:
+# Instructions
 
   1. add an image in Page or MyDataObject
   2. add a back-up image to siteconfig
@@ -28,6 +28,7 @@ What it does
   5. in the template write: `$MyImage.PerfectCMSImageLink(NameOfFormat)`
 
 # Nota Bene
+
  * use a unique image name for each image field you add to the site
    e.g. call an image AccountsBanner instead of Banner
  * dont double the image sizes
@@ -98,7 +99,7 @@ and rewrite like this:
     }
 ```
 
-you can also use a different formatting standard:
+you can also use a different formatting standard
 
 
 ```
@@ -155,7 +156,7 @@ OR
     <img src="$MyImage.PerfectCMSImageLink(MyOtherImage)" alt="$Title.ATT" />
 ```
 
-Credits:
----------------------
+Credits
+------------
 
 Special thank you to Klemen Novak for help with this module.
