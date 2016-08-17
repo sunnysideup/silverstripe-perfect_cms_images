@@ -94,6 +94,28 @@ and rewrite like this:
     }
 ```
 
+you can also use a different formatting standard:
+
+
+```
+    class MyPage extends Page
+    {
+        private $has_one = array("MyImage" => "Image");
+
+        public function getCMSFields() {
+            //...
+            $fields->addFieldToTab(
+                "Root.Images",
+                PerfectCMSImagesUploadField::create(
+                    $name = "MyImage",
+                    $title = "My Cool Image"
+                )-selectFormattingStandard('MyOtherImage')
+            );
+            //...
+        }
+    }
+```
+
 # set up CMS Field in SiteConfig
 
 
