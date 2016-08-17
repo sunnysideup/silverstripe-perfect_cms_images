@@ -3,7 +3,12 @@ Perfect CMS Image
 
 why we build this module
 ------------
-To make it easier to manage image sizes in the various places we have set up a system to manage image sizes in just one place.
+To make it easier to manage image sizes in the various places (CMS, templates) we have set up a system to manage image sizes in just one place (the config layer).  Each unique image collection (e.g. HomePageBanner) has its own standard 
+ - `width` 
+ - `height`  
+ - `folder for upload` 
+ - `file type`
+ You can also provide a backup image in the SiteConfig in case the user has not (yet) uploaded an image.
 
 Prerequisites
 -------------
