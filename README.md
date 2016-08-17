@@ -150,3 +150,8 @@ OR
 ```
     <img src="$MyImage.PerfectCMSImageLink(MyOtherImage)" alt="$Title.ATT" />
 ```
+
+Credits:
+---------------------
+
+Special thank you to Klemen Novak for help with this module.
