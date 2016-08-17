@@ -21,43 +21,52 @@ class PerfectCMSImagesUploadField extends UploadField
     /**
      * @param string  $name
      * @param string  $title
-     * @param SS_List $items If no items are defined, the field will try to auto-detect an existing relation on
-     *
-     *                       @link $record}, with the same name as the field name.
-     *
-     * @param int | string $widthRecommendation
-     * @param int | string $heightRecommendation
-     * @param string       $folderName
-     * @param string       $recommendedFileType
+     * @param SS_List $items If no items are defined, the field will try to auto-detect an existing relation 
      *
      * @return UploadField
      */
     public function __construct(
         $name,
         $title,
-        SS_List $items = null,
-        $widthRecommendation = 0,
-        $heightRecommendation = 0,
-        $folderName = '',
-        $recommendedFileType = 'jpg'
+        SS_List $items = null
     ) {
-        if (!$widthRecommendation) {
-            $widthRecommendation = PerfectCMSImageDataExtension::get_width($name);
-        }
-        if (!$heightRecommendation) {
-            $heightRecommendation = PerfectCMSImageDataExtension::get_height($name);
-        }
+        parent::__construct(
+            $name,
+            $title,
+            $items
+        );
+        $this->selectFormattingStandard($name);
+        return $this;
+    }
+
+    public function setRightTitle($string)
+    {
+        parent::setRightTitle(
+            $string.
+            '<br />'.
+            $this->RightTitle()
+        );
+        //important!
+        return $this;
+    }
+
+    /**
+     *
+     *
+     *
+     * @param  string $name Formatting Standard
+     * @return this
+     */
+    public function selectFormattingStandard($name) {
+        $widthRecommendation = PerfectCMSImageDataExtension::get_width($name);
+        $heightRecommendation = PerfectCMSImageDataExtension::get_height($name);
+        $folderName = PerfectCMSImageDataExtension::get_folder($name);
         if (!$folderName) {
-            $folderName = PerfectCMSImageDataExtension::get_folder($name);
-            if (!$folderName) {
-                $folderName = 'other-images';
-            }
+            $folderName = 'other-images';
         }
+        $recommendedFileType = PerfectCMSImageDataExtension::get_file_type($name);
         if (!$recommendedFileType) {
-            $recommendedFileType = PerfectCMSImageDataExtension::get_file_type($name);
-            if (!$recommendedFileType) {
-                $recommendedFileType = 'jpg';
-            }
+            $recommendedFileType = 'jpg';
         }
         $folderName = 'Uploads/'.$folderName.'/';
         if ($widthRecommendation) {
@@ -82,11 +91,7 @@ class PerfectCMSImagesUploadField extends UploadField
         } else {
             $actualHeightDescription = 'flexible';
         }
-        parent::__construct(
-            $name,
-            $title,
-            $items
-        );
+
 
         $rightTitle = "";
 
@@ -105,7 +110,7 @@ class PerfectCMSImagesUploadField extends UploadField
             $rightTitle .= "image should be <strong>$actualHeightDescription</strong> high and ";
         }
 
-        $rightTitle .= "should be less than 1MB in size. <br/>
+        $rightTitle .= "the image should be less than 1MB in size. <br/>
             The recommend file type (file extension) is <strong>".$recommendedFileType.'</strong>.';
 
 
@@ -124,14 +129,4 @@ class PerfectCMSImagesUploadField extends UploadField
         return $this;
     }
 
-    public function setRightTitle($string)
-    {
-        parent::setRightTitle(
-            $string.
-            '<br />'.
-            $this->RightTitle()
-        );
-        //important!
-        return $this;
-    }
 }
