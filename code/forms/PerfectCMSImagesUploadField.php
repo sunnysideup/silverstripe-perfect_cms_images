@@ -58,7 +58,7 @@ class PerfectCMSImagesUploadField extends UploadField
      * @return this
      */
     public function selectFormattingStandard($name) {
-        $this->setRightTitle('-');
+        parent::setRightTitle('');
         $widthRecommendation = PerfectCMSImageDataExtension::get_width($name);
         $heightRecommendation = PerfectCMSImageDataExtension::get_height($name);
         $folderName = PerfectCMSImageDataExtension::get_folder($name);
@@ -115,7 +115,7 @@ class PerfectCMSImagesUploadField extends UploadField
             The recommend file type (file extension) is <strong>".$recommendedFileType.'</strong>.';
 
 
-        $this->setRightTitle($rightTitle);
+        parent::setRightTitle($rightTitle);
 
         //create folder
         Folder::find_or_make($folderName);
