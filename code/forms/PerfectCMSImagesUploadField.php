@@ -21,7 +21,7 @@ class PerfectCMSImagesUploadField extends UploadField
     /**
      * @param string  $name
      * @param string  $title
-     * @param SS_List $items If no items are defined, the field will try to auto-detect an existing relation 
+     * @param SS_List $items If no items are defined, the field will try to auto-detect an existing relation
      *
      * @return UploadField
      */
@@ -58,6 +58,7 @@ class PerfectCMSImagesUploadField extends UploadField
      * @return this
      */
     public function selectFormattingStandard($name) {
+        $this->setRightTitle('-');
         $widthRecommendation = PerfectCMSImageDataExtension::get_width($name);
         $heightRecommendation = PerfectCMSImageDataExtension::get_height($name);
         $folderName = PerfectCMSImageDataExtension::get_folder($name);
