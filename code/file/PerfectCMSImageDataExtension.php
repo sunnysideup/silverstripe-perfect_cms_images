@@ -72,7 +72,7 @@ class PerfectCMSImageDataExtension extends DataExtension
                                 Config::inst()->get('PerfectCMSImageDataExtension', 'perfect_cms_images_background_padding_color')
                             )->Link();
                         } elseif ($myWidth > $perfectWidth || $myHeight > $perfectHeight) {
-                            return $image->getFormattedImage('resizeRatio', $perfectWidth, $perfectHeight)->Link();
+                            return $image->FitMax($perfectWidth, $perfectHeight)->Link();
                         }
                     } elseif ($perfectWidth) {
                         return $image->SetWidth($perfectWidth)->Link();
