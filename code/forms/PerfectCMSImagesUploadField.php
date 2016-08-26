@@ -111,8 +111,9 @@ class PerfectCMSImagesUploadField extends UploadField
             $rightTitle .= "image should be <strong>$actualHeightDescription</strong> high and ";
         }
 
-        $rightTitle .= "the image should be less than 1MB in size. <br/>
-            The recommend file type (file extension) is <strong>".$recommendedFileType.'</strong>.';
+        $rightTitle .= 'the image should be less than 1MB in size. <br/>
+            The recommend file type (file extension) is <strong>'.$recommendedFileType.'</strong>.
+            ';
 
 
         parent::setRightTitle($rightTitle);
