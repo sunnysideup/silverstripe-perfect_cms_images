@@ -35,6 +35,8 @@ class PerfectCMSImagesUploadField extends UploadField
             $title,
             $items
         );
+        $perfectCMSImageValidator = new PerfectCMSImage_Validator();
+        $this->setValidator($perfectCMSImageValidator);
         $this->selectFormattingStandard($name);
         return $this;
     }
@@ -127,7 +129,7 @@ class PerfectCMSImagesUploadField extends UploadField
         $this->setAllowedExtensions($alreadyAllowed + array('svg'));
         //keep the size reasonable
         $this->getValidator()->setAllowedMaxFileSize(1 * 1024 * Config::inst()->get('PerfectCMSImagesUploadFieldeProvider', 'max_size_in_kilobytes'));
-
+        $this->getValidator()->setFieldName($name);
         return $this;
     }
 
