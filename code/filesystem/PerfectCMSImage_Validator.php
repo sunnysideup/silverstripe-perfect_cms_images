@@ -1,7 +1,7 @@
 <?php
 
-class PerfectCMSImage_Validator extends Upload_Validator  {
-
+class PerfectCMSImage_Validator extends Upload_Validator
+{
     protected $fieldName = '';
 
     public function setFieldName($fieldName)
@@ -19,12 +19,12 @@ class PerfectCMSImage_Validator extends Upload_Validator  {
     {
         $widthRecommendation = (PerfectCMSImageDataExtension::get_width($this->fieldName) * 2);
         $heightRecommendation = (PerfectCMSImageDataExtension::get_height($this->fieldName) * 2);
-        if(!$this->isImageCorrectWidth($widthRecommendation) && $widthRecommendation) {
+        if (!$this->isImageCorrectWidth($widthRecommendation) && $widthRecommendation) {
             $this->errors[] = "The image you have uploaded is not the correct width. The width should be " . $widthRecommendation . "px";
             return false;
         }
 
-        if(!$this->isImageCorrectHeight($heightRecommendation) && $heightRecommendation) {
+        if (!$this->isImageCorrectHeight($heightRecommendation) && $heightRecommendation) {
             $this->errors[] = "The image you have uploaded is not the correct height. The height should be " . $heightRecommendation . "px";
             return false;
         }
@@ -35,12 +35,10 @@ class PerfectCMSImage_Validator extends Upload_Validator  {
 
     public function isImageCorrectWidth($width)
     {
-        $imageSize = getimagesize( $this->tmpFile["tmp_name"] );
+        $imageSize = getimagesize($this->tmpFile["tmp_name"]);
         $widthRecommendation = $width;
-        if ($imageSize !== false)
-        {
-            if ( $imageSize[0] != $widthRecommendation)
-            {
+        if ($imageSize !== false) {
+            if ($imageSize[0] != $widthRecommendation) {
                 return false;
             }
         }
@@ -49,16 +47,13 @@ class PerfectCMSImage_Validator extends Upload_Validator  {
 
     public function isImageCorrectHeight($height)
     {
-        $imageSize = getimagesize( $this->tmpFile["tmp_name"] );
+        $imageSize = getimagesize($this->tmpFile["tmp_name"]);
         $heightRecommendation = $height;
-        if ($imageSize !== false)
-        {
-            if ( $imageSize[1] != $heightRecommendation)
-            {
+        if ($imageSize !== false) {
+            if ($imageSize[1] != $heightRecommendation) {
                 return false;
             }
         }
         return true;
     }
-
 }

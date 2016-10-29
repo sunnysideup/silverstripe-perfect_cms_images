@@ -59,7 +59,8 @@ class PerfectCMSImagesUploadField extends UploadField
      * @param  string $name Formatting Standard
      * @return this
      */
-    public function selectFormattingStandard($name) {
+    public function selectFormattingStandard($name)
+    {
         parent::setRightTitle('');
         $widthRecommendation = PerfectCMSImageDataExtension::get_width($name);
         $heightRecommendation = PerfectCMSImageDataExtension::get_height($name);
@@ -98,18 +99,16 @@ class PerfectCMSImagesUploadField extends UploadField
 
         $rightTitle = "";
 
-        if ($actualWidthDescription == 'flexible'){
+        if ($actualWidthDescription == 'flexible') {
             $rightTitle .= 'Image width is flexible, and ';
-        }
-        else {
+        } else {
             $rightTitle .= "Image should be <strong>$actualWidthDescription</strong> wide and ";
         }
 
 
-        if ($actualHeightDescription == 'flexible'){
+        if ($actualHeightDescription == 'flexible') {
             $rightTitle .= 'image height is flexible, and ';
-        }
-        else {
+        } else {
             $rightTitle .= "image should be <strong>$actualHeightDescription</strong> high and ";
         }
 
@@ -132,5 +131,4 @@ class PerfectCMSImagesUploadField extends UploadField
         $this->getValidator()->setFieldName($name);
         return $this;
     }
-
 }

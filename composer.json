@@ -3,6 +3,9 @@
     "type": "silverstripe-module",
     "description": "Silverstripe Module that makes it easier for CMS Editors to upload the right size image. It allows the developer to set the size for each image (width, height or both) in one place and apply this throughout the project in the CMS and on the front-end.",
     "keywords": [
+        "Silverstripe-CMS",
+        "CMS",
+        "Silverstripe",
         "Image",
         "Images",
         "Width",
@@ -22,7 +25,8 @@
         }
     ],
     "require": {
-        "silverstripe/framework": "^3.4"
+        "silverstripe/framework": "~3.1",
+        "silverstripe/cms": "~3.1"
     },
     "extra": {
         "installer-name": "perfect_cms_images"
