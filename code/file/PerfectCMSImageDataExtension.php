@@ -91,7 +91,7 @@ class PerfectCMSImageDataExtension extends DataExtension
             if (!$perfectHeight) {
                 $perfectHeight = $perfectWidth;
             }
-            $text = "$perfectWidth x $perfectHeight /2 = $perfectWidth x $perfectHeight ";
+            $text = "$perfectWidth x $perfectHeight /2 = '.round($perfectWidth/2).' x '.round($perfectHeight/2).' ";
 
             return 'https://placehold.it/'.($perfectWidth).'x'.($perfectHeight).'?text='.urlencode($text);
         } else {
