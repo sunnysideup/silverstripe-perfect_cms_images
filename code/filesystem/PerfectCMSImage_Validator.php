@@ -17,43 +17,60 @@ class PerfectCMSImage_Validator extends Upload_Validator
      */
     public function validate()
     {
+        $hasError = false;
         $widthRecommendation = (PerfectCMSImageDataExtension::get_width($this->fieldName) * 2);
         $heightRecommendation = (PerfectCMSImageDataExtension::get_height($this->fieldName) * 2);
-        if (!$this->isImageCorrectWidth($widthRecommendation) && $widthRecommendation) {
-            $this->errors[] = "The image you have uploaded is not the correct width. The width should be " . $widthRecommendation . "px";
-            return false;
+        if ($widthRecommendation) {
+            if( ! $this->isImageCorrectWidth(true, $widthRecommendation)) {
+                $this->errors[] = "Expected width: " . $widthRecommendation . "px;";
+                $hasError = true;
+            }
         }
 
-        if (!$this->isImageCorrectHeight($heightRecommendation) && $heightRecommendation) {
-            $this->errors[] = "The image you have uploaded is not the correct height. The height should be " . $heightRecommendation . "px";
+        if ($heightRecommendation) {
+            if( ! $this->isImageCorrectWidth(false, $heightRecommendation)) {
+                $this->errors[] = "Expected height: " . $heightRecommendation . "px;";
+                $hasError = true;
+            }
+        }
+        $parentResult = parent::validate();
+        if($hasError) {
             return false;
         }
-
-        return parent::validate();
-        return false;
+        return $parentResult;
     }
 
-    public function isImageCorrectWidth($width)
+    protected function isImageCorrectWidth($isWidth, $recommendedWidthOrHeight)
     {
-        $imageSize = getimagesize($this->tmpFile["tmp_name"]);
-        $widthRecommendation = $width;
-        if ($imageSize !== false) {
-            if ($imageSize[0] != $widthRecommendation) {
+        $actualWidthOrHeight = $this->getWidthOrHeight($isWidth);
+        if ($actualWidthOrHeight) {
+            if ($actualWidthOrHeight != $recommendedWidthOrHeight) {
                 return false;
             }
         }
         return true;
     }
 
-    public function isImageCorrectHeight($height)
+
+    protected function getWidthOrHeight($isWidth)
     {
-        $imageSize = getimagesize($this->tmpFile["tmp_name"]);
-        $heightRecommendation = $height;
-        if ($imageSize !== false) {
-            if ($imageSize[1] != $heightRecommendation) {
-                return false;
+        $imageSize = false;
+        if(isset($this->tmpFile["tmp_name"])) {
+            $imageSize = getimagesize($this->tmpFile["tmp_name"]);
+        } else {
+            // $imagefile = $this->getFullPath();
+            // if($this->exists() && file_exists($imageFile)) {
+            //     $imageSize = getimagesize($imagefile);
+            // }
+        }
+        if($imageSize === false) {
+            return false;
+        } else {
+            if($isWidth) {
+                return $imageSize[0];
+            } else {
+                return $imageSize[1];
             }
         }
-        return true;
     }
 }
