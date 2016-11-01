@@ -21,20 +21,20 @@ class PerfectCMSImage_Validator extends Upload_Validator
         $widthRecommendation = (PerfectCMSImageDataExtension::get_width($this->fieldName) * 2);
         $heightRecommendation = (PerfectCMSImageDataExtension::get_height($this->fieldName) * 2);
         if ($widthRecommendation) {
-            if( ! $this->isImageCorrectWidth(true, $widthRecommendation)) {
+            if (! $this->isImageCorrectWidth(true, $widthRecommendation)) {
                 $this->errors[] = "Expected width: " . $widthRecommendation . "px;";
                 $hasError = true;
             }
         }
 
         if ($heightRecommendation) {
-            if( ! $this->isImageCorrectWidth(false, $heightRecommendation)) {
+            if (! $this->isImageCorrectWidth(false, $heightRecommendation)) {
                 $this->errors[] = "Expected height: " . $heightRecommendation . "px;";
                 $hasError = true;
             }
         }
         $parentResult = parent::validate();
-        if($hasError) {
+        if ($hasError) {
             return false;
         }
         return $parentResult;
@@ -55,7 +55,7 @@ class PerfectCMSImage_Validator extends Upload_Validator
     protected function getWidthOrHeight($isWidth)
     {
         $imageSize = false;
-        if(isset($this->tmpFile["tmp_name"])) {
+        if (isset($this->tmpFile["tmp_name"])) {
             $imageSize = getimagesize($this->tmpFile["tmp_name"]);
         } else {
             // $imagefile = $this->getFullPath();
@@ -63,10 +63,10 @@ class PerfectCMSImage_Validator extends Upload_Validator
             //     $imageSize = getimagesize($imagefile);
             // }
         }
-        if($imageSize === false) {
+        if ($imageSize === false) {
             return false;
         } else {
-            if($isWidth) {
+            if ($isWidth) {
                 return $imageSize[0];
             } else {
                 return $imageSize[1];
