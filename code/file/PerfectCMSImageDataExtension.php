@@ -26,7 +26,25 @@ class PerfectCMSImageDataExtension extends DataExtension
     private static $perfect_cms_images_image_definitions = array();
 
     /**
-     * @param string            $nameOfImageField
+     * @var string $name name of Image Field template
+     * @return string (link)
+     */
+    public function PerfectCMSImageLinkNonRetina($name)
+    {
+        return $this->PerfectCMSImageLink($name, null, '', false );
+    }
+
+    /**
+     * @var string $name name of Image Field template
+     * @return string (link)
+     */
+    public function PerfectCMSImageLinkNonRetina($name)
+    {
+        return $this->PerfectCMSImageLink($name, null, '', true );
+    }
+
+    /**
+     * @param string            $name
      * @param object (optional) $backupObject
      * @param string (optional) $backupField
      *
@@ -35,8 +53,12 @@ class PerfectCMSImageDataExtension extends DataExtension
     public function PerfectCMSImageLink(
         $name,
         $backupObject = null,
-        $backupField = ''
+        $backupField = '',
+        $isRetina = true
     ) {
+        if( ! Config::inst()->get('Image', 'force_resample')) {
+            Config::inst()->update('Image', 'force_resample', true);
+        }
         $image = $this->owner;
         if ($image && $image->exists()) {
             //we are all good ...
@@ -52,8 +74,12 @@ class PerfectCMSImageDataExtension extends DataExtension
             }
         }
 
-        $perfectWidth = (intval(self::get_width($name)) - 0) * 2;
-        $perfectHeight = (intval(self::get_height($name)) - 0) * 2;
+        $perfectWidth = (intval(self::get_width($name)) - 0);
+        $perfectHeight = (intval(self::get_height($name)) - 0);
+        if($isRetina) {
+            $perfectWidth = $perfectWidth * 2;
+            $perfectHeight = $perfectHeight  * 2;
+        }
         if ($image) {
             if ($image instanceof Image) {
                 if ($image->exists()) {
@@ -64,7 +90,7 @@ class PerfectCMSImageDataExtension extends DataExtension
                     $backend = Injector::inst()->get($backEndString);
                     if ($perfectWidth && $perfectHeight) {
                         if ($myWidth == $perfectWidth || $myHeight ==  $perfectHeight) {
-                            return $image->Link();
+                            return $image->ScaleWidth($myWidth)->Link();
                         } elseif ($myWidth < $perfectWidth || $myHeight < $perfectHeight) {
                             return $image->Pad(
                                 $perfectWidth,
@@ -75,15 +101,16 @@ class PerfectCMSImageDataExtension extends DataExtension
                             return $image->FitMax($perfectWidth, $perfectHeight)->Link();
                         }
                     } elseif ($perfectWidth) {
-                        return $image->SetWidth($perfectWidth)->Link();
+                        return $image->ScaleWidth($perfectWidth)->Link();
                     } elseif ($perfectHeight) {
-                        return $image->SetHeight($perfectHeight)->Link();
+                        return $image->ScaleHeight($perfectHeight)->Link();
                     } else {
-                        return $image->Link();
+                        return $image->ScaleWidth($myWidth)->Link();
                     }
                 }
             }
         }
+        // no image -> provide placeholder
         if ($perfectWidth || $perfectHeight) {
             if (!$perfectWidth) {
                 $perfectWidth = $perfectHeight;
