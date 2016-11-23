@@ -38,7 +38,7 @@ class PerfectCMSImageDataExtension extends DataExtension
      * @var string $name name of Image Field template
      * @return string (link)
      */
-    public function PerfectCMSImageLinkNonRetina($name)
+    public function PerfectCMSImageLinkRetina($name)
     {
         return $this->PerfectCMSImageLink($name, null, '', true );
     }
