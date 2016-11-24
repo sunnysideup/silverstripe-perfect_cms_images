@@ -90,23 +90,29 @@ class PerfectCMSImageDataExtension extends DataExtension
                     $backend = Injector::inst()->get($backEndString);
                     if ($perfectWidth && $perfectHeight) {
                         if ($myWidth == $perfectWidth || $myHeight ==  $perfectHeight) {
-                            return $image->ScaleWidth($myWidth)->Link();
+                            $link = $image->ScaleWidth($myWidth)->Link();
                         } elseif ($myWidth < $perfectWidth || $myHeight < $perfectHeight) {
-                            return $image->Pad(
+                            $link = $image->Pad(
                                 $perfectWidth,
                                 $perfectHeight,
                                 Config::inst()->get('PerfectCMSImageDataExtension', 'perfect_cms_images_background_padding_color')
                             )->Link();
                         } elseif ($myWidth > $perfectWidth || $myHeight > $perfectHeight) {
-                            return $image->FitMax($perfectWidth, $perfectHeight)->Link();
+                            $link = $image->FitMax($perfectWidth, $perfectHeight)->Link();
                         }
                     } elseif ($perfectWidth) {
-                        return $image->ScaleWidth($perfectWidth)->Link();
+                        $link = $image->ScaleWidth($perfectWidth)->Link();
                     } elseif ($perfectHeight) {
-                        return $image->ScaleHeight($perfectHeight)->Link();
+                        $link = $image->ScaleHeight($perfectHeight)->Link();
                     } else {
-                        return $image->ScaleWidth($myWidth)->Link();
+                        $link = $image->ScaleWidth($myWidth)->Link();
                     }
+                    if(class_exists('HashPath')) {
+                        if($curr = Controller::curr();)
+                            return $curr->HasPath($link, false);
+                        }
+                    }
+                    return $link;
                 }
             }
         }
