@@ -108,7 +108,7 @@ class PerfectCMSImageDataExtension extends DataExtension
                         $link = $image->ScaleWidth($myWidth)->Link();
                     }
                     if(class_exists('HashPath')) {
-                        if($curr = Controller::curr();)
+                        if($curr = Controller::curr()) {
                             return $curr->HasPath($link, false);
                         }
                     }
