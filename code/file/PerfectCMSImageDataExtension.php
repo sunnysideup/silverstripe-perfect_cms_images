@@ -31,7 +31,7 @@ class PerfectCMSImageDataExtension extends DataExtension
      */
     public function PerfectCMSImageLinkNonRetina($name)
     {
-        return $this->PerfectCMSImageLink($name, null, '', false );
+        return $this->PerfectCMSImageLink($name, null, '', false);
     }
 
     /**
@@ -40,7 +40,7 @@ class PerfectCMSImageDataExtension extends DataExtension
      */
     public function PerfectCMSImageLinkRetina($name)
     {
-        return $this->PerfectCMSImageLink($name, null, '', true );
+        return $this->PerfectCMSImageLink($name, null, '', true);
     }
 
     /**
@@ -56,7 +56,7 @@ class PerfectCMSImageDataExtension extends DataExtension
         $backupField = '',
         $isRetina = true
     ) {
-        if( ! Config::inst()->get('Image', 'force_resample')) {
+        if (! Config::inst()->get('Image', 'force_resample')) {
             Config::inst()->update('Image', 'force_resample', true);
         }
         $image = $this->owner;
@@ -76,7 +76,7 @@ class PerfectCMSImageDataExtension extends DataExtension
 
         $perfectWidth = (intval(self::get_width($name)) - 0);
         $perfectHeight = (intval(self::get_height($name)) - 0);
-        if($isRetina) {
+        if ($isRetina) {
             $perfectWidth = $perfectWidth * 2;
             $perfectHeight = $perfectHeight  * 2;
         }
@@ -107,9 +107,11 @@ class PerfectCMSImageDataExtension extends DataExtension
                     } else {
                         $link = $image->ScaleWidth($myWidth)->Link();
                     }
-                    if(class_exists('HashPath')) {
-                        if($curr = Controller::curr()) {
-                            return $curr->HasPath($link, false);
+                    if (class_exists('HashPathExtension')) {
+                        if ($curr = Controller::curr()) {
+                            if ($curr->hasMethod('HashPath')) {
+                                return $curr->HashPath($link, false);
+                            }
                         }
                     }
                     return $link;
