@@ -4,12 +4,12 @@ Perfect CMS Image
 Why we build this module ...
 ------------
 To make it easier to manage image sizes in the various places (CMS, templates) we have set up a system to manage image sizes in just one place (the config layer).  Each unique image collection (e.g. HomePageBanner) has its own standard settings (all optional):
- - `width` 
- - `height`  
- - `folder for upload` 
+ - `width`
+ - `height`
+ - `folder for upload`
  - `file type`
- 
-You can also provide a backup image in the SiteConfig in case the user has not (yet) uploaded an image. 
+
+You can also provide a backup image in the SiteConfig in case the user has not (yet) uploaded an image.
 
 Prerequisites
 -------------
@@ -161,6 +161,19 @@ OR
 
 ```html
     <img src="$MyImage.PerfectCMSImageLink(MyOtherImage)" alt="$Title.ATT" />
+```
+
+# Important Note for those using Hash Path module
+
+If you are using the Hash Path module then a hash path will be added to all links created by the Perfect CMS Images module.  To ensure that your images will be displayed add the following to and htaccess file in the Assets folder.
+
+```php
+    <IfModule mod_rewrite.c>
+        RewriteEngine On
+        RewriteCond %{REQUEST_FILENAME} !-f
+        RewriteCond %{REQUEST_FILENAME} !-d
+        RewriteRule ^(.+)\.(v[A-Za-z0-9]+)\.(js|css|png|PNG|jpg|JPG|gif|GIF)$ $1.$3 [L]
+    </IfModule>
 ```
 
 Credits
