@@ -165,7 +165,7 @@ OR
 
 # Important Note for those using Hash Path module
 
-If you are using the Hash Path module then a hash path will be added to all links created by the Perfect CMS Images module.  To ensure that your images will be displayed add the following to and htaccess file in the Assets folder.
+If you are using the Hash Path module then a hash path will be added to all links created by the Perfect CMS Images module.  To ensure that your images will be displayed add the following to an htaccess file in the Assets folder.
 
 ```php
     <IfModule mod_rewrite.c>
