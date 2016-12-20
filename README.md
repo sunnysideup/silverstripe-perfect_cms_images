@@ -1,182 +1,72 @@
-Perfect CMS Image
-================
+# Silverstripe perfect cms images module
+[![Build Status](https://travis-ci.org/sunnysideup/silverstripe-perfect_cms_images.svg?branch=master)](https://travis-ci.org/sunnysideup/silverstripe-perfect_cms_images)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/sunnysideup/silverstripe-perfect_cms_images/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/sunnysideup/silverstripe-perfect_cms_images/?branch=master)
+[![codecov.io](https://codecov.io/github/sunnysideup/silverstripe-perfect_cms_images/coverage.svg?branch=master)](https://codecov.io/github/sunnysideup/silverstripe-perfect_cms_images?branch=master)
+![helpfulrobot](https://helpfulrobot.io/sunnysideup/perfect_cms_images/badge)
 
-Why we build this module ...
-------------
-To make it easier to manage image sizes in the various places (CMS, templates) we have set up a system to manage image sizes in just one place (the config layer).  Each unique image collection (e.g. HomePageBanner) has its own standard settings (all optional):
- - `width`
- - `height`
- - `folder for upload`
- - `file type`
-
-You can also provide a backup image in the SiteConfig in case the user has not (yet) uploaded an image.
-
-Prerequisites
--------------
-This is specifically meant for images that are always the same size (e.g. Page Banner, Team Member, etc...).
-
-What it does
--------------
- * provides clear instructions with upload field
- * takes care of double size for retina
- * always saves the image in a specific folder
- * makes sure image is valid and not too big in file size
- * provides a backup image
- * in case there is no backup, it adds a placeholder image
+[![Latest Stable Version](https://poser.pugx.org/sunnysideup/perfect_cms_images/version)](https://packagist.org/packages/sunnysideup/perfect_cms_images)
+[![License](https://poser.pugx.org/sunnysideup/perfect_cms_images/license)](https://packagist.org/packages/sunnysideup/perfect_cms_images)
+[![Monthly Downloads](https://poser.pugx.org/sunnysideup/perfect_cms_images/d/monthly)](https://packagist.org/packages/sunnysideup/perfect_cms_images)
 
 
-Instructions
-------------
+## Documentation
 
-  1. add an image in Page or MyDataObject
-  2. add a back-up image to siteconfig
-  3. define the settings for the image in the `PerfectCMSImageDataExtension` class using yml configuration.
-  4. in the CMS Fields, use `PerfectCMSImagesUploadField`
-  5. in the template write: `$MyImage.PerfectCMSImageLink(NameOfFormat)`
 
-# Nota Bene
 
- * use a unique image name for each image field you add to the site
-   e.g. call an image AccountsBanner instead of Banner
- * dont double the image sizes
- * you can choose to only set the standard height or the width
+ * [Developer Docs](docs/en/INDEX.md)
+ * [User Guide](docs/en/userguide.md)
+ * [API](http://ssmods.com/apis/perfect_cms_images/docs/en/api/)
 
-# add an image in Page or MyDataObject
+## Requirements
 
-```php
-    class MyPage extends Page
-    {
-        private $has_one = array("MyImage" => "Image");
-    }
+
+
+see [composer.json](composer.json) for details
+
+### Suggested Modules
+
+
+
+see [composer.json](composer.json) for details
+
+
+## Installation
+
+
+```
+composer require sunnysideup/perfect_cms_images
 ```
 
-# in a class that decorates / extends SiteConfig, add the same image
-
-```php
-    class MySiteConfigExtension extends DataExtension
-    {
-        private $has_one = array("MyImage" => "Image");
-    }
-```
-
-# define image
-
-copy `perfect_cms_images/_config/perfect_cms_images.yml.example`
-to `mysite/_config/perfect_cms_images.yml`
-and rewrite like this:
-
-```yml
-    ---
-    Name: perfect_cms_images_custom
-    ---
-    PerfectCMSImageDataExtension:
-      perfect_cms_images_background_padding_color: "#cccccc"
-      perfect_cms_images_image_definitions:
-        "MyImage":
-          width: 900 (could be zero)
-          height: 300 (could be zero)
-          folder: uploaded-my-images
-          filetype: "png"
-        "MyOtherImage":
-          width: 400
-          height: 0
-          folder: "uploaded-my-images2"
-          filetype: "jpg or gif"
-```
-
-# set up CMS Field in Page
+### Configuration
 
 
-```php
-    class MyPage extends Page
-    {
-        private $has_one = array("MyImage" => "Image");
 
-        public function getCMSFields() {
-            //...
-            $fields->addFieldToTab(
-                "Root.Images",
-                PerfectCMSImagesUploadField::create(
-                    $name = "MyImage",
-                    $title = "My Cool Image"
-                )
-            );
-            //...
-        }
-    }
-```
+In the `_config` folder you will find the `perfect_cms_images.yml.example`
+file that shows options for the configuration of this module.
 
-you can also use a different formatting standard
+We recommend that you:
+
+  1. copy these `perfect_cms_images.yml.example` files into your
+`mysite/_config` folder
+  2. remove the .example extension
+  3. delete the lines you not care about, and
+  4. adjust the configurations that you would like to use.
 
 
-```php
-    class MyPage extends Page
-    {
-        private $has_one = array("MyImage" => "Image");
-
-        public function getCMSFields() {
-            //...
-            $fields->addFieldToTab(
-                "Root.Images",
-                PerfectCMSImagesUploadField::create(
-                    $name = "MyImage",
-                    $title = "My Cool Image"
-                )->selectFormattingStandard('MyOtherImage')
-            );
-            //...
-        }
-    }
-```
-
-# set up CMS Field in SiteConfig
+## Contributing
 
 
-```php
-    class MySiteConfigExtension extends DataExtension
-    {
-        private $has_one = array("MyImage" => "Image");
 
-        public function getCMSFields() {
-            //...
-            $fields->addFieldToTab(
-                "Root.Images",
-                PerfectCMSImagesUploadField::create(
-                    $name = "MyImage",
-                    $title = "My Default Cool Image"
-                )
-            );
-            //...
-        }
-    }
-```
+We welcome any contributions. See [CONTRIBUTING.md](CONTRIBUTING.md) for more details.
+
+## Paid assistance
 
 
-# templage Usage
 
-```html
-    <img src="$MyImage.PerfectCMSImageLink(MyImage)" alt="$Title.ATT" />
-```
+You can pay us to create an improved / adapted version of this module for your own projects.  Please contact us if you like to find out more: [www.sunnysideup.co.nz](http://www.sunnysideup.co.nz)
 
-OR
+## Author
 
-```html
-    <img src="$MyImage.PerfectCMSImageLink(MyOtherImage)" alt="$Title.ATT" />
-```
 
-# Important Note for those using Hash Path module
 
-If you are using the Hash Path module then a hash path will be added to all links created by the Perfect CMS Images module.  To ensure that your images will be displayed add the following to an htaccess file in the Assets folder.
-
-```php
-    <IfModule mod_rewrite.c>
-        RewriteEngine On
-        RewriteCond %{REQUEST_FILENAME} !-f
-        RewriteCond %{REQUEST_FILENAME} !-d
-        RewriteRule ^(.+)\.(v[A-Za-z0-9]+)\.(js|css|png|PNG|jpg|JPG|gif|GIF)$ $1.$3 [L]
-    </IfModule>
-```
-
-Credits
-------------
-
-Special thank you to Klemen Novak for help with this module.
+Sunny Side Up Ltd.
