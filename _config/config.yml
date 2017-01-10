@@ -1,14 +1,7 @@
----
-Name: perfect_cms_images
-Before: 'mysite/*'
-After: 'framework/*','cms/*'
----
+addOrderStepFieldsasdf
 
-Image:
-  extensions:
-    - PerfectCMSImageDataExtension
+ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzasdf
+ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzda
+ad
+admin_permission_code
 
-
-#we set this so low because all the images are double size...
-GDBackend:
-  default_quality: 70
