@@ -12,3 +12,4 @@ Image:
 #we set this so low because all the images are double size...
 GDBackend:
   default_quality: 70
+
