@@ -1,11 +1,10 @@
 ---
 Name: perfect_cms_images
-Before: 
-- 'mysite/*'
-
 After:
   - 'framework/*'
   - 'cms/*'
+Before: 
+  - 'mysite/*'
 ---
 Image:
   extensions:
