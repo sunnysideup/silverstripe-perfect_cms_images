@@ -1,19 +1,18 @@
----
-Name: perfect_cms_images
-Before: 'mysite/*'
-After: 
-  - 
+---
+Name: perfect_cms_images
+Before: 
+- 'mysite/*'
 
-  - 'framework/*'
-  - 'cms/*'
-
----
-
-Image:
-  extensions:
-    - PerfectCMSImageDataExtension
-
-
-#we set this so low because all the images are double size...
-GDBackend:
-  default_quality: 70
+After:
+  - 'framework/*'
+  - 'cms/*'
+---
+Image:
+  extensions:
+    - PerfectCMSImageDataExtension
+
+#we set this so low because all the images are double size...
+
+GDBackend:
+  default_quality: 70
+
