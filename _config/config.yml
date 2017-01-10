@@ -1,7 +1,10 @@
 ---
 Name: perfect_cms_images
 Before: 'mysite/*'
-After: 'framework/*','cms/*'
+After: 
+  - 'framework/*'
+  - 'cms/*'
+
 ---
 
 Image:
