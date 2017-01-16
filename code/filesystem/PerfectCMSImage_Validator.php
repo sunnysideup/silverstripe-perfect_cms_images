@@ -18,19 +18,21 @@ class PerfectCMSImage_Validator extends Upload_Validator
     public function validate()
     {
         $hasError = false;
-        $widthRecommendation = (PerfectCMSImageDataExtension::get_width($this->fieldName) * 2);
-        $heightRecommendation = (PerfectCMSImageDataExtension::get_height($this->fieldName) * 2);
-        if ($widthRecommendation) {
-            if (! $this->isImageCorrectWidth(true, $widthRecommendation)) {
-                $this->errors[] = "Expected width: " . $widthRecommendation . "px;";
-                $hasError = true;
+        if(PerfectCMSImageDataExtension::get_enforce_size($this->fieldName)) {
+            $widthRecommendation = (PerfectCMSImageDataExtension::get_width($this->fieldName) * 2);
+            $heightRecommendation = (PerfectCMSImageDataExtension::get_height($this->fieldName) * 2);
+            if ($widthRecommendation) {
+                if (! $this->isImageCorrectWidth(true, $widthRecommendation)) {
+                    $this->errors[] = "Expected width: " . $widthRecommendation . "px;";
+                    $hasError = true;
+                }
             }
-        }
 
-        if ($heightRecommendation) {
-            if (! $this->isImageCorrectWidth(false, $heightRecommendation)) {
-                $this->errors[] = "Expected height: " . $heightRecommendation . "px;";
-                $hasError = true;
+            if ($heightRecommendation) {
+                if (! $this->isImageCorrectWidth(false, $heightRecommendation)) {
+                    $this->errors[] = "Expected height: " . $heightRecommendation . "px;";
+                    $hasError = true;
+                }
             }
         }
         $parentResult = parent::validate();

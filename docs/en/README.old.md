@@ -8,6 +8,7 @@ To make it easier to manage image sizes in the various places (CMS, templates) w
  - `height`
  - `folder for upload`
  - `file type`
+ - `enforce_size`
 
 You can also provide a backup image in the SiteConfig in case the user has not (yet) uploaded an image.
 

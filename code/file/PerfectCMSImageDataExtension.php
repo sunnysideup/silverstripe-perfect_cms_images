@@ -179,13 +179,26 @@ class PerfectCMSImageDataExtension extends DataExtension
     }
 
     /**
+     * @param string           $name
+     * @param Image (optional) $image
+     *
+     * @return boolean
+     */
+    public static function get_enforce_size($name)
+    {
+        return self::get_one_value_for_image($name, "enforce_size", true);
+    }
+
+    /**
      * @param string $name
      * @param int    $key
      * @param mixed  $default
+     *
+     * @return mixed
      */
     private static function get_one_value_for_image($name, $key, $default = '')
     {
-        $sizes = self::get_sizes();
+        $sizes = self::get_all_values_for_images();
         //print_r($sizes);die();
         if (isset($sizes[$name])) {
             if (isset($sizes[$name][$key])) {
@@ -201,7 +214,7 @@ class PerfectCMSImageDataExtension extends DataExtension
     /**
      * @return array
      */
-    private static function get_sizes()
+    private static function get_all_values_for_images()
     {
         return Config::inst()->get('PerfectCMSImageDataExtension', 'perfect_cms_images_image_definitions');
     }

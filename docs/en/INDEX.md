@@ -8,6 +8,7 @@ To make it easier to manage image sizes in the various places (CMS, templates) w
  - `height`
  - `folder for upload`
  - `file type`
+ - `enforce_size`
 
 You can also provide a backup image in the SiteConfig in case the user has not (yet) uploaded an image.
 
@@ -82,6 +83,11 @@ and rewrite like this:
           height: 0
           folder: "uploaded-my-images2"
           filetype: "jpg or gif"
+        "MyThirdImage":
+          width: 600
+          height: 600
+          folder: "uploaded-third-images"
+          enforce_size: true
 ```
 
 # set up CMS Field in Page
