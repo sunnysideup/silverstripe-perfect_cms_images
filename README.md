@@ -15,7 +15,7 @@
 
  * [Developer Docs](docs/en/INDEX.md)
  * [User Guide](docs/en/userguide.md)
- * [API](http://ssmods.com/apis/perfect_cms_images/docs/en/api/)
+ * [API Docs](http://docs.ssmods.com/sunnysideup/perfect_cms_images)
 
 ## Requirements
 
