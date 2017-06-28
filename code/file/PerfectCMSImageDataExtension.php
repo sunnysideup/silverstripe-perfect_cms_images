@@ -25,6 +25,14 @@ class PerfectCMSImageDataExtension extends DataExtension
      */
     private static $perfect_cms_images_image_definitions = array();
 
+    /***
+     *  Images Titles will be appended to the links only
+     *  if the ClassName of the Image is in this array
+     * @var array
+     *
+     */
+    private static $perfect_cms_images_append_title_to_image_links_classes = array();
+
     /**
      * @var string $name name of Image Field template
      * @return string (link)
@@ -107,12 +115,22 @@ class PerfectCMSImageDataExtension extends DataExtension
                     } else {
                         $link = $image->ScaleWidth($myWidth)->Link();
                     }
+                    $path_parts = pathinfo($link);
+
                     if (class_exists('HashPathExtension')) {
                         if ($curr = Controller::curr()) {
                             if ($curr->hasMethod('HashPath')) {
-                                return $curr->HashPath($link, false);
+                                $link = $curr->HashPath($link, false);
                             }
                         }
+                    }
+                    $imageClasses = Config::inst()->get('PerfectCMSImageDataExtension', 'perfect_cms_images_append_title_to_image_links_classes');
+                    if(in_array($image->ClassName, $imageClasses) && $image->Title){
+                        $link = $this->replaceLastInstance(
+                            '.'.$path_parts['extension'],
+                            '.pci/'.$image->Title.'.'.$path_parts['extension'],
+                            $link
+                        );
                     }
                     return $link;
                 }
@@ -218,4 +236,26 @@ class PerfectCMSImageDataExtension extends DataExtension
     {
         return Config::inst()->get('PerfectCMSImageDataExtension', 'perfect_cms_images_image_definitions');
     }
+
+    /**
+     * replace the last instance of a string occurence.
+     *
+     * @param  string $search  needle
+     * @param  string $replace new needle
+     * @param  string $subject haystack
+     *
+     * @return string
+     */
+    private function replaceLastInstance($search, $replace, $subject)
+    {
+        $pos = strrpos($subject, $search);
+
+        if($pos !== false)
+        {
+            $subject = substr_replace($subject, $replace, $pos, strlen($search));
+        }
+
+        return $subject;
+    }
+
 }

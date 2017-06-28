@@ -52,6 +52,28 @@ We recommend that you:
   3. delete the lines you not care about, and
   4. adjust the configurations that you would like to use.
 
+### Important
+
+  If using the perfect_cms_images_append_title_to_image_links_classes static in your config,
+  you need to add some the following to an .htaccess file in your assets folder.
+  ```
+  <IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.+)\.(pci\/[A-Za-z0-9,-]+)\.(png|PNG|jpg|JPG|jpeg|gif|GIF)$ $1.$3 [L]
+  </IfModule>
+  ```
+  If using the SilverStripe Hash Path module you will also need to added the following RewriteRule
+  to the .htaccess file in the assets folder
+  ```
+  <IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.+)\.(v[A-Za-z0-9]+)\.(png|PNG|jpg|JPG|jpeg|gif|GIF)$ $1.$3 [L]
+  </IfModule>
+  ```
 
 ## Contributing
 
