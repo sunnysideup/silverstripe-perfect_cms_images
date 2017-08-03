@@ -26,8 +26,10 @@
     ],
     "require": {
         "silverstripe/framework": "~3.1",
-        "silverstripe/cms": "~3.1",
-        "heyday/silverstripe-hashpath": "*"
+        "silverstripe/cms": "~3.1"
+    },
+    "suggests": {
+        "heyday/silverstripe-hashpath": "not sure if this is still useful."
     },
     "extra": {
         "installer-name": "perfect_cms_images"
