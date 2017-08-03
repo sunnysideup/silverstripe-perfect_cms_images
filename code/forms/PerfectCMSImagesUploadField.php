@@ -141,14 +141,14 @@ class PerfectCMSImagesUploadField extends UploadField implements flushable
                 $fileName = ASSETS_PATH.'/.htaccess';
                 if(! file_exists($fileName)) {
                     $string = '
-    <IfModule mod_rewrite.c>
-        RewriteEngine On
-        RewriteBase /
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
 
-        RewriteCond %{REQUEST_FILENAME} !-f
-        RewriteCond %{REQUEST_FILENAME} !-d
-        RewriteRule ^(.+)\.(v[A-Za-z0-9]+)\.(js|css|png|jpg|gif)$ $1.$3 [L]
-    </IfModule>
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.+)\.(v[A-Za-z0-9]+)\.(js|css|png|jpg|gif)$ $1.$3 [L]
+</IfModule>
                     ';
                     if(!file_exists(ASSETS_PATH)) {
                         Filesystem::makeFolder(ASSETS_PATH);
