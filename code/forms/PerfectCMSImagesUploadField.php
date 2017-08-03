@@ -14,7 +14,7 @@
  *         "png or jpg"
  * 	);
  */
-class PerfectCMSImagesUploadField extends UploadField
+class PerfectCMSImagesUploadField extends UploadField implements flushable
 {
     private static $max_size_in_kilobytes = 1024;
 
@@ -131,4 +131,30 @@ class PerfectCMSImagesUploadField extends UploadField
         $this->getValidator()->setFieldName($name);
         return $this;
     }
+
+    public static function flush() {
+        if(ASSETS_PATH) {
+            if(! file_exists(ASSETS_PATH)) {
+                Filesystem::makeFolder(ASSETS_PATH);
+            }
+            $fileName = ASSETS_PATH.'/.htaccess';
+            if(! file_exists($fileName)) {
+                $string = '
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.+)\.(v[A-Za-z0-9]+)\.(js|css|png|jpg|gif)$ $1.$3 [L]
+</IfModule>
+                ';
+                if(!file_exists(ASSETS_PATH)) {
+                    Filesystem::makeFolder(ASSETS_PATH);
+                }
+                file_put_contents($fileName, $string);
+            }
+        }
+    }
+
 }
