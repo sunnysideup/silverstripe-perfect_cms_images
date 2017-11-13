@@ -62,9 +62,19 @@ class PerfectCMSImagesUploadField extends UploadField implements flushable
     public function selectFormattingStandard($name)
     {
         parent::setRightTitle('');
-        $widthRecommendation = PerfectCMSImageDataExtension::get_width($name);
-        $heightRecommendation = PerfectCMSImageDataExtension::get_height($name);
+        $widthRecommendation = PerfectCMSImageDataExtension::get_width($name, false);
+        $heightRecommendation = PerfectCMSImageDataExtension::get_height($name, false);
         $folderName = PerfectCMSImageDataExtension::get_folder($name);
+        $useRetina = PerfectCMSImageDataExtension::use_retina($name);
+        $multiplier = 1;
+        if($useRetina) {
+            $multiplier = 2;
+        }
+        $maxSizeInKilobytes = PerfectCMSImageDataExtension::max_size_in_kilobytes($name);
+        if(! $maxSizeInKilobytes) {
+            $maxSizeInKilobytes = Config::inst()->get('PerfectCMSImagesUploadField', 'max_size_in_kilobytes');
+        }
+
         if (!$folderName) {
             $folderName = 'other-images';
         }
@@ -76,7 +86,7 @@ class PerfectCMSImagesUploadField extends UploadField implements flushable
         if ($widthRecommendation) {
             if (intval($widthRecommendation)) {
                 //cater for retina
-                $widthRecommendation = $widthRecommendation * 2;
+                $widthRecommendation = $widthRecommendation * $multiplier;
                 $actualWidthDescription = $widthRecommendation.'px';
             } else {
                 $actualWidthDescription = $widthRecommendation;
@@ -87,7 +97,7 @@ class PerfectCMSImagesUploadField extends UploadField implements flushable
         if ($heightRecommendation) {
             if (intval($heightRecommendation)) {
                 //cater for retina
-                $heightRecommendation = $heightRecommendation * 2;
+                $heightRecommendation = $heightRecommendation * $multiplier;
                 $actualHeightDescription = $heightRecommendation.'px';
             } else {
                 $actualHeightDescription = $heightRecommendation;
@@ -100,21 +110,32 @@ class PerfectCMSImagesUploadField extends UploadField implements flushable
         $rightTitle = "";
 
         if ($actualWidthDescription == 'flexible') {
-            $rightTitle .= 'Image width is flexible, and ';
+            $rightTitle .= 'Image width is flexible';
         } else {
-            $rightTitle .= "Image should be <strong>$actualWidthDescription</strong> wide and ";
+            $rightTitle .= "Image should to be <strong>$actualWidthDescription</strong> wide";
         }
 
+        $rightTitle .= ' and ';
 
         if ($actualHeightDescription == 'flexible') {
-            $rightTitle .= 'image height is flexible, and ';
+            $rightTitle .= 'height is flexible';
         } else {
-            $rightTitle .= "image should be <strong>$actualHeightDescription</strong> high and ";
+            $rightTitle .= " <strong>$actualHeightDescription</strong> high";
         }
 
-        $rightTitle .= 'the image should be less than 1MB in size. <br/>
-            The recommend file type (file extension) is <strong>'.$recommendedFileType.'</strong>.
-            ';
+        $rightTitle .= '<br />';
+
+        if($maxSizeInKilobytes) {
+            $rightTitle .= 'Maximum file size: '.round($maxSizeInKilobytes / 1024, 2).' megabyte.';
+            $rightTitle .= '<br />';
+        }
+        if($recommendedFileType) {
+            if(strlen($recommendedFileType) < 5) {
+                $rightTitle .= 'The recommend file type (file extension) is <strong>'.$recommendedFileType.'</strong>.';
+            } else {
+                $rightTitle .= '<strong>'.$recommendedFileType.'</strong>';
+            }
+        }
 
 
         parent::setRightTitle($rightTitle);
@@ -127,7 +148,7 @@ class PerfectCMSImagesUploadField extends UploadField implements flushable
         $alreadyAllowed = $this->getAllowedExtensions();
         $this->setAllowedExtensions($alreadyAllowed + array('svg'));
         //keep the size reasonable
-        $this->getValidator()->setAllowedMaxFileSize(1 * 1024 * Config::inst()->get('PerfectCMSImagesUploadFieldeProvider', 'max_size_in_kilobytes'));
+        $this->getValidator()->setAllowedMaxFileSize(1 * 1024 * $maxSizeInKilobytes);
         $this->getValidator()->setFieldName($name);
         return $this;
     }
@@ -147,7 +168,7 @@ class PerfectCMSImagesUploadField extends UploadField implements flushable
 
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteRule ^(.+)\.(v[A-Za-z0-9]+)\.(js|css|png|jpg|gif)$ $1.$3 [L]
+    RewriteRule ^(.+)\.(v[A-Za-z0-9]+)\.(js|css|png|jpg|gif|svg)$ $1.$3 [L]
 </IfModule>
                     ';
                     if(!file_exists(ASSETS_PATH)) {

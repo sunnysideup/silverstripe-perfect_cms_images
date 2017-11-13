@@ -60,13 +60,13 @@ class PerfectCMSImageDataExtension extends DataExtension
     {
         $nonRetina = $this->PerfectCMSImageLinkNonRetina($name);
         $retina = $this->PerfectCMSImageLinkRetina($name);
-        $width = self::get_width($name);
+        $width = self::get_width($name, true);
         $widthString = '';
         if($width) {
             $widthString = ' width="'.$width.'"';
         }
         $heightString = '';
-        $height = self::get_height($name);
+        $height = self::get_height($name, true);
         if($height) {
             $heightString = ' height="'.$height.'"';
         }
@@ -91,7 +91,7 @@ class PerfectCMSImageDataExtension extends DataExtension
         $name,
         $backupObject = null,
         $backupField = '',
-        $isRetina = true
+        $isRetina = null
     ) {
         if (! Config::inst()->get('Image', 'force_resample')) {
             Config::inst()->update('Image', 'force_resample', true);
@@ -111,20 +111,29 @@ class PerfectCMSImageDataExtension extends DataExtension
             }
         }
 
-        $perfectWidth = (intval(self::get_width($name)) - 0);
-        $perfectHeight = (intval(self::get_height($name)) - 0);
-        if ($isRetina) {
-            $perfectWidth = $perfectWidth * 2;
-            $perfectHeight = $perfectHeight  * 2;
-        }
         if ($image) {
             if ($image instanceof Image) {
                 if ($image->exists()) {
-                    //get preferred width and height
+                    //work out perfect with and height
+                    $perfectWidth = self::get_width($name, true);
+                    $perfectHeight = self::get_height($name, true);
+                    if($isRetina === null) {
+                        $useRetina = PerfectCMSImageDataExtension::use_retina($name);
+                    } else {
+                        $useRetina = $isRetina;
+                    }
+                    $multiplier = 1;
+                    if ($isRetina) {
+                        $multiplier = 2;
+                    }
+                    $perfectWidth = $perfectWidth * $multiplier;
+                    $perfectHeight = $perfectHeight  * $multiplier;
+
+                    //get current width and height
                     $myWidth = $image->getWidth();
                     $myHeight = $image->getHeight();
-                    $backEndString = Image::get_backend();
-                    $backend = Injector::inst()->get($backEndString);
+                    // $backEndString = Image::get_backend();
+                    // $backend = Injector::inst()->get($backEndString);
                     if ($perfectWidth && $perfectHeight) {
                         if ($myWidth == $perfectWidth || $myHeight ==  $perfectHeight) {
                             $link = $image->ScaleWidth($myWidth)->Link();
@@ -183,29 +192,50 @@ class PerfectCMSImageDataExtension extends DataExtension
 
     /**
      * @param string           $name
-     * @param Image (optional) $image
      *
-     * @return int
+     * @return boolean
      */
-    public static function get_width($name)
+    public static function use_retina($name)
     {
-        return self::get_one_value_for_image($name, "width", 0);
+        return self::get_one_value_for_image($name, "use_retina", true);
     }
 
     /**
      * @param string           $name
-     * @param Image (optional) $image
+     * @param bool             $forceInteger
      *
      * @return int
      */
-    public static function get_height($name)
+    public static function get_width($name, $forceInteger = false)
     {
-        return self::get_one_value_for_image($name, "height", 0);
+        $v = self::get_one_value_for_image($name, "width", 0);
+        if($forceInteger) {
+            $v = intval($v) - 0;
+        }
+
+        return $v;
+
     }
 
     /**
      * @param string           $name
-     * @param Image (optional) $image
+     * @param bool             $forceInteger
+     *
+     * @return int
+     */
+    public static function get_height($name, $forceInteger)
+    {
+
+        $v = self::get_one_value_for_image($name, "height", 0);
+        if($forceInteger) {
+            $v = intval($v) - 0;
+        }
+
+        return $v;
+    }
+
+    /**
+     * @param string           $name
      *
      * @return string
      */
@@ -216,7 +246,16 @@ class PerfectCMSImageDataExtension extends DataExtension
 
     /**
      * @param string           $name
-     * @param Image (optional) $image
+     *
+     * @return int
+     */
+    public static function max_size_in_kilobytes($name)
+    {
+        return self::get_one_value_for_image($name, "max_size_in_kilobytes", 0);
+    }
+
+    /**
+     * @param string           $name
      *
      * @return string
      */
@@ -227,13 +266,12 @@ class PerfectCMSImageDataExtension extends DataExtension
 
     /**
      * @param string           $name
-     * @param Image (optional) $image
      *
      * @return boolean
      */
     public static function get_enforce_size($name)
     {
-        return self::get_one_value_for_image($name, "enforce_size", true);
+        return self::get_one_value_for_image($name, "enforce_size", false);
     }
 
     /**
