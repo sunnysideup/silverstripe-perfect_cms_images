@@ -120,7 +120,7 @@ class PerfectCMSImagesUploadField extends UploadField implements flushable
         if ($actualHeightDescription == 'flexible') {
             $rightTitle .= 'height is flexible';
         } else {
-            $rightTitle .= " <strong>$actualHeightDescription</strong> high";
+            $rightTitle .= " <strong>$actualHeightDescription</strong> tall";
         }
 
         $rightTitle .= '<br />';
