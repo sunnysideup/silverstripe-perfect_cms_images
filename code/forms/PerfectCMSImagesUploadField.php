@@ -8,15 +8,13 @@
  *         "ImageField",
  *         "Add Image",
  *         null,
- *         300,
- * 	       "anything you like",
- *         "folder-name",
- *         "png or jpg"
  * 	);
  */
 class PerfectCMSImagesUploadField extends UploadField implements flushable
 {
     private static $max_size_in_kilobytes = 1024;
+
+    private static $folder_prefix = '';
 
     /**
      * @param string  $name
@@ -65,6 +63,10 @@ class PerfectCMSImagesUploadField extends UploadField implements flushable
         $widthRecommendation = PerfectCMSImageDataExtension::get_width($name, false);
         $heightRecommendation = PerfectCMSImageDataExtension::get_height($name, false);
         $folderName = PerfectCMSImageDataExtension::get_folder($name);
+        $folderPrefix = $this->Config()->get('folder_prefix');
+        if($folderPrefix) {
+            $folderPrefix .= '/';
+        }
         $useRetina = PerfectCMSImageDataExtension::use_retina($name);
         $multiplier = 1;
         if($useRetina) {
@@ -78,11 +80,12 @@ class PerfectCMSImagesUploadField extends UploadField implements flushable
         if (!$folderName) {
             $folderName = 'other-images';
         }
+        $folderName = $folderPrefix.$folderName.'/';
+        
         $recommendedFileType = PerfectCMSImageDataExtension::get_file_type($name);
         if (!$recommendedFileType) {
             $recommendedFileType = 'jpg';
         }
-        $folderName = 'Uploads/'.$folderName.'/';
         if ($widthRecommendation) {
             if (intval($widthRecommendation)) {
                 //cater for retina
