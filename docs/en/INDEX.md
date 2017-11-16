@@ -159,6 +159,13 @@ you can also use a different formatting standard
 
 # templage Usage
 
+
+```html
+    $MyImage.PerfectCMSImageTag(MyImage)
+```
+
+OR
+
 ```html
     <img src="$MyImage.PerfectCMSImageLink(MyImage)" alt="$Title.ATT" />
 ```
@@ -168,6 +175,17 @@ OR
 ```html
     <img src="$MyImage.PerfectCMSImageLink(MyOtherImage)" alt="$Title.ATT" />
 ```
+
+```html
+    <img src="$MyImage.PerfectCMSImageLinkNonRetina(MyOtherImage)" alt="$Title.ATT" />
+```
+
+```html
+    <img src="$MyImage.PerfectCMSImageLinkRetina(MyOtherImage)" alt="$Title.ATT" />
+```
+
+OR
+
 
 # Important Note for those using Hash Path module
 

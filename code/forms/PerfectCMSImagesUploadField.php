@@ -81,7 +81,7 @@ class PerfectCMSImagesUploadField extends UploadField implements flushable
             $folderName = 'other-images';
         }
         $folderName = $folderPrefix.$folderName.'/';
-        
+
         $recommendedFileType = PerfectCMSImageDataExtension::get_file_type($name);
         if (!$recommendedFileType) {
             $recommendedFileType = 'jpg';
