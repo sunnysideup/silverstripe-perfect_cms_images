@@ -12,6 +12,7 @@
  */
 class PerfectCMSImagesUploadField extends UploadField implements flushable
 {
+
     private static $max_size_in_kilobytes = 1024;
 
     private static $folder_prefix = '';

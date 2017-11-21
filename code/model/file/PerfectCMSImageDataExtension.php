@@ -93,8 +93,10 @@ class PerfectCMSImageDataExtension extends DataExtension
         $backupField = '',
         $isRetina = null
     ) {
-        if (! Config::inst()->get('Image', 'force_resample')) {
-            Config::inst()->update('Image', 'force_resample', true);
+        if(isset($_GET['flush'])) {
+            if (! Config::inst()->get('Image', 'force_resample')) {
+                Config::inst()->update('Image', 'force_resample', true);
+            }
         }
         $image = $this->owner;
         if ($image && $image->exists()) {
@@ -118,10 +120,10 @@ class PerfectCMSImageDataExtension extends DataExtension
             if ($image instanceof Image) {
                 if ($image->exists()) {
                     //work out perfect with and height
-                    if($isRetina === null) {
-                        $useRetina = PerfectCMSImageDataExtension::use_retina($name);
+                    if(!$isRetina) {
+                        $isRetina = PerfectCMSImageDataExtension::use_retina($name);
                     } else {
-                        $useRetina = $isRetina;
+                        $isRetina = $isRetina;
                     }
                     $multiplier = 1;
                     if ($isRetina) {
@@ -175,21 +177,37 @@ class PerfectCMSImageDataExtension extends DataExtension
                 }
             }
         }
-        // no image -> provide placeholder
-        if ($perfectWidth || $perfectHeight) {
-            if (!$perfectWidth) {
-                $perfectWidth = $perfectHeight;
-            }
-            if (!$perfectHeight) {
-                $perfectHeight = $perfectWidth;
-            }
-            $text = "$perfectWidth x $perfectHeight /2 = ".round($perfectWidth/2)." x ".round($perfectHeight/2)."";
+        // no image -> provide placeholder if in DEV MODE only!!!
+        if(Director::isDev()) {
+            if ($perfectWidth || $perfectHeight) {
+                if (!$perfectWidth) {
+                    $perfectWidth = $perfectHeight;
+                }
+                if (!$perfectHeight) {
+                    $perfectHeight = $perfectWidth;
+                }
+                $text = "$perfectWidth x $perfectHeight /2 = ".round($perfectWidth/2)." x ".round($perfectHeight/2)."";
 
-            return 'https://placehold.it/'.($perfectWidth).'x'.($perfectHeight).'?text='.urlencode($text);
-        } else {
-            return 'https://placehold.it/500x500?text='.urlencode('no size set');
+                return 'https://placehold.it/'.($perfectWidth).'x'.($perfectHeight).'?text='.urlencode($text);
+            } else {
+                return 'https://placehold.it/500x500?text='.urlencode('no size set');
+            }
         }
     }
+
+    /**
+     * @param string           $name
+     *
+     * @return boolean
+     */
+    public static function image_info_available($name)
+    {
+        $sizes = self::get_all_values_for_images();
+        //print_r($sizes);die();
+        return isset($sizes[$name]) ? true : false;
+
+    }
+
 
     /**
      * @param string           $name
