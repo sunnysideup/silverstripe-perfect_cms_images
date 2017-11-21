@@ -91,7 +91,7 @@ class PerfectCMSImageDataExtension extends DataExtension
         $name,
         $backupObject = null,
         $backupField = '',
-        $isRetina = null
+        $useRetina = null
     ) {
         if(isset($_GET['flush'])) {
             if (! Config::inst()->get('Image', 'force_resample')) {
@@ -120,13 +120,13 @@ class PerfectCMSImageDataExtension extends DataExtension
             if ($image instanceof Image) {
                 if ($image->exists()) {
                     //work out perfect with and height
-                    if(!$isRetina) {
-                        $isRetina = PerfectCMSImageDataExtension::use_retina($name);
+                    if(!$useRetina) {
+                        $useRetina = PerfectCMSImageDataExtension::use_retina($name);
                     } else {
-                        $isRetina = $isRetina;
+                        $useRetina = $useRetina;
                     }
                     $multiplier = 1;
-                    if ($isRetina) {
+                    if ($useRetina) {
                         $multiplier = 2;
                     }
                     $perfectWidth = $perfectWidth * $multiplier;
@@ -144,7 +144,7 @@ class PerfectCMSImageDataExtension extends DataExtension
                             $link = $image->Pad(
                                 $perfectWidth,
                                 $perfectHeight,
-                                Config::inst()->get('PerfectCMSImageDataExtension', 'perfect_cms_images_background_padding_color')
+                                PerfectCMSImageDataExtension::get_padding_bg_colour($name)
                             )->Link();
                         } elseif ($myWidth > $perfectWidth || $myHeight > $perfectHeight) {
                             $link = $image->FitMax($perfectWidth, $perfectHeight)->Link();
@@ -291,6 +291,20 @@ class PerfectCMSImageDataExtension extends DataExtension
     public static function get_enforce_size($name)
     {
         return self::get_one_value_for_image($name, "enforce_size", false);
+    }
+
+    /**
+     * @param string           $name
+     *
+     * @return boolean
+     */
+    public static function get_padding_bg_colour($name)
+    {
+        return self::get_one_value_for_image(
+            $name,
+            "padding_bg_colour",
+            Config::inst()->get('PerfectCMSImageDataExtension', 'perfect_cms_images_background_padding_color')
+        );
     }
 
     /**

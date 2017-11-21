@@ -13,6 +13,7 @@ PerfectCMSImageDataExtension:
       folder: my-image-folder-a
       filetype: "jpg or a png with a transparant background"
       use_retina: true
+      padding_bg_colour: '#dddddd'
     nameFOO:
       width: 100
       height: 0
@@ -20,3 +21,4 @@ PerfectCMSImageDataExtension:
       folder: my-image-folder-b
       filetype: "jpg or a png, no transparency is required"
       use_retina: false
+      padding_bg_colour: '#000000'
