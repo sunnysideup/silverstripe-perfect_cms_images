@@ -111,12 +111,13 @@ class PerfectCMSImageDataExtension extends DataExtension
             }
         }
 
+        $perfectWidth = self::get_width($name, true);
+        $perfectHeight = self::get_height($name, true);
+
         if ($image) {
             if ($image instanceof Image) {
                 if ($image->exists()) {
                     //work out perfect with and height
-                    $perfectWidth = self::get_width($name, true);
-                    $perfectHeight = self::get_height($name, true);
                     if($isRetina === null) {
                         $useRetina = PerfectCMSImageDataExtension::use_retina($name);
                     } else {
