@@ -125,6 +125,7 @@ class PerfectCMSImageDataExtension extends DataExtension
                     } else {
                         $useRetina = $useRetina;
                     }
+                    $crop = PerfectCMSImageDataExtension::crop($name);
                     $multiplier = 1;
                     if ($useRetina) {
                         $multiplier = 2;
@@ -138,21 +139,38 @@ class PerfectCMSImageDataExtension extends DataExtension
                     // $backEndString = Image::get_backend();
                     // $backend = Injector::inst()->get($backEndString);
                     if ($perfectWidth && $perfectHeight) {
-                        if ($myWidth == $perfectWidth || $myHeight ==  $perfectHeight) {
-                            $link = $image->ScaleWidth($myWidth)->Link();
+
+                        //if the height or the width are already perfect then we can not do anything about it.
+                        if ($myWidth == $perfectWidth && $myHeight ==  $perfectHeight) {
+                            $link = $image->Link();
+                        } elseif ($crop) {
+                            $link = $image->Fill($perfectWidth, $perfectHeight)->Link();
                         } elseif ($myWidth < $perfectWidth || $myHeight < $perfectHeight) {
                             $link = $image->Pad(
                                 $perfectWidth,
                                 $perfectHeight,
                                 PerfectCMSImageDataExtension::get_padding_bg_colour($name)
                             )->Link();
-                        } elseif ($myWidth > $perfectWidth || $myHeight > $perfectHeight) {
+                        } else {
                             $link = $image->FitMax($perfectWidth, $perfectHeight)->Link();
                         }
+
                     } elseif ($perfectWidth) {
-                        $link = $image->ScaleWidth($perfectWidth)->Link();
+                        if ($myWidth == $perfectWidth){
+                            $link = $image->Link();
+                        } elseif ($crop) {
+                            $link = $image->Fill($perfectHeight, $myHeight)->Link();
+                        } else {
+                            $link = $image->ScaleWidth($perfectWidth)->Link();
+                        }
                     } elseif ($perfectHeight) {
-                        $link = $image->ScaleHeight($perfectHeight)->Link();
+                        if ($myHeight == $perfectHeight){
+                            $link = $image->Link();
+                        } elseif ($crop) {
+                            $link = $image->Fill($myWidth, $perfectHeight)->Link();
+                        } else {
+                            $link = $image->ScaleHeight($perfectHeight)->Link();
+                        }
                     } else {
                         $link = $image->ScaleWidth($myWidth)->Link();
                     }
@@ -173,6 +191,7 @@ class PerfectCMSImageDataExtension extends DataExtension
                             $link
                         );
                     }
+
                     return $link;
                 }
             }
@@ -217,6 +236,17 @@ class PerfectCMSImageDataExtension extends DataExtension
     public static function use_retina($name)
     {
         return self::get_one_value_for_image($name, "use_retina", true);
+    }
+
+
+    /**
+     * @param string           $name
+     *
+     * @return boolean
+     */
+    public static function crop($name)
+    {
+        return self::get_one_value_for_image($name, "crop", false);
     }
 
     /**
