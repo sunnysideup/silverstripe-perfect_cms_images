@@ -62,12 +62,12 @@ class PerfectCMSImageDataExtension extends DataExtension
         $retina = $this->PerfectCMSImageLinkRetina($name);
         $width = self::get_width($name, true);
         $widthString = '';
-        if($width) {
+        if ($width) {
             $widthString = ' width="'.$width.'"';
         }
         $heightString = '';
         $height = self::get_height($name, true);
-        if($height) {
+        if ($height) {
             $heightString = ' height="'.$height.'"';
         }
         return
@@ -93,7 +93,7 @@ class PerfectCMSImageDataExtension extends DataExtension
         $backupField = '',
         $useRetina = null
     ) {
-        if(isset($_GET['flush'])) {
+        if (isset($_GET['flush'])) {
             if (! Config::inst()->get('Image', 'force_resample')) {
                 Config::inst()->update('Image', 'force_resample', true);
             }
@@ -120,7 +120,7 @@ class PerfectCMSImageDataExtension extends DataExtension
             if ($image instanceof Image) {
                 if ($image->exists()) {
                     //work out perfect with and height
-                    if(!$useRetina) {
+                    if (!$useRetina) {
                         $useRetina = PerfectCMSImageDataExtension::use_retina($name);
                     } else {
                         $useRetina = $useRetina;
@@ -154,9 +154,8 @@ class PerfectCMSImageDataExtension extends DataExtension
                         } else {
                             $link = $image->FitMax($perfectWidth, $perfectHeight)->Link();
                         }
-
                     } elseif ($perfectWidth) {
-                        if ($myWidth == $perfectWidth){
+                        if ($myWidth == $perfectWidth) {
                             $link = $image->Link();
                         } elseif ($crop) {
                             $link = $image->Fill($perfectHeight, $myHeight)->Link();
@@ -164,7 +163,7 @@ class PerfectCMSImageDataExtension extends DataExtension
                             $link = $image->ScaleWidth($perfectWidth)->Link();
                         }
                     } elseif ($perfectHeight) {
-                        if ($myHeight == $perfectHeight){
+                        if ($myHeight == $perfectHeight) {
                             $link = $image->Link();
                         } elseif ($crop) {
                             $link = $image->Fill($myWidth, $perfectHeight)->Link();
@@ -184,7 +183,7 @@ class PerfectCMSImageDataExtension extends DataExtension
                         }
                     }
                     $imageClasses = Config::inst()->get('PerfectCMSImageDataExtension', 'perfect_cms_images_append_title_to_image_links_classes');
-                    if(in_array($image->ClassName, $imageClasses) && $image->Title){
+                    if (in_array($image->ClassName, $imageClasses) && $image->Title) {
                         $link = $this->replaceLastInstance(
                             '.'.$path_parts['extension'],
                             '.pci/'.$image->Title.'.'.$path_parts['extension'],
@@ -197,7 +196,7 @@ class PerfectCMSImageDataExtension extends DataExtension
             }
         }
         // no image -> provide placeholder if in DEV MODE only!!!
-        if(Director::isDev()) {
+        if (Director::isDev()) {
             if ($perfectWidth || $perfectHeight) {
                 if (!$perfectWidth) {
                     $perfectWidth = $perfectHeight;
@@ -224,7 +223,6 @@ class PerfectCMSImageDataExtension extends DataExtension
         $sizes = self::get_all_values_for_images();
         //print_r($sizes);die();
         return isset($sizes[$name]) ? true : false;
-
     }
 
 
@@ -258,12 +256,11 @@ class PerfectCMSImageDataExtension extends DataExtension
     public static function get_width($name, $forceInteger = false)
     {
         $v = self::get_one_value_for_image($name, "width", 0);
-        if($forceInteger) {
+        if ($forceInteger) {
             $v = intval($v) - 0;
         }
 
         return $v;
-
     }
 
     /**
@@ -274,9 +271,8 @@ class PerfectCMSImageDataExtension extends DataExtension
      */
     public static function get_height($name, $forceInteger)
     {
-
         $v = self::get_one_value_for_image($name, "height", 0);
-        if($forceInteger) {
+        if ($forceInteger) {
             $v = intval($v) - 0;
         }
 
@@ -380,12 +376,10 @@ class PerfectCMSImageDataExtension extends DataExtension
     {
         $pos = strrpos($subject, $search);
 
-        if($pos !== false)
-        {
+        if ($pos !== false) {
             $subject = substr_replace($subject, $replace, $pos, strlen($search));
         }
 
         return $subject;
     }
-
 }

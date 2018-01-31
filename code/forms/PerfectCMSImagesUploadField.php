@@ -12,7 +12,6 @@
  */
 class PerfectCMSImagesUploadField extends UploadField implements flushable
 {
-
     private static $max_size_in_kilobytes = 1024;
 
     private static $folder_prefix = '';
@@ -65,16 +64,16 @@ class PerfectCMSImagesUploadField extends UploadField implements flushable
         $heightRecommendation = PerfectCMSImageDataExtension::get_height($name, false);
         $folderName = PerfectCMSImageDataExtension::get_folder($name);
         $folderPrefix = $this->Config()->get('folder_prefix');
-        if($folderPrefix) {
+        if ($folderPrefix) {
             $folderPrefix .= '/';
         }
         $useRetina = PerfectCMSImageDataExtension::use_retina($name);
         $multiplier = 1;
-        if($useRetina) {
+        if ($useRetina) {
             $multiplier = 2;
         }
         $maxSizeInKilobytes = PerfectCMSImageDataExtension::max_size_in_kilobytes($name);
-        if(! $maxSizeInKilobytes) {
+        if (! $maxSizeInKilobytes) {
             $maxSizeInKilobytes = Config::inst()->get('PerfectCMSImagesUploadField', 'max_size_in_kilobytes');
         }
 
@@ -129,12 +128,12 @@ class PerfectCMSImagesUploadField extends UploadField implements flushable
 
         $rightTitle .= '<br />';
 
-        if($maxSizeInKilobytes) {
+        if ($maxSizeInKilobytes) {
             $rightTitle .= 'Maximum file size: '.round($maxSizeInKilobytes / 1024, 2).' megabyte.';
             $rightTitle .= '<br />';
         }
-        if($recommendedFileType) {
-            if(strlen($recommendedFileType) < 5) {
+        if ($recommendedFileType) {
+            if (strlen($recommendedFileType) < 5) {
                 $rightTitle .= 'The recommend file type (file extension) is <strong>'.$recommendedFileType.'</strong>.';
             } else {
                 $rightTitle .= '<strong>'.$recommendedFileType.'</strong>';
@@ -157,14 +156,15 @@ class PerfectCMSImagesUploadField extends UploadField implements flushable
         return $this;
     }
 
-    public static function flush() {
-        if(class_exists('HashPathExtension')) {
-            if(ASSETS_PATH) {
-                if(! file_exists(ASSETS_PATH)) {
+    public static function flush()
+    {
+        if (class_exists('HashPathExtension')) {
+            if (ASSETS_PATH) {
+                if (! file_exists(ASSETS_PATH)) {
                     Filesystem::makeFolder(ASSETS_PATH);
                 }
                 $fileName = ASSETS_PATH.'/.htaccess';
-                if(! file_exists($fileName)) {
+                if (! file_exists($fileName)) {
                     $string = '
 <IfModule mod_rewrite.c>
     RewriteEngine On
@@ -175,7 +175,7 @@ class PerfectCMSImagesUploadField extends UploadField implements flushable
     RewriteRule ^(.+)\.(v[A-Za-z0-9]+)\.(js|css|png|jpg|gif|svg)$ $1.$3 [L]
 </IfModule>
                     ';
-                    if(!file_exists(ASSETS_PATH)) {
+                    if (!file_exists(ASSETS_PATH)) {
                         Filesystem::makeFolder(ASSETS_PATH);
                     }
                     file_put_contents($fileName, $string);
@@ -183,5 +183,4 @@ class PerfectCMSImagesUploadField extends UploadField implements flushable
             }
         }
     }
-
 }
