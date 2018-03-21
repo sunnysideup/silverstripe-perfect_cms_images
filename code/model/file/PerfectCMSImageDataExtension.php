@@ -57,8 +57,8 @@ class PerfectCMSImageDataExtension extends DataExtension
      */
     public function PerfectCMSImageAbsoluteLink($name)
     {
-        $base = Director::absoluteURL();
-        return $base . $this->PerfectCMSImageLink($name, null, '', true);
+        $abs = Director::absoluteURL($this->PerfectCMSImageLink($name, null, '', true));
+        return $abs;
     }
 
     /**
