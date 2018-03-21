@@ -55,7 +55,7 @@ class PerfectCMSImageDataExtension extends DataExtension
      * @var string $name name of Image Field template
      * @return string (link)
      */
-    public function PerfectCMSAbsoluteImageLink($name)
+    public function PerfectCMSImageAbsoluteLink($name)
     {
         $base = Director::absoluteURL();
         return $base . $this->PerfectCMSImageLink($name, null, '', true);
