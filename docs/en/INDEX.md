@@ -3,7 +3,13 @@ Perfect CMS Image
 
 Why we build this module ...
 ------------
-To make it easier to manage image sizes in the various places (CMS, templates) we have set up a system to manage image sizes in just one place (the config layer).  Each unique image collection (e.g. HomePageBanner) has its own standard settings (all optional):
+
+Here are the main reasons for using this module.
+- Content editor gets info on best Image size and type
+- Images are retina ready by default
+- Images are saved into a unique folder
+
+In more detail, to make it easier to manage image sizes in the various places (CMS, templates) we have set up a system to manage image sizes in just one place (the config layer).  Each unique image collection (e.g. HomePageBanner) has its own standard settings (all optional):
  - `width`
  - `height`
  - `folder for upload`
