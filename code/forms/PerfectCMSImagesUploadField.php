@@ -26,7 +26,8 @@ class PerfectCMSImagesUploadField extends UploadField implements flushable
     public function __construct(
         $name,
         $title,
-        SS_List $items = null
+        SS_List $items = null,
+        $alternativeName = null
     ) {
         parent::__construct(
             $name,
@@ -35,7 +36,10 @@ class PerfectCMSImagesUploadField extends UploadField implements flushable
         );
         $perfectCMSImageValidator = new PerfectCMSImage_Validator();
         $this->setValidator($perfectCMSImageValidator);
-        $this->selectFormattingStandard($name);
+        if($alternativeName === null) {
+            $alternativeName = $name;
+        }
+        $this->selectFormattingStandard($alternativeName);
         return $this;
     }
 
