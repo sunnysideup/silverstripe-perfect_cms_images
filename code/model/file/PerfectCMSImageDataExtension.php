@@ -168,7 +168,7 @@ class PerfectCMSImageDataExtension extends DataExtension
                         if ($myWidth == $perfectWidth) {
                             $link = $image->Link();
                         } elseif ($crop) {
-                            $link = $image->Fill($perfectHeight, $myHeight)->Link();
+                            $link = $image->Fill($perfectWidth, $myHeight)->Link();
                         } else {
                             $link = $image->ScaleWidth($perfectWidth)->Link();
                         }
