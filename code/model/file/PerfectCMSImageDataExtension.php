@@ -23,7 +23,7 @@ class PerfectCMSImageDataExtension extends DataExtension
      * @var array
      *
      */
-    private static $perfect_cms_images_image_definitions = array();
+    private static $perfect_cms_images_image_definitions = [];
 
     /***
      *  Images Titles will be appended to the links only
@@ -31,7 +31,7 @@ class PerfectCMSImageDataExtension extends DataExtension
      * @var array
      *
      */
-    private static $perfect_cms_images_append_title_to_image_links_classes = array();
+    private static $perfect_cms_images_append_title_to_image_links_classes = [];
 
     /**
      * @var string $name name of Image Field template
@@ -168,7 +168,7 @@ class PerfectCMSImageDataExtension extends DataExtension
                         if ($myWidth == $perfectWidth) {
                             $link = $image->Link();
                         } elseif ($crop) {
-                            $link = $image->Fill($perfectHeight, $myHeight)->Link();
+                            $link = $image->Fill($perfectWidth, $myHeight)->Link();
                         } else {
                             $link = $image->ScaleWidth($perfectWidth)->Link();
                         }

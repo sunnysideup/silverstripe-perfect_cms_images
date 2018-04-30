@@ -19,14 +19,16 @@ class PerfectCMSImagesUploadField extends UploadField implements flushable
     /**
      * @param string  $name
      * @param string  $title
-     * @param SS_List $items If no items are defined, the field will try to auto-detect an existing relation
+     * @param SS_List|null $items If no items are defined, the field will try to auto-detect an existing relation
+     * @param string|null $alternativeStyle
      *
      * @return UploadField
      */
     public function __construct(
         $name,
         $title,
-        SS_List $items = null
+        SS_List $items = null,
+        $alternativeStyle = null
     ) {
         parent::__construct(
             $name,
@@ -35,7 +37,9 @@ class PerfectCMSImagesUploadField extends UploadField implements flushable
         );
         $perfectCMSImageValidator = new PerfectCMSImage_Validator();
         $this->setValidator($perfectCMSImageValidator);
-        $this->selectFormattingStandard($name);
+        if($alternativeStyle) {
+            $this->selectFormattingStandard($alternativeStyle);
+        }
         return $this;
     }
 
