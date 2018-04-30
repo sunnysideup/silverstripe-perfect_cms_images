@@ -132,8 +132,9 @@ you can also use a different formatting standard
                 "Root.Images",
                 PerfectCMSImagesUploadField::create(
                     $name = "MyImage",
-                    $title = "My Cool Image"
-                )->selectFormattingStandard('MyOtherImage')
+                    $title = "My Cool Image",
+                    null,
+                    'MyOtherImage'
             );
             //...
         }
