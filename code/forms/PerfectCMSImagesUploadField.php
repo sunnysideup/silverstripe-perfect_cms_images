@@ -37,7 +37,7 @@ class PerfectCMSImagesUploadField extends UploadField implements flushable
         );
         $perfectCMSImageValidator = new PerfectCMSImage_Validator();
         $this->setValidator($perfectCMSImageValidator);
-        if($alternativeName === null) {
+        if ($alternativeName === null) {
             $alternativeName = $name;
         }
         $this->selectFormattingStandard($alternativeName);
@@ -68,11 +68,6 @@ class PerfectCMSImagesUploadField extends UploadField implements flushable
         parent::setRightTitle('');
         $widthRecommendation = PerfectCMSImageDataExtension::get_width($name, false);
         $heightRecommendation = PerfectCMSImageDataExtension::get_height($name, false);
-        $folderName = PerfectCMSImageDataExtension::get_folder($name);
-        $folderPrefix = $this->Config()->get('folder_prefix');
-        if ($folderPrefix) {
-            $folderPrefix .= '/';
-        }
         $useRetina = PerfectCMSImageDataExtension::use_retina($name);
         $multiplier = 1;
         if ($useRetina) {
@@ -83,10 +78,25 @@ class PerfectCMSImagesUploadField extends UploadField implements flushable
             $maxSizeInKilobytes = Config::inst()->get('PerfectCMSImagesUploadField', 'max_size_in_kilobytes');
         }
 
-        if (!$folderName) {
-            $folderName = 'other-images';
+        if ($this->folderName) {
+            $folderName = $this->folderName;
+        //do nothing
+        } else {
+            //folder related stuff ...
+            $folderName = PerfectCMSImageDataExtension::get_folder($name);
+            $folderPrefix = $this->Config()->get('folder_prefix');
+            if (!$folderName) {
+                $folderName = 'other-images';
+            }
+            $folderName = implode(
+                '/',
+                array_filter([$folderPrefix, $folderName])
+            );
         }
-        $folderName = $folderPrefix.$folderName.'/';
+        //create folder
+        Folder::find_or_make($folderName);
+        //set folder
+        $this->setFolderName($folderName);
 
         $recommendedFileType = PerfectCMSImageDataExtension::get_file_type($name);
         if (!$recommendedFileType) {
@@ -149,10 +159,7 @@ class PerfectCMSImagesUploadField extends UploadField implements flushable
 
         parent::setRightTitle($rightTitle);
 
-        //create folder
-        Folder::find_or_make($folderName);
-        //set folder
-        $this->setFolderName($folderName);
+
         $this->setAllowedFileCategories('image');
         $alreadyAllowed = $this->getAllowedExtensions();
         $this->setAllowedExtensions($alreadyAllowed + array('svg'));
