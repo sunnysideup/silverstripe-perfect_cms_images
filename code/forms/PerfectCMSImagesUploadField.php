@@ -80,7 +80,6 @@ class PerfectCMSImagesUploadField extends UploadField implements flushable
 
         if ($this->folderName) {
             $folderName = $this->folderName;
-        //do nothing
         } else {
             //folder related stuff ...
             $folderName = PerfectCMSImageDataExtension::get_folder($name);
