@@ -129,11 +129,9 @@ class PerfectCMSImageDataExtension extends DataExtension
         if ($image) {
             if ($image instanceof Image) {
                 if ($image->exists()) {
-                    //work out perfect with and height
-                    if (!$useRetina) {
+                    //work out perfect width and height
+                    if ($useRetina === null) {
                         $useRetina = PerfectCMSImageDataExtension::use_retina($name);
-                    } else {
-                        $useRetina = $useRetina;
                     }
                     $crop = PerfectCMSImageDataExtension::crop($name);
                     $multiplier = 1;
@@ -141,7 +139,7 @@ class PerfectCMSImageDataExtension extends DataExtension
                         $multiplier = 2;
                     }
                     $perfectWidth = $perfectWidth * $multiplier;
-                    $perfectHeight = $perfectHeight  * $multiplier;
+                    $perfectHeight = $perfectHeight * $multiplier;
 
                     //get current width and height
                     $myWidth = $image->getWidth();
@@ -239,7 +237,7 @@ class PerfectCMSImageDataExtension extends DataExtension
     /**
      * @param string           $name
      *
-     * @return boolean
+     * @return bool
      */
     public static function use_retina($name)
     {
