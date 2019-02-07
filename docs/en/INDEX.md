@@ -69,7 +69,7 @@ Instructions
 # define image
 
 copy `perfect_cms_images/_config/perfect_cms_images.yml.example`
-to `mysite/_config/perfect_cms_images.yml`
+to `app/_config/perfect_cms_images.yml`
 and rewrite like this:
 
 ```yml

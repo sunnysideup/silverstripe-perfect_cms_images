@@ -1,6 +1,6 @@
 {
     "name": "sunnysideup/perfect_cms_images",
-    "type": "silverstripe-module",
+    "type": "silverstripe-vendormodule",
     "description": "Silverstripe Module that makes it easier for CMS Editors to upload the right size image. It allows the developer to set the size for each image (width, height or both) in one place and apply this throughout the project in the CMS and on the front-end.",
     "keywords": [
         "Silverstripe-CMS",
@@ -25,13 +25,15 @@
         }
     ],
     "require": {
-        "silverstripe/framework": "~3.6",
-        "silverstripe/cms": "~3.6"
+        "silverstripe/recipe-cms": "^4.3"
     },
     "suggests": {
         "heyday/silverstripe-hashpath": "not sure if this is still useful."
     },
-    "extra": {
-        "installer-name": "perfect_cms_images"
+    "extra": [],
+    "autoload": {
+        "psr-4": {
+            "Sunnysideup\\PerfectCMSImages\\": "src/"
+        }
     }
 }

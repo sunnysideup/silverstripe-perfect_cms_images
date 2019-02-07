@@ -1,5 +1,11 @@
 <?php
 
+namespace Sunnysideup\PerfectCMSImages\Tasks;
+
+use SilverStripe\Core\Injector\Injector;
+use SilverStripe\ORM\DataObject;
+use SilverStripe\ORM\DB;
+use SilverStripe\Dev\BuildTask;
 
 class PerfectCMSImagesBuildTaskCheckImages extends BuildTask
 {

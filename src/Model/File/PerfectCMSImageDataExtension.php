@@ -1,9 +1,29 @@
 <?php
 
+namespace Sunnysideup\PerfectCMSImages\Model\File;
+
+use SilverStripe\Control\Director;
+use SilverStripe\Core\Convert;
+use SilverStripe\Core\Config\Config;
+use SilverStripe\Assets\Image;
+use SilverStripe\SiteConfig\SiteConfig;
+use SilverStripe\Control\Controller;
+use Sunnysideup\PerfectCMSImages\Model\File\PerfectCMSImageDataExtension;
+use SilverStripe\ORM\DataExtension;
+
 /**
  * defines the image sizes
  * and default upload folder.
  */
+
+/**
+  * ### @@@@ START REPLACEMENT @@@@ ###
+  * WHY: upgrade to SS4
+  * OLD:  extends DataExtension (ignore case)
+  * NEW:  extends DataExtension (COMPLEX)
+  * EXP: Check for use of $this->anyVar and replace with $this->anyVar[$this->owner->ID] or consider turning the class into a trait
+  * ### @@@@ STOP REPLACEMENT @@@@ ###
+  */
 class PerfectCMSImageDataExtension extends DataExtension
 {
     /**
@@ -104,8 +124,8 @@ class PerfectCMSImageDataExtension extends DataExtension
         $useRetina = null
     ) {
         if (isset($_GET['flush'])) {
-            if (! Config::inst()->get('Image', 'force_resample')) {
-                Config::inst()->update('Image', 'force_resample', true);
+            if (! Config::inst()->get(Image::class, 'force_resample')) {
+                Config::modify()->update(Image::class, 'force_resample', true);
             }
         }
         $image = $this->owner;
@@ -190,7 +210,7 @@ class PerfectCMSImageDataExtension extends DataExtension
                             }
                         }
                     }
-                    $imageClasses = Config::inst()->get('PerfectCMSImageDataExtension', 'perfect_cms_images_append_title_to_image_links_classes');
+                    $imageClasses = Config::inst()->get(PerfectCMSImageDataExtension::class, 'perfect_cms_images_append_title_to_image_links_classes');
                     if (in_array($image->ClassName, $imageClasses) && $image->Title) {
                         $link = $this->replaceLastInstance(
                             '.'.$path_parts['extension'],
@@ -337,7 +357,7 @@ class PerfectCMSImageDataExtension extends DataExtension
         return self::get_one_value_for_image(
             $name,
             "padding_bg_colour",
-            Config::inst()->get('PerfectCMSImageDataExtension', 'perfect_cms_images_background_padding_color')
+            Config::inst()->get(PerfectCMSImageDataExtension::class, 'perfect_cms_images_background_padding_color')
         );
     }
 
@@ -368,7 +388,7 @@ class PerfectCMSImageDataExtension extends DataExtension
      */
     private static function get_all_values_for_images()
     {
-        return Config::inst()->get('PerfectCMSImageDataExtension', 'perfect_cms_images_image_definitions');
+        return Config::inst()->get(PerfectCMSImageDataExtension::class, 'perfect_cms_images_image_definitions');
     }
 
     /**

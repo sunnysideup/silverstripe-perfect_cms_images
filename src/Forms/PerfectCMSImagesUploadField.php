@@ -1,5 +1,17 @@
 <?php
 
+namespace Sunnysideup\PerfectCMSImages\Forms;
+
+use SilverStripe\ORM\SS_List;
+use Sunnysideup\PerfectCMSImages\Filesystem\PerfectCMSImage_Validator;
+use Sunnysideup\PerfectCMSImages\Model\File\PerfectCMSImageDataExtension;
+use SilverStripe\Core\Config\Config;
+use Sunnysideup\PerfectCMSImages\Forms\PerfectCMSImagesUploadField;
+use SilverStripe\Assets\Folder;
+use SilverStripe\Assets\Filesystem;
+use SilverStripe\AssetAdmin\Forms\UploadField;
+use SilverStripe\Core\Flushable;
+
 /**
  * image-friendly upload field.
 
@@ -10,7 +22,7 @@
  *         null,
  * 	);
  */
-class PerfectCMSImagesUploadField extends UploadField implements flushable
+class PerfectCMSImagesUploadField extends UploadField implements Flushable
 {
     private static $max_size_in_kilobytes = 1024;
 
@@ -75,7 +87,7 @@ class PerfectCMSImagesUploadField extends UploadField implements flushable
         }
         $maxSizeInKilobytes = PerfectCMSImageDataExtension::max_size_in_kilobytes($name);
         if (! $maxSizeInKilobytes) {
-            $maxSizeInKilobytes = Config::inst()->get('PerfectCMSImagesUploadField', 'max_size_in_kilobytes');
+            $maxSizeInKilobytes = Config::inst()->get(PerfectCMSImagesUploadField::class, 'max_size_in_kilobytes');
         }
 
         if ($this->folderName) {

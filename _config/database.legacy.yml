@@ -1,0 +1,6 @@
+SilverStripe\ORM\DatabaseAdmin:
+  classname_value_remapping:
+    PerfectCMSImage_Validator: Sunnysideup\PerfectCMSImages\Filesystem\PerfectCMSImage_Validator
+    PerfectCMSImagesBuildTaskCheckImages: Sunnysideup\PerfectCMSImages\Tasks\PerfectCMSImagesBuildTaskCheckImages
+    PerfectCMSImageDataExtension: Sunnysideup\PerfectCMSImages\Model\File\PerfectCMSImageDataExtension
+    PerfectCMSImagesUploadField: Sunnysideup\PerfectCMSImages\Forms\PerfectCMSImagesUploadField

@@ -1,6 +1,6 @@
 ---
 Name: perfect_cms_images
-Before: 'mysite/*'
+Before: 'app/*'
 After: 'framework/*','cms/*'
 ---
 

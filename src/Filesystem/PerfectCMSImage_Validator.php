@@ -1,5 +1,10 @@
 <?php
 
+namespace Sunnysideup\PerfectCMSImages\Filesystem;
+
+use Sunnysideup\PerfectCMSImages\Model\File\PerfectCMSImageDataExtension;
+use SilverStripe\Assets\Upload_Validator;
+
 class PerfectCMSImage_Validator extends Upload_Validator
 {
     protected $fieldName = '';
