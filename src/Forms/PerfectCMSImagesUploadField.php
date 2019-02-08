@@ -3,6 +3,7 @@
 namespace Sunnysideup\PerfectCMSImages\Forms;
 
 use SilverStripe\ORM\SS_List;
+use SilverStripe\ORM\FieldType\DBField;
 use Sunnysideup\PerfectCMSImages\Filesystem\PerfectCMSImage_Validator;
 use Sunnysideup\PerfectCMSImages\Model\File\PerfectCMSImageDataExtension;
 use SilverStripe\Core\Config\Config;
@@ -60,9 +61,11 @@ class PerfectCMSImagesUploadField extends UploadField implements Flushable
     public function setRightTitle($string)
     {
         parent::setRightTitle(
-            $string.
-            '<br />'.
-            $this->RightTitle()
+            DBField::create_field('HTMLText',
+                $string.
+                '<br />'.
+                $this->RightTitle()
+            )
         );
         //important!
         return $this;
@@ -168,7 +171,9 @@ class PerfectCMSImagesUploadField extends UploadField implements Flushable
         }
 
 
-        parent::setRightTitle($rightTitle);
+        parent::setRightTitle(
+            DBField::create_field('HTMLText', $rightTitle)
+        );
 
 
         $this->setAllowedFileCategories('image');

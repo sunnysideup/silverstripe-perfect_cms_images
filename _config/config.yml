@@ -1,14 +1,7 @@
 ---
 Name: perfect_cms_images
-Before: 'app/*'
-After: 'framework/*','cms/*'
 ---
 
-Image:
+SilverStripe\Assets\Image:
   extensions:
-    - PerfectCMSImageDataExtension
-
-
-#we set this so low because all the images are double size...
-GDBackend:
-  default_quality: 70
+    - Sunnysideup\PerfectCMSImages\Model\File\PerfectCMSImageDataExtension

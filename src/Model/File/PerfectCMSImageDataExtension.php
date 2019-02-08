@@ -16,14 +16,6 @@ use SilverStripe\ORM\DataExtension;
  * and default upload folder.
  */
 
-/**
-  * ### @@@@ START REPLACEMENT @@@@ ###
-  * WHY: upgrade to SS4
-  * OLD:  extends DataExtension (ignore case)
-  * NEW:  extends DataExtension (COMPLEX)
-  * EXP: Check for use of $this->anyVar and replace with $this->anyVar[$this->owner->ID] or consider turning the class into a trait
-  * ### @@@@ STOP REPLACEMENT @@@@ ###
-  */
 class PerfectCMSImageDataExtension extends DataExtension
 {
     /**
@@ -78,6 +70,7 @@ class PerfectCMSImageDataExtension extends DataExtension
     public function PerfectCMSImageAbsoluteLink($name)
     {
         $abs = Director::absoluteURL($this->PerfectCMSImageLink($name, null, '', true));
+
         return $abs;
     }
 
@@ -106,7 +99,6 @@ class PerfectCMSImageDataExtension extends DataExtension
             ' alt="'.Convert::raw2att($this->owner->Title).'"'.
             $widthString.
             $heightString.
-
             ' />';
     }
 
@@ -224,7 +216,7 @@ class PerfectCMSImageDataExtension extends DataExtension
             }
         }
         // no image -> provide placeholder if in DEV MODE only!!!
-        if (Director::isDev()) {
+        if (! Director::isLive()) {
             if ($perfectWidth || $perfectHeight) {
                 if (!$perfectWidth) {
                     $perfectWidth = $perfectHeight;

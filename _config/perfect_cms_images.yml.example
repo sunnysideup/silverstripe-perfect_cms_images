@@ -1,7 +1,7 @@
 ---
 Name: perfect_cms_images_custom
 ---
-PerfectCMSImageDataExtension:
+Sunnysideup\PerfectCMSImages\Model\File\PerfectCMSImageDataExtension:
   perfect_cms_images_append_title_to_image_links_classes:
     - Image
   perfect_cms_images_background_padding_color: "#ffffff"
