@@ -10,6 +10,7 @@ use SilverStripe\SiteConfig\SiteConfig;
 use SilverStripe\Control\Controller;
 use Sunnysideup\PerfectCMSImages\Model\File\PerfectCMSImageDataExtension;
 use SilverStripe\ORM\DataExtension;
+use SilverStripe\ORM\FieldType\DBField;
 
 /**
  * defines the image sizes
@@ -93,13 +94,15 @@ class PerfectCMSImageDataExtension extends DataExtension
         if ($height) {
             $heightString = ' height="'.$height.'"';
         }
-        return
+        return DBField::create_field(
+            'HTMLText',
             '<img src="'.$nonRetina.'"'.
             ' srcset="'.$nonRetina.' 1x, '.$retina.' 2x" '.
             ' alt="'.Convert::raw2att($this->owner->Title).'"'.
             $widthString.
             $heightString.
-            ' />';
+            ' />'
+        );
     }
 
     /**
