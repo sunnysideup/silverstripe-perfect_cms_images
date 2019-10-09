@@ -120,7 +120,6 @@ class PerfectCMSImageDataExtension extends DataExtension
     ) {
         $image = $this->owner;
         if ($image && $image->exists()) {
-            print_r($this->owner->ID);
             //we are all good ...
         } else {
             if (!$backupObject) {
