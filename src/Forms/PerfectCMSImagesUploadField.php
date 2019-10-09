@@ -11,7 +11,6 @@ use Sunnysideup\PerfectCMSImages\Forms\PerfectCMSImagesUploadField;
 use SilverStripe\Assets\Folder;
 use SilverStripe\Assets\Filesystem;
 use SilverStripe\AssetAdmin\Forms\UploadField;
-use SilverStripe\Core\Flushable;
 
 /**
  * image-friendly upload field.
@@ -23,7 +22,7 @@ use SilverStripe\Core\Flushable;
  *         null,
  * 	);
  */
-class PerfectCMSImagesUploadField extends UploadField implements Flushable
+class PerfectCMSImagesUploadField extends UploadField
 {
     private static $max_size_in_kilobytes = 1024;
 
@@ -185,31 +184,4 @@ class PerfectCMSImagesUploadField extends UploadField implements Flushable
         return $this;
     }
 
-    public static function flush()
-    {
-        if (class_exists('HashPathExtension')) {
-            if (ASSETS_PATH) {
-                if (! file_exists(ASSETS_PATH)) {
-                    Filesystem::makeFolder(ASSETS_PATH);
-                }
-                $fileName = ASSETS_PATH.'/.htaccess';
-                if (! file_exists($fileName)) {
-                    $string = '
-<IfModule mod_rewrite.c>
-    RewriteEngine On
-    RewriteBase /
-
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteRule ^(.+)\.(v[A-Za-z0-9]+)\.(js|css|png|jpg|gif|svg)$ $1.$3 [L]
-</IfModule>
-                    ';
-                    if (!file_exists(ASSETS_PATH)) {
-                        Filesystem::makeFolder(ASSETS_PATH);
-                    }
-                    file_put_contents($fileName, $string);
-                }
-            }
-        }
-    }
 }

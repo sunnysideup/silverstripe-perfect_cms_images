@@ -118,13 +118,9 @@ class PerfectCMSImageDataExtension extends DataExtension
         $backupField = '',
         $useRetina = null
     ) {
-        if (isset($_GET['flush'])) {
-            if (! Config::inst()->get(Image::class, 'force_resample')) {
-                Config::modify()->update(Image::class, 'force_resample', true);
-            }
-        }
         $image = $this->owner;
         if ($image && $image->exists()) {
+            print_r($this->owner->ID);
             //we are all good ...
         } else {
             if (!$backupObject) {
@@ -198,13 +194,6 @@ class PerfectCMSImageDataExtension extends DataExtension
                     }
                     $path_parts = pathinfo($link);
 
-                    if (class_exists('HashPathExtension')) {
-                        if ($curr = Controller::curr()) {
-                            if ($curr->hasMethod('HashPath')) {
-                                $link = $curr->HashPath($link, false);
-                            }
-                        }
-                    }
                     $imageClasses = Config::inst()->get(PerfectCMSImageDataExtension::class, 'perfect_cms_images_append_title_to_image_links_classes');
                     if (in_array($image->ClassName, $imageClasses) && $image->Title) {
                         $link = $this->replaceLastInstance(
@@ -213,7 +202,7 @@ class PerfectCMSImageDataExtension extends DataExtension
                             $link
                         );
                     }
-
+                    // return 'xxxx';
                     return $link;
                 }
             }
