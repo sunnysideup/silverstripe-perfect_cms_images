@@ -66,7 +66,7 @@ class PerfectCMSImageDataExtension extends DataExtension
      * @param       string $name
      * @return string (HTML)
      */
-    public function PerfectCMSImageTag($name)
+    public function PerfectCMSImageTag($name, $alt = null) : string
     {
         $nonRetina = $this->PerfectCMSImageLinkNonRetina($name);
         $retina = $this->PerfectCMSImageLinkRetina($name);
@@ -80,10 +80,13 @@ class PerfectCMSImageDataExtension extends DataExtension
         if ($height) {
             $heightString = ' height="'.$height.'"';
         }
+        if(! $alt) {
+            $alt = $this->owner->Title;
+        }
         return
             '<img src="'.$nonRetina.'"'.
             ' srcset="'.$nonRetina.' 1x, '.$retina.' 2x" '.
-            ' alt="'.Convert::raw2att($this->owner->Title).'"'.
+            ' alt="'.Convert::raw2att($alt).'"'.
             $widthString.
             $heightString.
 
