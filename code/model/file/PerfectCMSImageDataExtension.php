@@ -64,9 +64,10 @@ class PerfectCMSImageDataExtension extends DataExtension
     /**
      *
      * @param       string $name
+     * @param       bool $inline Add only the attributes (for use inside an existing img tag)
      * @return string (HTML)
      */
-    public function PerfectCMSImageTag($name, $alt = null) : string
+    public function PerfectCMSImageTag($name, $inline = false, $alt = null) : string
     {
         $nonRetina = $this->PerfectCMSImageLinkNonRetina($name);
         $retina = $this->PerfectCMSImageLinkRetina($name);
@@ -84,13 +85,12 @@ class PerfectCMSImageDataExtension extends DataExtension
             $alt = $this->owner->Title;
         }
         return
-            '<img src="'.$nonRetina.'"'.
+            ($inline ? '' : '<img ') . 'src="'.$nonRetina.'"'.
             ' srcset="'.$nonRetina.' 1x, '.$retina.' 2x" '.
-            ' alt="'.Convert::raw2att($alt).'"'.
+            ($inline ? '' : ' alt="'.Convert::raw2att($alt).'"').
             $widthString.
             $heightString.
-
-            ' />';
+            ($inline ?  '' : ' />' );
     }
 
     /**
