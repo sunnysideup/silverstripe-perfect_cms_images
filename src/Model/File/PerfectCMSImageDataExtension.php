@@ -78,31 +78,47 @@ class PerfectCMSImageDataExtension extends DataExtension
     /**
      *
      * @param       string $name
+     * @param       bool $inline Add only the attributes src, srcset, width, height (for use inside an existing img tag)
+     * @param       string $alt alt tag for image
+     *
      * @return string (HTML)
      */
-    public function PerfectCMSImageTag($name)
+    public function PerfectCMSImageTag($name, $inline = false, $alt = null) : string
     {
         $nonRetina = $this->PerfectCMSImageLinkNonRetina($name);
         $retina = $this->PerfectCMSImageLinkRetina($name);
         $width = self::get_width($name, true);
-        $widthString = '';
+        $widthAtt = '';
         if ($width) {
-            $widthString = ' width="'.$width.'"';
+            $widthAtt = ' width="'.$width.'"';
         }
-        $heightString = '';
+        $heightAtt = '';
         $height = self::get_height($name, true);
         if ($height) {
-            $heightString = ' height="'.$height.'"';
+            $heightAtt = ' height="'.$height.'"';
         }
-        return DBField::create_field(
-            'HTMLText',
-            '<img src="'.$nonRetina.'"'.
-            ' srcset="'.$nonRetina.' 1x, '.$retina.' 2x" '.
-            ' alt="'.Convert::raw2att($this->owner->Title).'"'.
-            $widthString.
-            $heightString.
-            ' />'
-        );
+        if(! $alt) {
+            $alt = $this->owner->Title;
+        }
+        $imgStart = '';
+        $imgEnd = '';
+        $altAtt = '';
+        $srcAtt = 'src="'.$nonRetina.'"';
+        $srcSetAtt = ' srcset="'.$nonRetina.' 1x, '.$retina.' 2x" ';
+        if($inline === false) {
+            $imgStart = '<img ';
+            $imgEnd = ' />';
+            $altAtt = ' alt="'.Convert::raw2att($alt).'"';
+
+        }
+        return
+            $imgStart.
+            $altAtt.
+            $srcAtt.
+            $srcSetAtt.
+            $widthAtt.
+            $heightAtt.
+            $imgEnd;
     }
 
     /**
