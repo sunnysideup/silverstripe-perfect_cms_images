@@ -195,11 +195,12 @@ class PerfectCMSImageDataExtension extends DataExtension
                     }
                     $imageClasses = Config::inst()->get('PerfectCMSImageDataExtension', 'perfect_cms_images_append_title_to_image_links_classes');
                     if (in_array($image->ClassName, $imageClasses) && $image->Title) {
-                        $link = $this->replaceLastInstance(
-                            '.'.$path_parts['extension'],
-                            '.pci/'.$image->Title.'.'.$path_parts['extension'],
-                            $link
-                        );
+                        // $link = $this->replaceLastInstance(
+                        //     '.'.$path_parts['extension'],
+                        //     '.pci/'.$image->Title.'.'.$path_parts['extension'],
+                        //     $link
+                        // );
+                        $link .= '?title=' . urlencode(Convert::raw2att($image->Title));
                     }
 
                     return $link;
