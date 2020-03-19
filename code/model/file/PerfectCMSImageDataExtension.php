@@ -61,10 +61,12 @@ class PerfectCMSImageDataExtension extends DataExtension
         return $abs;
     }
 
-    /**
+/**
      *
      * @param       string $name
-     * @param       bool $inline Add only the attributes (for use inside an existing img tag)
+     * @param       bool $inline Add only the attributes src, srcset, width, height (for use inside an existing img tag)
+     * @param       string $alt alt tag for image
+     *
      * @return string (HTML)
      */
     public function PerfectCMSImageTag($name, $inline = false, $alt = null) : string
@@ -72,25 +74,37 @@ class PerfectCMSImageDataExtension extends DataExtension
         $nonRetina = $this->PerfectCMSImageLinkNonRetina($name);
         $retina = $this->PerfectCMSImageLinkRetina($name);
         $width = self::get_width($name, true);
-        $widthString = '';
+        $widthAtt = '';
         if ($width) {
-            $widthString = ' width="'.$width.'"';
+            $widthAtt = ' width="'.$width.'"';
         }
-        $heightString = '';
+        $heightAtt = '';
         $height = self::get_height($name, true);
         if ($height) {
-            $heightString = ' height="'.$height.'"';
+            $heightAtt = ' height="'.$height.'"';
         }
         if(! $alt) {
             $alt = $this->owner->Title;
         }
+        $imgStart = '';
+        $imgEnd = '';
+        $altAtt = '';
+        $srcAtt = 'src="'.$nonRetina.'"';
+        $srcSetAtt = ' srcset="'.$nonRetina.' 1x, '.$retina.' 2x" ';
+        if($inline === false) {
+            $imgStart = '<img ';
+            $imgEnd = ' />';
+            $altAtt = ' alt="'.Convert::raw2att($alt).'"';
+
+        }
         return
-            ($inline ? '' : '<img ') . 'src="'.$nonRetina.'"'.
-            ' srcset="'.$nonRetina.' 1x, '.$retina.' 2x" '.
-            ($inline ? '' : ' alt="'.Convert::raw2att($alt).'"').
-            $widthString.
-            $heightString.
-            ($inline ?  '' : ' />' );
+            $imgStart.
+            $altAtt.
+            $srcAtt.
+            $srcSetAtt.
+            $widthAtt.
+            $heightAtt.
+            $imgEnd;
     }
 
     /**
