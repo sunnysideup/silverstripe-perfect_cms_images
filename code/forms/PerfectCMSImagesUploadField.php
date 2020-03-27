@@ -10,7 +10,7 @@
  *         null,
  * 	);
  */
-class PerfectCMSImagesUploadField extends UploadField implements flushable
+class PerfectCMSImagesUploadField extends UploadField
 {
     private static $max_size_in_kilobytes = 1024;
 

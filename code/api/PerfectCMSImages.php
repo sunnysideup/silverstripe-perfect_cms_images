@@ -104,6 +104,10 @@ EOT;
         if ($useRetina) {
             $multiplier = Config::inst()->get('PerfectCMSImages', 'retina_multiplier');
         }
+
+        $perfectWidth = PerfectCMSImages::get_width($name, true);
+        $perfectHeight = PerfectCMSImages::get_height($name, true);
+
         $perfectWidth = $perfectWidth * $multiplier;
         $perfectHeight = $perfectHeight * $multiplier;
 
@@ -150,6 +154,8 @@ EOT;
         } else {
             $link = $image->Link();
         }
+
+        return $link;
     }
 
     /**
@@ -276,7 +282,7 @@ EOT;
      *
      * @return boolean
      */
-    public static function image_info_available($name)
+    public static function image_info_available(string $name) : bool
     {
         $sizes = self::get_all_values_for_images();
         //print_r($sizes);die();
@@ -289,7 +295,7 @@ EOT;
      *
      * @return bool
      */
-    public static function use_retina($name)
+    public static function use_retina(string $name) : bool
     {
         return self::get_one_value_for_image($name, "use_retina", true);
     }
@@ -300,7 +306,7 @@ EOT;
      *
      * @return boolean
      */
-    public static function crop($name)
+    public static function crop(string $name) : bool
     {
         return self::get_one_value_for_image($name, "crop", false);
     }
@@ -309,9 +315,9 @@ EOT;
      * @param string           $name
      * @param bool             $forceInteger
      *
-     * @return int
+     * @return int?string
      */
-    public static function get_width($name, $forceInteger = false)
+    public static function get_width(string $name, bool $forceInteger = false)
     {
         $v = self::get_one_value_for_image($name, "width", 0);
         if ($forceInteger) {
@@ -325,9 +331,9 @@ EOT;
      * @param string           $name
      * @param bool             $forceInteger
      *
-     * @return int
+     * @return int|string
      */
-    public static function get_height($name, $forceInteger = false)
+    public static function get_height(string $name, bool $forceInteger = false)
     {
         $v = self::get_one_value_for_image($name, "height", 0);
         if ($forceInteger) {
@@ -342,7 +348,7 @@ EOT;
      *
      * @return string
      */
-    public static function get_folder($name)
+    public static function get_folder(string $name) : string
     {
         return self::get_one_value_for_image($name, "folder", 'other-images');
     }
@@ -352,7 +358,7 @@ EOT;
      *
      * @return int
      */
-    public static function max_size_in_kilobytes($name)
+    public static function max_size_in_kilobytes(string $name) : int
     {
         return self::get_one_value_for_image($name, "max_size_in_kilobytes", 0);
     }
@@ -362,7 +368,7 @@ EOT;
      *
      * @return string
      */
-    public static function get_file_type($name)
+    public static function get_file_type(string $name) : string
     {
         return self::get_one_value_for_image($name, "filetype", 'jpg');
     }
@@ -372,7 +378,7 @@ EOT;
      *
      * @return boolean
      */
-    public static function get_enforce_size($name)
+    public static function get_enforce_size(string $name) :bool
     {
         return self::get_one_value_for_image($name, "enforce_size", false);
     }
@@ -380,14 +386,14 @@ EOT;
     /**
      * @param string           $name
      *
-     * @return boolean
+     * @return string
      */
-    public static function get_padding_bg_colour($name)
+    public static function get_padding_bg_colour(string $name) : string
     {
         return self::get_one_value_for_image(
             $name,
             "padding_bg_colour",
-            Config::inst()->get('PerfectCMSImageDataExtension', 'perfect_cms_images_background_padding_color')
+            Config::inst()->get('PerfectCMSImages', 'perfect_cms_images_background_padding_color')
         );
     }
 
@@ -398,7 +404,7 @@ EOT;
      *
      * @return mixed
      */
-    private static function get_one_value_for_image($name, $key, $default = '')
+    private static function get_one_value_for_image(string $name, string $key, ?string $default = '')
     {
         $sizes = self::get_all_values_for_images();
         //print_r($sizes);die();
@@ -416,9 +422,9 @@ EOT;
     /**
      * @return array
      */
-    private static function get_all_values_for_images()
+    private static function get_all_values_for_images() : array
     {
-        return Config::inst()->get('PerfectCMSImageDataExtension', 'perfect_cms_images_image_definitions');
+        return Config::inst()->get('PerfectCMSImages', 'perfect_cms_images_image_definitions');
     }
 
     /**
@@ -430,7 +436,7 @@ EOT;
      *
      * @return string
      */
-    private function replaceLastInstance($search, $replace, $subject)
+    private function replaceLastInstance(string $search, string $replace, string $subject) : string
     {
         $pos = strrpos($subject, $search);
 

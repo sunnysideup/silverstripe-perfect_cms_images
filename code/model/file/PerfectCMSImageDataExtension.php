@@ -7,28 +7,7 @@
 class PerfectCMSImageDataExtension extends DataExtension
 {
 
-
     /**
-     * @var string $name name of Image Field template
-     * @return string (link)
-     */
-    public function PerfectCMSImageLinkRetina($name)
-    {
-        return $this->PerfectCMSImageLink($name, null, '', true);
-    }
-
-    /**
-     * @var string $name name of Image Field template
-     * @return string (link)
-     */
-    public function PerfectCMSImageAbsoluteLink($name)
-    {
-        $abs = Director::absoluteURL($this->PerfectCMSImageLink($name, null, '', true));
-
-        return $abs;
-    }
-
-/**
      *
      * @param       string $name
      * @param       bool $inline Add only the attributes src, srcset, width, height (for use inside an existing img tag)
@@ -75,6 +54,36 @@ class PerfectCMSImageDataExtension extends DataExtension
     }
 
     /**
+     * @var string $name name of Image Field template
+     * @return string (link)
+     */
+    public function PerfectCMSImageLinkNonRetina(string $name) : string
+    {
+        return $this->PerfectCMSImageLink($name, null, '', false);
+    }
+
+    /**
+     * @var string $name name of Image Field template
+     * @return string (link)
+     */
+    public function PerfectCMSImageLinkRetina(string $name) : string
+    {
+        return $this->PerfectCMSImageLink($name, null, '', true);
+    }
+
+    /**
+     * @var string $name name of Image Field template
+     * @return string (link)
+     */
+    public function PerfectCMSImageAbsoluteLink(string $name) : string
+    {
+        $abs = Director::absoluteURL($this->PerfectCMSImageLink($name, null, '', true));
+
+        return $abs;
+    }
+
+
+    /**
      * @param string            $name
      * @param object (optional) $backupObject
      * @param string (optional) $backupField
@@ -90,16 +99,13 @@ class PerfectCMSImageDataExtension extends DataExtension
             $image = PerfectCMSImages::get_backup_image($name, $backupObject, $backupField);
         }
 
-        $perfectWidth = PerfectCMSImages::get_width($name, true);
-        $perfectHeight = PerfectCMSImages::get_height($name, true);
-
         if ($image) {
             if ($image instanceof Image) {
                 if ($image->exists()) {
 
                     // $backEndString = Image::get_backend();
                     // $backend = Injector::inst()->get($backEndString);
-                    $link = PerfectCMSImages::get_image_link($name, $useRetina );
+                    $link = PerfectCMSImages::get_image_link($image, $name, $useRetina );
 
                     if (class_exists('HashPathExtension')) {
                         if ($curr = Controller::curr()) {
