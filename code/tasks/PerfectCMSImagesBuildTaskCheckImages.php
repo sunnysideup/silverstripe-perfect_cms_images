@@ -20,12 +20,7 @@ class PerfectCMSImagesBuildTaskCheckImages extends BuildTask
                 if ($singleton instanceof DataObject) {
                     if ($singleton->hasMethod($fieldName)) {
                         $objects = $parent::get()->where('"'.$fieldName.'ID" <> 0 AND "'.$fieldName.'ID" IS NOT NULL');
-                        for ($i = 0; $i < 100000; $i++) {
-                            $array = array();
-                            $obj = $objects->limit(1, $i)->first();
-                            if (!$obj) {
-                                break;
-                            }
+                        foreach ($objects as $object) {
                             $image = $obj->$fieldName();
                             if ($image && $image instanceof $image && $image->exists()) {
                                 if ($width) {
