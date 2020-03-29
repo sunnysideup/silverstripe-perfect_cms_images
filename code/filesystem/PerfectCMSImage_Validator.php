@@ -21,10 +21,7 @@ class PerfectCMSImage_Validator extends Upload_Validator
         $name = $this->fieldName;
         if (PerfectCMSImages::get_enforce_size($name)) {
             $useRetina = PerfectCMSImages::use_retina($name);
-            $multiplier = 1;
-            if ($useRetina) {
-                $multiplier = 2;
-            }
+            $multiplier = PerfectCMSImages::get_multiplier($useRetina);
             $widthRecommendation = (PerfectCMSImages::get_width($name, true) * $multiplier);
             $heightRecommendation = (PerfectCMSImages::get_height($name, true) * $multiplier);
             if ($widthRecommendation) {

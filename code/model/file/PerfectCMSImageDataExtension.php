@@ -7,50 +7,50 @@
 class PerfectCMSImageDataExtension extends DataExtension
 {
 
+
     /**
      *
-     * @param       string $name
-     * @param       bool $inline Add only the attributes src, srcset, width, height (for use inside an existing img tag)
-     * @param       string $alt alt tag for image
+     * @param       string $name        PerfectCMSImages name
+     * @param       bool   $inline      for use within existing image tag - optional
+     * @param       string $alt         alt tag for image -optional
+     * @param       string $attributes  additional attributes
      *
      * @return string (HTML)
      */
-    public function PerfectCMSImageTag($name, $inline = false, $alt = null) : string
+    public function PerfectCMSImageTag(string $name, $inline = false, ?string $alt = '', ?string $attributes = '') : string
     {
-        $nonRetina = $this->PerfectCMSImageLinkNonRetina($name);
-        $retina = $this->PerfectCMSImageLinkRetina($name);
+        $retinaLink = $this->PerfectCMSImageLinkRetina($name);
+        $nonRetinaLink = $this->PerfectCMSImageLinkNonRetina($name);
+
+        $retinaLinkWebP = $this->PerfectCMSImageLinkRetinaWebP($name);
+        $nonRetinaLinkWebP = $this->PerfectCMSImageLinkNonRetinaWebP($name);
+
         $width = PerfectCMSImages::get_width($name, true);
-        $widthAtt = '';
-        if ($width) {
-            $widthAtt = ' width="'.$width.'"';
-        }
-        $heightAtt = '';
         $height = PerfectCMSImages::get_height($name, true);
-        if ($height) {
-            $heightAtt = ' height="'.$height.'"';
-        }
+
         if(! $alt) {
             $alt = $this->owner->Title;
         }
-        $imgStart = '';
-        $imgEnd = '';
-        $altAtt = '';
-        $srcAtt = 'src="'.$nonRetina.'"';
-        $srcSetAtt = ' srcset="'.$nonRetina.' 1x, '.$retina.' 2x" ';
-        if($inline === false) {
-            $imgStart = '<img ';
-            $imgEnd = ' />';
-            $altAtt = ' alt="'.Convert::raw2att($alt).'"';
 
+        $arrayData = ArrayData::create(
+            [
+                'Width' => $width,
+                'Height' => $height,
+                'Alt' => Convert::raw2att($alt),
+                'RetinaLink' => $retinaLink,
+                'NonRetinaLink' => $nonRetinaLink,
+                'RetinaLinkWebP' => $retinaLinkWebP,
+                'NonRetinaLinkWebP' => $nonRetinaLinkWebP,
+                'Attributes' => $attributes,
+            ]
+        );
+        $template = 'PerfectCMSImageTag';
+        if($inline === true || intval($inline) === 1 || strtolower($inline) === 'true') {
+            var_dump($inline);
+            die($name);
+            $template .= 'Inline';
         }
-        return
-            $imgStart.
-            $altAtt.
-            $srcAtt.
-            $srcSetAtt.
-            $widthAtt.
-            $heightAtt.
-            $imgEnd;
+        return $arrayData->renderWith($template)->Raw();
     }
 
     /**
@@ -59,7 +59,7 @@ class PerfectCMSImageDataExtension extends DataExtension
      */
     public function PerfectCMSImageLinkNonRetina(string $name) : string
     {
-        return $this->PerfectCMSImageLink($name, null, '', false);
+        return $this->PerfectCMSImageLink($name, false, false);
     }
 
     /**
@@ -68,64 +68,69 @@ class PerfectCMSImageDataExtension extends DataExtension
      */
     public function PerfectCMSImageLinkRetina(string $name) : string
     {
-        return $this->PerfectCMSImageLink($name, null, '', true);
+        return $this->PerfectCMSImageLink($name, true, false);
+    }
+    /**
+     * @var string $name name of Image Field template
+     * @return string (link)
+     */
+    public function PerfectCMSImageLinkNonRetinaWebP(string $name) : string
+    {
+        return $this->PerfectCMSImageLink($name, false,true);
     }
 
     /**
      * @var string $name name of Image Field template
      * @return string (link)
      */
-    public function PerfectCMSImageAbsoluteLink(string $name) : string
+    public function PerfectCMSImageLinkRetinaWebP(string $name) : string
     {
-        $abs = Director::absoluteURL($this->PerfectCMSImageLink($name, null, '', true));
-
-        return $abs;
+        return $this->PerfectCMSImageLink($name, true, true);
     }
 
 
     /**
-     * @param string            $name
-     * @param object (optional) $backupObject
-     * @param string (optional) $backupField
+     * @var string $name name of Image Field template
+     * @return string (link)
+     */
+    public function getPerfectCMSImageAbsoluteLink(string $link) : string
+    {
+        return Director::absoluteURL($link);
+    }
+
+
+    /**
      *
+     * @param  string  $name
+     * @param  boolean $useRetina
+     * @param  boolean $isWebP
      * @return string
      */
-    public function PerfectCMSImageLink(string $name, $backupObject = null, ?string $backupField = '', ?bool $useRetina = false) : string
+    public function PerfectCMSImageLink(string $name, ?bool $useRetina = false, ?bool $isWebP = false) : string
     {
         $image = $this->owner;
-        if ($image && $image->exists()) {
+        if ($image && $image->exists() && $image instanceof Image) {
             //we are all good ...
         } else {
-            $image = PerfectCMSImages::get_backup_image($name, $backupObject, $backupField);
+            $image = ImageManipulations::get_backup_image($name);
         }
 
-        if ($image) {
-            if ($image instanceof Image) {
-                if ($image->exists()) {
+        if ($image && $image->exists() && $image instanceof Image) {
 
-                    // $backEndString = Image::get_backend();
-                    // $backend = Injector::inst()->get($backEndString);
-                    $link = PerfectCMSImages::get_image_link($image, $name, $useRetina );
-
-                    if (class_exists('HashPathExtension')) {
-                        if ($curr = Controller::curr()) {
-                            if ($curr->hasMethod('HashPath')) {
-                                $link = $curr->HashPath($link, false);
-                            }
-                        }
-                    }
-                    $imageClasses = Config::inst()->get('PerfectCMSImages', 'perfect_cms_images_append_title_to_image_links_classes');
-                    if (in_array($image->ClassName, $imageClasses) && $image->Title) {
-                        $link .= '?title=' . urlencode(Convert::raw2att($image->Title));
-                    }
-
-                    return $link;
-                }
+            // $backEndString = Image::get_backend();
+            // $backend = Injector::inst()->get($backEndString);
+            $link = ImageManipulations::get_image_link($image, $name, $useRetina);
+            if($isWebP) {
+                $link = ImageManipulations::web_p_link($link);
             }
+
+            $link = ImageManipulations::add_fake_parts($image, $link);
+
+            return $link;
         }
         // no image -> provide placeholder if in DEV MODE only!!!
         if (Director::isDev()) {
-            return PerfectCMSImages::get_placeholder_image_tag();
+            return ImageManipulations::get_placeholder_image_tag();
         }
     }
 

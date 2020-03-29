@@ -26,7 +26,8 @@
     ],
     "require": {
         "silverstripe/framework": "~3.6",
-        "silverstripe/cms": "~3.6"
+        "silverstripe/cms": "~3.6",
+        "nomidi/silverstripe-webp-image": "dev-ss3"
     },
     "suggests": {
         "heyday/silverstripe-hashpath": "not sure if this is still useful."
