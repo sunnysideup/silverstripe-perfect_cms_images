@@ -35,8 +35,8 @@ class ImageManipulations extends Object
                 $useRetina = PerfectCMSImages::use_retina($name);
             }
             $crop = PerfectCMSImages::is_crop($name);
-            $multiplier = PerfectCMSImages::get_multiplier($useRetina);
 
+            $multiplier = PerfectCMSImages::get_multiplier($useRetina);
             $perfectWidth = PerfectCMSImages::get_width($name, true);
             $perfectHeight = PerfectCMSImages::get_height($name, true);
 
@@ -125,8 +125,13 @@ class ImageManipulations extends Object
      * @param  int    $perfectHeight
      * @return string
      */
-    public static function get_placeholder_image_tag(int $perfectWidth, int $perfectHeight) : string
+    public static function get_placeholder_image_tag(string $name) : string
     {
+        $multiplier = PerfectCMSImages::get_multiplier(true);
+        $perfectWidth = PerfectCMSImages::get_width($name, true);
+        $perfectHeight = PerfectCMSImages::get_height($name, true);
+        $perfectWidth = $perfectWidth * $multiplier;
+        $perfectHeight = $perfectHeight * $multiplier;
         if ($perfectWidth || $perfectHeight) {
             if (!$perfectWidth) {
                 $perfectWidth = $perfectHeight;

@@ -130,7 +130,7 @@ class PerfectCMSImageDataExtension extends DataExtension
         }
         // no image -> provide placeholder if in DEV MODE only!!!
         if (Director::isDev()) {
-            return ImageManipulations::get_placeholder_image_tag();
+            return ImageManipulations::get_placeholder_image_tag($name);
         }
     }
 
