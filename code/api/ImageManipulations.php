@@ -4,6 +4,8 @@
 class ImageManipulations extends Object
 {
 
+    private static $webp_enabled = true;
+
     private static $webp_quality = 77;
 
     private static $imageLinkCache = [];
@@ -142,40 +144,36 @@ class ImageManipulations extends Object
 
     public static function web_p_link(string $link) : string
     {
-        $fileNameWithBaseFolder = Director::baseFolder() .$link;
-        $arrayOfLink = explode('.', $link);
-        $extension = array_pop($arrayOfLink);
-        $pathWithoutExtension = rtrim($link, '.' . $extension);
-        $webPFileName = $pathWithoutExtension . '_' . $extension . '.webp';
-        $webPFileNameWithBaseFolder = Director::baseFolder() . '/' .$webPFileName;
-        if(file_exists($fileNameWithBaseFolder)) {
-            if(isset($_GET['flush'])) {
-                unlink($webPFileNameWithBaseFolder);
-            }
-            if(file_exists($webPFileNameWithBaseFolder)) {
-                //todo: check that image is the same ...
-            } else {
-                if (function_exists('imagewebp')) {
+        if (self::web_p_enabled()) {
+            $fileNameWithBaseFolder = Director::baseFolder() .$link;
+            $arrayOfLink = explode('.', $link);
+            $extension = array_pop($arrayOfLink);
+            $pathWithoutExtension = rtrim($link, '.' . $extension);
+            $webPFileName = $pathWithoutExtension . '_' . $extension . '.webp';
+            $webPFileNameWithBaseFolder = Director::baseFolder() . '/' .$webPFileName;
+            if(file_exists($fileNameWithBaseFolder)) {
+                if(isset($_GET['flush'])) {
+                    unlink($webPFileNameWithBaseFolder);
+                }
+                if(file_exists($webPFileNameWithBaseFolder)) {
+                    //todo: check that image is the same ...
+                } else {
                     list($width, $height, $type, $attr) = getimagesize($fileNameWithBaseFolder);
                     $img = null;
                     switch ($type) {
                       case 2:
-                          if (function_exists('imagecreatefromjpeg')) {
-                              $img = imagecreatefromjpeg($fileNameWithBaseFolder);
-                          }
+                          $img = imagecreatefromjpeg($fileNameWithBaseFolder);
                           break;
                       case 3:
-                          if (function_exists('imagecreatefrompng')) {
-                              $img = imagecreatefrompng($fileNameWithBaseFolder);
-                              imagesavealpha($img, true); // save alphablending setting (important)
-                          }
+                          $img = imagecreatefrompng($fileNameWithBaseFolder);
+                          imagesavealpha($img, true); // save alphablending setting (important)
                     }
                     if($img) {
                         $webp = imagewebp($img, $webPFileNameWithBaseFolder, Config::inst()->get('ImageManipulations', 'webp_quality'));
                     }
                 }
+                return $webPFileName;
             }
-            return $webPFileName;
         }
 
         return $link;
@@ -191,12 +189,31 @@ class ImageManipulations extends Object
                 }
             }
         }
-        $imageClasses = Config::inst()->get('PerfectCMSImages', 'perfect_cms_images_append_title_to_image_links_classes');
-        if (in_array($image->ClassName, $imageClasses) && $image->Title) {
-            $link .= '?title=' . urlencode(Convert::raw2att($image->Title));
+        if($image->Title) {
+            $imageClasses = Config::inst()->get('PerfectCMSImages', 'perfect_cms_images_append_title_to_image_links_classes');
+            if (in_array($image->ClassName, $imageClasses)) {
+                $link .= '?title=' . urlencode(Convert::raw2att($image->Title));
+            }
         }
 
         return $link;
+    }
+
+    public static function web_p_enabled() : bool
+    {
+        if( Config::inst()->get('ImageManipulations', 'webp_enabled')) {
+            if (function_exists('imagewebp')) {
+                if (function_exists('imagecreatefromjpeg')) {
+                    if (function_exists('imagecreatefrompng')) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+
+
+
     }
 
 }
