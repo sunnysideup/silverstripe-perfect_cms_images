@@ -281,7 +281,7 @@ EOT;
      *
      * @return string
      */
-    protected static function get_padding_bg_colour(string $name) : string
+    public static function get_padding_bg_colour(string $name) : string
     {
         return self::get_one_value_for_image(
             $name,
@@ -320,24 +320,5 @@ EOT;
         return Config::inst()->get('PerfectCMSImages', 'perfect_cms_images_image_definitions');
     }
 
-    /**
-     * replace the last instance of a string occurence.
-     *
-     * @param  string $search  needle
-     * @param  string $replace new needle
-     * @param  string $subject haystack
-     *
-     * @return string
-     */
-    protected function replaceLastInstance(string $search, string $replace, string $subject) : string
-    {
-        $pos = strrpos($subject, $search);
-
-        if ($pos !== false) {
-            $subject = substr_replace($subject, $replace, $pos, strlen($search));
-        }
-
-        return $subject;
-    }
 
 }
