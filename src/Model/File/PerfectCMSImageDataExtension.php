@@ -11,6 +11,7 @@ use SilverStripe\Control\Controller;
 use Sunnysideup\PerfectCMSImages\Model\File\PerfectCMSImageDataExtension;
 use SilverStripe\ORM\DataExtension;
 use SilverStripe\ORM\FieldType\DBField;
+use SilverStripe\ORM\FieldType\DBHTMLText;
 
 /**
  * defines the image sizes
@@ -83,7 +84,7 @@ class PerfectCMSImageDataExtension extends DataExtension
      *
      * @return string (HTML)
      */
-    public function PerfectCMSImageTag($name, $inline = false, $alt = null) : string
+    public function PerfectCMSImageTag($name, $inline = false, $alt = null) : DBHTMLText
     {
         $nonRetina = $this->PerfectCMSImageLinkNonRetina($name);
         $retina = $this->PerfectCMSImageLinkRetina($name);
@@ -111,14 +112,16 @@ class PerfectCMSImageDataExtension extends DataExtension
             $altAtt = ' alt="'.Convert::raw2att($alt).'"';
 
         }
-        return
+        return DBField::create_field(
+            'HTMLText',
             $imgStart.
             $altAtt.
             $srcAtt.
             $srcSetAtt.
             $widthAtt.
             $heightAtt.
-            $imgEnd;
+            $imgEnd
+        );
     }
 
     /**
