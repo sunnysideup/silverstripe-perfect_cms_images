@@ -25,8 +25,15 @@ class PerfectCMSImageDataExtension extends DataExtension
         $retinaLinkWebP = $this->PerfectCMSImageLinkRetinaWebP($name);
         $nonRetinaLinkWebP = $this->PerfectCMSImageLinkNonRetinaWebP($name);
 
+        $mobileRetinaLink = $this->PerfectCMSImageLinkRetinaForMobile($name);
+        $mobileNonRetinaLink = $this->PerfectCMSImageLinkNonRetinaForMobile($name);
+
+        $mobileRetinaLinkWebP = $this->PerfectCMSImageLinkRetinaWebPForMobile($name);
+        $mobileNonRetinaLinkWebP = $this->PerfectCMSImageLinkNonRetinaWebPForMobile($name);
+
         $width = PerfectCMSImages::get_width($name, true);
         $height = PerfectCMSImages::get_height($name, true);
+        $mobileMediaWidth = PerfectCMSImages::get_mobile_media_width($name);
 
         if(! $alt) {
             $alt = $this->owner->Title;
@@ -34,20 +41,23 @@ class PerfectCMSImageDataExtension extends DataExtension
 
         $arrayData = ArrayData::create(
             [
+                'MobileMediaWidth' => $mobileMediaWidth,
                 'Width' => $width,
                 'Height' => $height,
                 'Alt' => Convert::raw2att($alt),
+                'MobileRetinaLink' => $mobileRetinaLink,
+                'MobileNonRetinaLink' => $mobileNonRetinaLink,
+                'MobileRetinaLinkWebP' => $mobileRetinaLinkWebP, 
+                'MobileNonRetinaLinkWebP' => $mobileNonRetinaLinkWebP,
                 'RetinaLink' => $retinaLink,
                 'NonRetinaLink' => $nonRetinaLink,
-                'RetinaLinkWebP' => $retinaLinkWebP,
+                'RetinaLinkWebP' => $retinaLinkWebP, 
                 'NonRetinaLinkWebP' => $nonRetinaLinkWebP,
                 'Attributes' => $attributes,
             ]
         );
         $template = 'PerfectCMSImageTag';
         if($inline === true || intval($inline) === 1 || strtolower($inline) === 'true') {
-            var_dump($inline);
-            die($name);
             $template .= 'Inline';
         }
         return $arrayData->renderWith($template)->Raw();
@@ -88,6 +98,41 @@ class PerfectCMSImageDataExtension extends DataExtension
         return $this->PerfectCMSImageLink($name, true, true);
     }
 
+    /**
+     * @var string $name name of Image Field template
+     * @return string (link)
+     */
+    public function PerfectCMSImageLinkNonRetinaForMobile(string $name) : string
+    {
+        return $this->PerfectCMSImageLink($name, false, false, true);
+    }
+
+    /**
+     * @var string $name name of Image Field template
+     * @return string (link)
+     */
+    public function PerfectCMSImageLinkRetinaForMobile(string $name) : string
+    {
+        return $this->PerfectCMSImageLink($name, true, false, true);
+    }
+    /**
+     * @var string $name name of Image Field template
+     * @return string (link)
+     */
+    public function PerfectCMSImageLinkNonRetinaWebPForMobile(string $name) : string
+    {
+        return $this->PerfectCMSImageLink($name, false, true, true);
+    }
+
+    /**
+     * @var string $name name of Image Field template
+     * @return string (link)
+     */
+    public function PerfectCMSImageLinkRetinaWebPForMobile(string $name) : string
+    {
+        return $this->PerfectCMSImageLink($name, true, true, true);
+    }
+
 
     /**
      * @var string $name name of Image Field template
@@ -106,7 +151,7 @@ class PerfectCMSImageDataExtension extends DataExtension
      * @param  boolean $isWebP
      * @return string
      */
-    public function PerfectCMSImageLink(string $name, ?bool $useRetina = false, ?bool $isWebP = false) : string
+    public function PerfectCMSImageLink(string $name, ?bool $useRetina = false, ?bool $isWebP = false, ?bool $forMobile = false) : string
     {
         $image = $this->owner;
         if ($image && $image->exists() && $image instanceof Image) {
@@ -119,12 +164,13 @@ class PerfectCMSImageDataExtension extends DataExtension
 
             // $backEndString = Image::get_backend();
             // $backend = Injector::inst()->get($backEndString);
-            $link = ImageManipulations::get_image_link($image, $name, $useRetina);
+            $link = ImageManipulations::get_image_link($image, $name, $useRetina, $forMobile);
+            
             if($isWebP) {
                 $link = ImageManipulations::web_p_link($link);
             }
 
-            $link = ImageManipulations::add_fake_parts($image, $link);
+            $link = $link ? ImageManipulations::add_fake_parts($image, $link) : '';
 
             return $link;
         }

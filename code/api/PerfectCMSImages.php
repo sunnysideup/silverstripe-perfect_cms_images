@@ -51,6 +51,14 @@ EOT;
      */
     private static $perfect_cms_images_background_padding_color = '#cccccc';
 
+     /**
+     * used to set the max width of the media value for mobile images,
+     * eg <source srcset="small.jpg, small2x.jpg 2x" media="(max-width: 600px)">
+     *
+     * @var string
+     */
+    private static $mobile_media_max_width = '600px';
+
     /***
      * details of the images
      *     - width: 3200
@@ -234,6 +242,38 @@ EOT;
 
     /**
      * @param string           $name
+     * @param bool             $forceInteger
+     *
+     * @return int?string
+     */
+    public static function get_mobile_width(string $name, bool $forceInteger = false)
+    {
+        $v = self::get_one_value_for_image($name, "mobile_width", 0);
+        if ($forceInteger) {
+            $v = intval($v) - 0;
+        }
+
+        return $v;
+    }
+
+    /**
+     * @param string           $name
+     * @param bool             $forceInteger
+     *
+     * @return int|string
+     */
+    public static function get_mobile_height(string $name, bool $forceInteger = false)
+    {
+        $v = self::get_one_value_for_image($name, "mobile_height", 0);
+        if ($forceInteger) {
+            $v = intval($v) - 0;
+        }
+
+        return $v;
+    }
+
+    /**
+     * @param string           $name
      *
      * @return string
      */
@@ -274,6 +314,20 @@ EOT;
     public static function get_enforce_size(string $name) :bool
     {
         return self::get_one_value_for_image($name, "enforce_size", false);
+    }
+
+    /**
+     * @param string           $name
+     *
+     * @return string
+     */
+    public static function get_mobile_media_width(string $name) : string
+    {
+        return self::get_one_value_for_image(
+            $name,
+            "mobile_media_max_width",
+            Config::inst()->get('PerfectCMSImages', 'mobile_media_max_width')
+        );
     }
 
     /**

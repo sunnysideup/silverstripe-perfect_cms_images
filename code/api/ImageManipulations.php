@@ -22,13 +22,14 @@ class ImageManipulations extends Object
      * @param  Image     $image
      * @param  string    $name
      * @param  bool|null $useRetina optional
+     * @param  bool|null $forMobile optional
      * @param  int|null  $resizeToWidth optional
      *
      * @return string
      */
-    public static function get_image_link($image, string $name, ?bool $useRetina = null, ?int $resizeToWidth = 0) : string
+    public static function get_image_link($image, string $name, ?bool $useRetina = null, ?bool $forMobile = null, ?int $resizeToWidth = 0) : string
     {
-        $cacheKey = $image->ClassName .'_'. $image->ID.'_'.$name.'_'.($useRetina ? 'Y':'N');
+        $cacheKey = $image->ClassName .'_'. $image->ID.'_'.$name.'_'.($useRetina ? 'Y':'N').'_'.($forMobile ? 'MY':'MN');
         if(empty(self::$imageLinkCache[$cacheKey])) {
             //work out perfect width and height
             if ($useRetina === null) {
@@ -39,6 +40,11 @@ class ImageManipulations extends Object
             $multiplier = PerfectCMSImages::get_multiplier($useRetina);
             $perfectWidth = PerfectCMSImages::get_width($name, true);
             $perfectHeight = PerfectCMSImages::get_height($name, true);
+            
+            if($forMobile){
+                $perfectWidth = PerfectCMSImages::get_mobile_width($name, true);
+                $perfectHeight = PerfectCMSImages::get_mobile_height($name, true);
+            }
 
             $perfectWidth = $perfectWidth * $multiplier;
             $perfectHeight = $perfectHeight * $multiplier;
@@ -90,6 +96,8 @@ class ImageManipulations extends Object
                 } else {
                     $link = $image->ScaleHeight($perfectHeight)->Link();
                 }
+            } elseif ($forMobile) {
+                $link = '';
             } else {
                 $link = $image->Link();
             }
@@ -149,7 +157,7 @@ class ImageManipulations extends Object
 
     public static function web_p_link(string $link) : string
     {
-        if (self::web_p_enabled()) {
+        if (self::web_p_enabled() && $link) {
             $fileNameWithBaseFolder = Director::baseFolder() .$link;
             $arrayOfLink = explode('.', $link);
             $extension = array_pop($arrayOfLink);
