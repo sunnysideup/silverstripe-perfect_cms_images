@@ -75,7 +75,7 @@ class PerfectCMSImagesUploadField extends UploadField
      *
      *
      * @param  string $name Formatting Standard
-     * @return this
+     * @return $this
      */
     public function selectFormattingStandard($name)
     {
