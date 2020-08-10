@@ -48,6 +48,7 @@ Instructions
  * dont double the image sizes
  * you can choose to only set the standard height or the width
 
+
 # add an image in Page or MyDataObject
 
 ```php
@@ -191,10 +192,14 @@ OR
     <img src="$MyImage.PerfectCmsImageLinkRetina(MyOtherImage)" alt="$Title.ATT" />
 ```
 
-OR
 
 
 # Important Note for those using Hash Path module
+
+
+Note that you can use `perfect_cms_images_append_title_to_image_links_classes`
+to add titles to images so that you get better SEO results.
+For this you will need to strip out the title part from the link using `.htaccess` (see bottom of this info)
 
 If you are using the Hash Path module then a hash path will be added to all links created by the Perfect CMS Images module.  To ensure that your images will be displayed add the following to an htaccess file in the Assets folder.
 
