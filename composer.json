@@ -30,10 +30,24 @@
     "suggests": {
         "heyday/silverstripe-hashpath": "not sure if this is still useful."
     },
-    "extra": [],
+    "extra": {
+        "project-files-installed": [
+            "app/.htaccess",
+            "app/_config.php",
+            "app/_config/mimevalidator.yml",
+            "app/_config/mysite.yml",
+            "app/src/Page.php",
+            "app/src/PageController.php"
+        ],
+        "public-files-installed": [
+            ".htaccess",
+            "index.php",
+            "web.config"
+        ]
+    },
     "autoload": {
         "psr-4": {
-            "Sunnysideup\\PerfectCMSImages\\": "src/"
+            "Sunnysideup\\PerfectCmsImages\\": "src/"
         }
     }
 }

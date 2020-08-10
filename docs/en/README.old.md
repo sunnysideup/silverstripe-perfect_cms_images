@@ -31,9 +31,9 @@ Instructions
 
   1. add an image in Page or MyDataObject
   2. add a back-up image to siteconfig
-  3. define the settings for the image in the `PerfectCMSImageDataExtension` class using yml configuration.
-  4. in the CMS Fields, use `PerfectCMSImagesUploadField`
-  5. in the template write: `$MyImage.PerfectCMSImageLink(NameOfFormat)`
+  3. define the settings for the image in the `PerfectCmsImageDataExtension` class using yml configuration.
+  4. in the CMS Fields, use `PerfectCmsImagesUploadField`
+  5. in the template write: `$MyImage.PerfectCmsImageLink(NameOfFormat)`
 
 # Nota Bene
 
@@ -70,7 +70,7 @@ and rewrite like this:
     ---
     Name: perfect_cms_images_custom
     ---
-    PerfectCMSImageDataExtension:
+    PerfectCmsImageDataExtension:
       perfect_cms_images_background_padding_color: "#cccccc"
       perfect_cms_images_image_definitions:
         "MyImage":
@@ -97,7 +97,7 @@ and rewrite like this:
             //...
             $fields->addFieldToTab(
                 "Root.Images",
-                PerfectCMSImagesUploadField::create(
+                PerfectCmsImagesUploadField::create(
                     $name = "MyImage",
                     $title = "My Cool Image"
                 )
@@ -119,7 +119,7 @@ you can also use a different formatting standard
             //...
             $fields->addFieldToTab(
                 "Root.Images",
-                PerfectCMSImagesUploadField::create(
+                PerfectCmsImagesUploadField::create(
                     $name = "MyImage",
                     $title = "My Cool Image"
                 )->selectFormattingStandard('MyOtherImage')
@@ -141,7 +141,7 @@ you can also use a different formatting standard
             //...
             $fields->addFieldToTab(
                 "Root.Images",
-                PerfectCMSImagesUploadField::create(
+                PerfectCmsImagesUploadField::create(
                     $name = "MyImage",
                     $title = "My Default Cool Image"
                 )
@@ -155,13 +155,13 @@ you can also use a different formatting standard
 # templage Usage
 
 ```html
-    <img src="$MyImage.PerfectCMSImageLink(MyImage)" alt="$Title.ATT" />
+    <img src="$MyImage.PerfectCmsImageLink(MyImage)" alt="$Title.ATT" />
 ```
 
 OR
 
 ```html
-    <img src="$MyImage.PerfectCMSImageLink(MyOtherImage)" alt="$Title.ATT" />
+    <img src="$MyImage.PerfectCmsImageLink(MyOtherImage)" alt="$Title.ATT" />
 ```
 
 # Important Note for those using Hash Path module

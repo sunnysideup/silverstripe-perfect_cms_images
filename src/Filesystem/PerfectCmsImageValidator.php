@@ -1,11 +1,11 @@
 <?php
 
-namespace Sunnysideup\PerfectCMSImages\Filesystem;
+namespace Sunnysideup\PerfectCmsImages\Filesystem;
 
-use Sunnysideup\PerfectCMSImages\Model\File\PerfectCMSImageDataExtension;
 use SilverStripe\Assets\Upload_Validator;
+use Sunnysideup\PerfectCmsImages\Model\File\PerfectCmsImageDataExtension;
 
-class PerfectCMSImage_Validator extends Upload_Validator
+class PerfectCmsImageValidator extends Upload_Validator
 {
     protected $fieldName = '';
 
@@ -13,6 +13,7 @@ class PerfectCMSImage_Validator extends Upload_Validator
     {
         $this->fieldName = $fieldName;
     }
+
     /**
      * Looser check validation that doesn't do is_upload_file()
      * checks as we're faking a POST request that PHP didn't generate
@@ -24,24 +25,24 @@ class PerfectCMSImage_Validator extends Upload_Validator
     {
         $hasError = false;
         $name = $this->fieldName;
-        if (PerfectCMSImageDataExtension::get_enforce_size($name)) {
-            $useRetina = PerfectCMSImageDataExtension::use_retina($name);
+        if (PerfectCmsImageDataExtension::get_enforce_size($name)) {
+            $useRetina = PerfectCmsImageDataExtension::use_retina($name);
             $multiplier = 1;
             if ($useRetina) {
                 $multiplier = 2;
             }
-            $widthRecommendation = (PerfectCMSImageDataExtension::get_width($name, true) * $multiplier);
-            $heightRecommendation = (PerfectCMSImageDataExtension::get_height($name, true) * $multiplier);
+            $widthRecommendation = PerfectCmsImageDataExtension::get_width($name, true) * $multiplier;
+            $heightRecommendation = PerfectCmsImageDataExtension::get_height($name, true) * $multiplier;
             if ($widthRecommendation) {
                 if (! $this->isImageCorrectWidth(true, $widthRecommendation)) {
-                    $this->errors[] = "Expected width: " . $widthRecommendation . "px;";
+                    $this->errors[] = 'Expected width: ' . $widthRecommendation . 'px;';
                     $hasError = true;
                 }
             }
 
             if ($heightRecommendation) {
                 if (! $this->isImageCorrectWidth(false, $heightRecommendation)) {
-                    $this->errors[] = "Expected height: " . $heightRecommendation . "px;";
+                    $this->errors[] = 'Expected height: ' . $heightRecommendation . 'px;';
                     $hasError = true;
                 }
             }
@@ -57,33 +58,30 @@ class PerfectCMSImage_Validator extends Upload_Validator
     {
         $actualWidthOrHeight = $this->getWidthOrHeight($isWidth);
         if ($actualWidthOrHeight) {
-            if ($actualWidthOrHeight != $recommendedWidthOrHeight) {
+            if ($actualWidthOrHeight !== $recommendedWidthOrHeight) {
                 return false;
             }
         }
         return true;
     }
 
-
     protected function getWidthOrHeight($isWidth)
     {
         $imageSize = false;
-        if (isset($this->tmpFile["tmp_name"])) {
-            $imageSize = getimagesize($this->tmpFile["tmp_name"]);
-        } else {
-            // $imagefile = $this->getFullPath();
-            // if($this->exists() && file_exists($imageFile)) {
-            //     $imageSize = getimagesize($imagefile);
-            // }
+        if (isset($this->tmpFile['tmp_name'])) {
+            $imageSize = getimagesize($this->tmpFile['tmp_name']);
         }
+        // $imagefile = $this->getFullPath();
+        // if($this->exists() && file_exists($imageFile)) {
+        //     $imageSize = getimagesize($imagefile);
+        // }
+
         if ($imageSize === false) {
             return false;
-        } else {
-            if ($isWidth) {
-                return $imageSize[0];
-            } else {
-                return $imageSize[1];
-            }
         }
+        if ($isWidth) {
+            return $imageSize[0];
+        }
+        return $imageSize[1];
     }
 }

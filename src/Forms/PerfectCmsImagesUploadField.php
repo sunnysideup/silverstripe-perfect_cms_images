@@ -1,28 +1,26 @@
 <?php
 
-namespace Sunnysideup\PerfectCMSImages\Forms;
+namespace Sunnysideup\PerfectCmsImages\Forms;
 
-use SilverStripe\ORM\SS_List;
-use SilverStripe\ORM\FieldType\DBField;
-use Sunnysideup\PerfectCMSImages\Filesystem\PerfectCMSImage_Validator;
-use Sunnysideup\PerfectCMSImages\Model\File\PerfectCMSImageDataExtension;
-use SilverStripe\Core\Config\Config;
-use Sunnysideup\PerfectCMSImages\Forms\PerfectCMSImagesUploadField;
-use SilverStripe\Assets\Folder;
-use SilverStripe\Assets\Filesystem;
 use SilverStripe\AssetAdmin\Forms\UploadField;
+use SilverStripe\Assets\Folder;
+use SilverStripe\Core\Config\Config;
+use SilverStripe\ORM\FieldType\DBField;
+use SilverStripe\ORM\SS_List;
+use Sunnysideup\PerfectCmsImages\Filesystem\PerfectCmsImageValidator;
+use Sunnysideup\PerfectCmsImages\Model\File\PerfectCmsImageDataExtension;
 
 /**
  * image-friendly upload field.
 
  * Usage:
- *     $field = PerfectCMSImagesUploadFielde::create(
+ *     $field = PerfectCmsImagesUploadFielde::create(
  *         "ImageField",
  *         "Add Image",
  *         null,
  * 	);
  */
-class PerfectCMSImagesUploadField extends UploadField
+class PerfectCmsImagesUploadField extends UploadField
 {
     private static $max_size_in_kilobytes = 1024;
 
@@ -47,22 +45,21 @@ class PerfectCMSImagesUploadField extends UploadField
             $title,
             $items
         );
-        $perfectCMSImageValidator = new PerfectCMSImage_Validator();
+        $perfectCMSImageValidator = new PerfectCmsImageValidator();
         $this->setValidator($perfectCMSImageValidator);
         if ($alternativeName === null) {
             $alternativeName = $name;
         }
         $this->selectFormattingStandard($alternativeName);
-
-        return $this;
     }
 
     public function setRightTitle($string)
     {
         parent::setRightTitle(
-            DBField::create_field('HTMLText',
-                $string.
-                '<br />'.
+            DBField::create_field(
+                'HTMLText',
+                $string .
+                '<br />' .
                 $this->RightTitle()
             )
         );
@@ -71,34 +68,31 @@ class PerfectCMSImagesUploadField extends UploadField
     }
 
     /**
-     *
-     *
-     *
      * @param  string $name Formatting Standard
      * @return $this
      */
     public function selectFormattingStandard($name)
     {
         parent::setRightTitle('');
-        $widthRecommendation = PerfectCMSImageDataExtension::get_width($name, false);
-        $heightRecommendation = PerfectCMSImageDataExtension::get_height($name, false);
-        $useRetina = PerfectCMSImageDataExtension::use_retina($name);
+        $widthRecommendation = PerfectCmsImageDataExtension::get_width($name, false);
+        $heightRecommendation = PerfectCmsImageDataExtension::get_height($name, false);
+        $useRetina = PerfectCmsImageDataExtension::use_retina($name);
         $multiplier = 1;
         if ($useRetina) {
             $multiplier = 2;
         }
-        $maxSizeInKilobytes = PerfectCMSImageDataExtension::max_size_in_kilobytes($name);
+        $maxSizeInKilobytes = PerfectCmsImageDataExtension::max_size_in_kilobytes($name);
         if (! $maxSizeInKilobytes) {
-            $maxSizeInKilobytes = Config::inst()->get(PerfectCMSImagesUploadField::class, 'max_size_in_kilobytes');
+            $maxSizeInKilobytes = Config::inst()->get(PerfectCmsImagesUploadField::class, 'max_size_in_kilobytes');
         }
 
         if ($this->folderName) {
             $folderName = $this->folderName;
         } else {
             //folder related stuff ...
-            $folderName = PerfectCMSImageDataExtension::get_folder($name);
+            $folderName = PerfectCmsImageDataExtension::get_folder($name);
             $folderPrefix = $this->Config()->get('folder_prefix');
-            if (!$folderName) {
+            if (! $folderName) {
                 $folderName = 'other-images';
             }
             $folderName = implode(
@@ -111,15 +105,15 @@ class PerfectCMSImagesUploadField extends UploadField
         //set folder
         $this->setFolderName($folderName);
 
-        $recommendedFileType = PerfectCMSImageDataExtension::get_file_type($name);
-        if (!$recommendedFileType) {
+        $recommendedFileType = PerfectCmsImageDataExtension::get_file_type($name);
+        if (! $recommendedFileType) {
             $recommendedFileType = 'jpg';
         }
         if ($widthRecommendation) {
             if (intval($widthRecommendation)) {
                 //cater for retina
-                $widthRecommendation = $widthRecommendation * $multiplier;
-                $actualWidthDescription = $widthRecommendation.'px';
+                $widthRecommendation *= $multiplier;
+                $actualWidthDescription = $widthRecommendation . 'px';
             } else {
                 $actualWidthDescription = $widthRecommendation;
             }
@@ -129,8 +123,8 @@ class PerfectCMSImagesUploadField extends UploadField
         if ($heightRecommendation) {
             if (intval($heightRecommendation)) {
                 //cater for retina
-                $heightRecommendation = $heightRecommendation * $multiplier;
-                $actualHeightDescription = $heightRecommendation.'px';
+                $heightRecommendation *= $multiplier;
+                $actualHeightDescription = $heightRecommendation . 'px';
             } else {
                 $actualHeightDescription = $heightRecommendation;
             }
@@ -138,50 +132,46 @@ class PerfectCMSImagesUploadField extends UploadField
             $actualHeightDescription = 'flexible';
         }
 
+        $rightTitle = '';
 
-        $rightTitle = "";
-
-        if ($actualWidthDescription == 'flexible') {
+        if ($actualWidthDescription === 'flexible') {
             $rightTitle .= 'Image width is flexible';
         } else {
-            $rightTitle .= "Image should to be <strong>$actualWidthDescription</strong> wide";
+            $rightTitle .= "Image should to be <strong>${actualWidthDescription}</strong> wide";
         }
 
         $rightTitle .= ' and ';
 
-        if ($actualHeightDescription == 'flexible') {
+        if ($actualHeightDescription === 'flexible') {
             $rightTitle .= 'height is flexible';
         } else {
-            $rightTitle .= " <strong>$actualHeightDescription</strong> tall";
+            $rightTitle .= " <strong>${actualHeightDescription}</strong> tall";
         }
 
         $rightTitle .= '<br />';
 
         if ($maxSizeInKilobytes) {
-            $rightTitle .= 'Maximum file size: '.round($maxSizeInKilobytes / 1024, 2).' megabyte.';
+            $rightTitle .= 'Maximum file size: ' . round($maxSizeInKilobytes / 1024, 2) . ' megabyte.';
             $rightTitle .= '<br />';
         }
         if ($recommendedFileType) {
             if (strlen($recommendedFileType) < 5) {
-                $rightTitle .= 'The recommend file type (file extension) is <strong>'.$recommendedFileType.'</strong>.';
+                $rightTitle .= 'The recommend file type (file extension) is <strong>' . $recommendedFileType . '</strong>.';
             } else {
-                $rightTitle .= '<strong>'.$recommendedFileType.'</strong>';
+                $rightTitle .= '<strong>' . $recommendedFileType . '</strong>';
             }
         }
-
 
         parent::setRightTitle(
             DBField::create_field('HTMLText', $rightTitle)
         );
 
-
         $this->setAllowedFileCategories('image');
         $alreadyAllowed = $this->getAllowedExtensions();
-        $this->setAllowedExtensions($alreadyAllowed + array('svg'));
+        $this->setAllowedExtensions($alreadyAllowed + ['svg']);
         //keep the size reasonable
         $this->getValidator()->setAllowedMaxFileSize(1 * 1024 * $maxSizeInKilobytes);
         $this->getValidator()->setFieldName($name);
         return $this;
     }
-
 }

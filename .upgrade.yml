@@ -1,5 +1,5 @@
 mappings:
-  PerfectCMSImage_Validator: Sunnysideup\PerfectCMSImages\Filesystem\PerfectCMSImage_Validator
-  PerfectCMSImagesBuildTaskCheckImages: Sunnysideup\PerfectCMSImages\Tasks\PerfectCMSImagesBuildTaskCheckImages
-  PerfectCMSImageDataExtension: Sunnysideup\PerfectCMSImages\Model\File\PerfectCMSImageDataExtension
-  PerfectCMSImagesUploadField: Sunnysideup\PerfectCMSImages\Forms\PerfectCMSImagesUploadField
+  PerfectCmsImageValidator: Sunnysideup\PerfectCmsImages\Filesystem\PerfectCmsImageValidator
+  PerfectCmsImagesBuildTaskCheckImages: Sunnysideup\PerfectCmsImages\Tasks\PerfectCmsImagesBuildTaskCheckImages
+  PerfectCmsImageDataExtension: Sunnysideup\PerfectCmsImages\Model\File\PerfectCmsImageDataExtension
+  PerfectCmsImagesUploadField: Sunnysideup\PerfectCmsImages\Forms\PerfectCmsImagesUploadField

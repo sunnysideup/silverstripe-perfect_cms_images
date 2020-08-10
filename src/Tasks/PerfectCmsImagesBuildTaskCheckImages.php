@@ -1,13 +1,13 @@
 <?php
 
-namespace Sunnysideup\PerfectCMSImages\Tasks;
+namespace Sunnysideup\PerfectCmsImages\Tasks;
 
 use SilverStripe\Core\Injector\Injector;
+use SilverStripe\Dev\BuildTask;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\ORM\DB;
-use SilverStripe\Dev\BuildTask;
 
-class PerfectCMSImagesBuildTaskCheckImages extends BuildTask
+class PerfectCmsImagesBuildTaskCheckImages extends BuildTask
 {
     protected $title = 'Check Size of Images Uploaded';
 
@@ -25,34 +25,34 @@ class PerfectCMSImagesBuildTaskCheckImages extends BuildTask
                 $singleton = Injector::inst()->get($parent);
                 if ($singleton instanceof DataObject) {
                     if ($singleton->hasMethod($fieldName)) {
-                        $objects = $parent::get()->where('"'.$fieldName.'ID" <> 0 AND "'.$fieldName.'ID" IS NOT NULL');
+                        $objects = $parent::get()->where('"' . $fieldName . 'ID" <> 0 AND "' . $fieldName . 'ID" IS NOT NULL');
                         for ($i = 0; $i < 100000; $i++) {
-                            $array = array();
+                            $array = [];
                             $obj = $objects->limit(1, $i)->first();
-                            if (!$obj) {
+                            if (! $obj) {
                                 break;
                             }
-                            $image = $obj->$fieldName();
+                            $image = $obj->{$fieldName}();
                             if ($image && $image instanceof $image && $image->exists()) {
                                 if ($width) {
                                     $realWidth = $image->getWidth();
-                                    if ($realWidth != $width) {
-                                        $array[] = "width is ".round($width / $realWidth, 2).'% of what it should be';
+                                    if ($realWidth !== $width) {
+                                        $array[] = 'width is ' . round($width / $realWidth, 2) . '% of what it should be';
                                     }
                                 }
                                 if ($height) {
                                     $realHeight = $image->getHeight();
-                                    if ($realHeight != $height) {
-                                        $array[] = "height is ".round($height / $realHeight, 2).'% of what it should be';
+                                    if ($realHeight !== $height) {
+                                        $array[] = 'height is ' . round($height / $realHeight, 2) . '% of what it should be';
                                     }
                                 }
                                 if (count($array)) {
-                                    $this->outputToScreen('ERRORS WITH: '.$obj->getTitle().' --- '.implode("; ", $array), 'deleted');
+                                    $this->outputToScreen('ERRORS WITH: ' . $obj->getTitle() . ' --- ' . implode('; ', $array), 'deleted');
                                 } else {
-                                    $this->outputToScreen('PERFECT PASS FOR: '.$obj->getTitle());
+                                    $this->outputToScreen('PERFECT PASS FOR: ' . $obj->getTitle());
                                 }
                             } else {
-                                $this->outputToScreen('Skipping '.$obj->getTitle().' as it does not have a valid image attached to it.');
+                                $this->outputToScreen('Skipping ' . $obj->getTitle() . ' as it does not have a valid image attached to it.');
                             }
                         }
                     } else {
@@ -71,14 +71,12 @@ class PerfectCMSImagesBuildTaskCheckImages extends BuildTask
     }
 
     /**
-     *
-     *
      * @param  string $message
      * @param  string $type
      */
-    protected function outputToScreen($message, $type = "")
+    protected function outputToScreen($message, $type = '')
     {
-        echo " ";
+        echo ' ';
         flush();
         ob_end_flush();
         DB::alteration_message($message, $type);

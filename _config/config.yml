@@ -4,4 +4,4 @@ Name: perfect_cms_images
 
 SilverStripe\Assets\Image:
   extensions:
-    - Sunnysideup\PerfectCMSImages\Model\File\PerfectCMSImageDataExtension
+    - Sunnysideup\PerfectCmsImages\Model\File\PerfectCmsImageDataExtension
