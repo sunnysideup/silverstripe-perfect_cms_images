@@ -1,7 +1,7 @@
 # Contributing to perfect cms images
 
 Please read the
-[generic write up for contributing](https://docs.silverstripe.org/en/4.0/contributing/)
+[generic write up for contributing](https://docs.silverstripe.org/en/4/contributing/code/)
 on silverstripe.org for some general information.  In practice,
 we would be stoked with any feedback / help you can provide.
 
