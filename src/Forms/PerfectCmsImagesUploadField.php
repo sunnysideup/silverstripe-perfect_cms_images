@@ -2,6 +2,8 @@
 
 namespace Sunnysideup\PerfectCmsImages\Forms;
 
+use Sunnysideup\PerfectCmsImages\Api\PerfectCMSImages;
+use Sunnysideup\PerfectCmsImages\Api\ImageManipulations;
 use SilverStripe\AssetAdmin\Forms\UploadField;
 use SilverStripe\Assets\Folder;
 use SilverStripe\Core\Config\Config;
@@ -45,54 +47,59 @@ class PerfectCmsImagesUploadField extends UploadField
             $title,
             $items
         );
-        $perfectCMSImageValidator = new PerfectCmsImageValidator();
+        $perfectCMSImageValidator = new PerfectCMSImage_Validator();
         $this->setValidator($perfectCMSImageValidator);
         if ($alternativeName === null) {
             $alternativeName = $name;
         }
         $this->selectFormattingStandard($alternativeName);
+
+        return $this;
     }
 
     public function setRightTitle($string)
     {
         parent::setRightTitle(
-            DBField::create_field(
-                'HTMLText',
-                $string .
-                '<br />' .
-                $this->RightTitle()
-            )
+            $string.
+            '<br />'.
+            $this->RightTitle()
         );
         //important!
         return $this;
     }
 
     /**
+     *
+     *
+     *
      * @param  string $name Formatting Standard
-     * @return $this
+     * @return this
      */
-    public function selectFormattingStandard($name)
+    public function selectFormattingStandard(string $name)
     {
-        parent::setRightTitle('');
-        $widthRecommendation = PerfectCmsImageDataExtension::get_width($name, false);
-        $heightRecommendation = PerfectCmsImageDataExtension::get_height($name, false);
-        $useRetina = PerfectCmsImageDataExtension::use_retina($name);
-        $multiplier = 1;
-        if ($useRetina) {
-            $multiplier = 2;
-        }
-        $maxSizeInKilobytes = PerfectCmsImageDataExtension::max_size_in_kilobytes($name);
-        if (! $maxSizeInKilobytes) {
-            $maxSizeInKilobytes = Config::inst()->get(PerfectCmsImagesUploadField::class, 'max_size_in_kilobytes');
-        }
+        $this->setPerfectFolderName($name);
 
-        if ($this->folderName) {
-            $folderName = $this->folderName;
-        } else {
+        $this->setRightTitle(PerfectCMSImages::get_description_for_cms($name));
+
+        $this->setAllowedFileCategories('image');
+        $alreadyAllowed = $this->getAllowedExtensions();
+        $this->setAllowedExtensions($alreadyAllowed + array('svg'));
+        //keep the size reasonable
+        $maxSizeInKilobytes = PerfectCMSImages::max_size_in_kilobytes($name);
+        $this->getValidator()->setAllowedMaxFileSize(1 * 1024 * $maxSizeInKilobytes);
+        $this->getValidator()->setFieldName($name);
+        return $this;
+    }
+
+    protected function setPerfectFolderName(string $name)
+    {
+        $folderPrefix = $this->Config()->get('folder_prefix');
+
+        $folderName = $this->folderName;
+        if(! $folderName) {
             //folder related stuff ...
-            $folderName = PerfectCmsImageDataExtension::get_folder($name);
-            $folderPrefix = $this->Config()->get('folder_prefix');
-            if (! $folderName) {
+            $folderName = PerfectCMSImages::get_folder($name);
+            if (!$folderName) {
                 $folderName = 'other-images';
             }
             $folderName = implode(
@@ -105,73 +112,5 @@ class PerfectCmsImagesUploadField extends UploadField
         //set folder
         $this->setFolderName($folderName);
 
-        $recommendedFileType = PerfectCmsImageDataExtension::get_file_type($name);
-        if (! $recommendedFileType) {
-            $recommendedFileType = 'jpg';
-        }
-        if ($widthRecommendation) {
-            if (intval($widthRecommendation)) {
-                //cater for retina
-                $widthRecommendation *= $multiplier;
-                $actualWidthDescription = $widthRecommendation . 'px';
-            } else {
-                $actualWidthDescription = $widthRecommendation;
-            }
-        } else {
-            $actualWidthDescription = 'flexible';
-        }
-        if ($heightRecommendation) {
-            if (intval($heightRecommendation)) {
-                //cater for retina
-                $heightRecommendation *= $multiplier;
-                $actualHeightDescription = $heightRecommendation . 'px';
-            } else {
-                $actualHeightDescription = $heightRecommendation;
-            }
-        } else {
-            $actualHeightDescription = 'flexible';
-        }
-
-        $rightTitle = '';
-
-        if ($actualWidthDescription === 'flexible') {
-            $rightTitle .= 'Image width is flexible';
-        } else {
-            $rightTitle .= "Image should to be <strong>${actualWidthDescription}</strong> wide";
-        }
-
-        $rightTitle .= ' and ';
-
-        if ($actualHeightDescription === 'flexible') {
-            $rightTitle .= 'height is flexible';
-        } else {
-            $rightTitle .= " <strong>${actualHeightDescription}</strong> tall";
-        }
-
-        $rightTitle .= '<br />';
-
-        if ($maxSizeInKilobytes) {
-            $rightTitle .= 'Maximum file size: ' . round($maxSizeInKilobytes / 1024, 2) . ' megabyte.';
-            $rightTitle .= '<br />';
-        }
-        if ($recommendedFileType) {
-            if (strlen($recommendedFileType) < 5) {
-                $rightTitle .= 'The recommend file type (file extension) is <strong>' . $recommendedFileType . '</strong>.';
-            } else {
-                $rightTitle .= '<strong>' . $recommendedFileType . '</strong>';
-            }
-        }
-
-        parent::setRightTitle(
-            DBField::create_field('HTMLText', $rightTitle)
-        );
-
-        $this->setAllowedFileCategories('image');
-        $alreadyAllowed = $this->getAllowedExtensions();
-        $this->setAllowedExtensions($alreadyAllowed + ['svg']);
-        //keep the size reasonable
-        $this->getValidator()->setAllowedMaxFileSize(1 * 1024 * $maxSizeInKilobytes);
-        $this->getValidator()->setFieldName($name);
-        return $this;
     }
 }
