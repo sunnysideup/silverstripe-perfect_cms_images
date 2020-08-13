@@ -2,17 +2,10 @@
 
 namespace Sunnysideup\PerfectCmsImages\Api;
 
-use SilverStripe\AssetAdmin\Forms\UploadField;
-use SilverStripe\Assets\Folder;
 use SilverStripe\Core\Config\Config;
-use SilverStripe\ORM\FieldType\DBField;
-use SilverStripe\ORM\SS_List;
-use Sunnysideup\PerfectCmsImages\Filesystem\PerfectCmsImageValidator;
-use Sunnysideup\PerfectCmsImages\Model\File\PerfectCmsImageDataExtension;
 
 class ImageManipulations extends Object
 {
-
     private static $webp_enabled = true;
 
     private static $webp_quality = 77;
@@ -36,10 +29,10 @@ class ImageManipulations extends Object
      *
      * @return string
      */
-    public static function get_image_link($image, string $name, ?bool $useRetina = null, ?bool $forMobile = null, ?int $resizeToWidth = 0) : string
+    public static function get_image_link($image, string $name, ?bool $useRetina = null, ?bool $forMobile = null, ?int $resizeToWidth = 0): string
     {
-        $cacheKey = $image->ClassName .'_'. $image->ID.'_'.$name.'_'.($useRetina ? 'Y':'N').'_'.($forMobile ? 'MY':'MN');
-        if(empty(self::$imageLinkCache[$cacheKey])) {
+        $cacheKey = $image->ClassName . '_' . $image->ID . '_' . $name . '_' . ($useRetina ? 'Y' : 'N') . '_' . ($forMobile ? 'MY' : 'MN');
+        if (empty(self::$imageLinkCache[$cacheKey])) {
             //work out perfect width and height
             if ($useRetina === null) {
                 $useRetina = PerfectCMSImages::use_retina($name);
@@ -50,13 +43,13 @@ class ImageManipulations extends Object
             $perfectWidth = PerfectCMSImages::get_width($name, true);
             $perfectHeight = PerfectCMSImages::get_height($name, true);
 
-            if($forMobile){
+            if ($forMobile) {
                 $perfectWidth = PerfectCMSImages::get_mobile_width($name, true);
                 $perfectHeight = PerfectCMSImages::get_mobile_height($name, true);
             }
 
-            $perfectWidth = $perfectWidth * $multiplier;
-            $perfectHeight = $perfectHeight * $multiplier;
+            $perfectWidth *= $multiplier;
+            $perfectHeight *= $multiplier;
 
             //get current width and height
             $myWidth = $image->getWidth();
@@ -64,13 +57,12 @@ class ImageManipulations extends Object
 
             //if we are trying to resize to a width that is small than the perfect width
             //and the resize width is small than the current width, then lets resize...
-            if(intval($resizeToWidth)) {
-                if($resizeToWidth < $perfectWidth && $resizeToWidth < $myWidth) {
+            if (intval($resizeToWidth)) {
+                if ($resizeToWidth < $perfectWidth && $resizeToWidth < $myWidth) {
                     $perfectWidth = $resizeToWidth;
                 }
             }
             if ($perfectWidth && $perfectHeight) {
-
                 //if the height or the width are already perfect then we can not do anything about it.
                 if ($myWidth === $perfectWidth && $myHeight === $perfectHeight) {
                     $link = $image->Link();
@@ -88,7 +80,7 @@ class ImageManipulations extends Object
             } elseif ($perfectWidth) {
                 if ($myWidth === $perfectWidth) {
                     $link = $image->Link();
-                }  elseif ($myWidth < $perfectWidth) {
+                } elseif ($myWidth < $perfectWidth) {
                     $link = $image->Link();
                 } elseif ($crop) {
                     $link = $image->Fill($perfectWidth, $myHeight)->Link();
@@ -130,7 +122,7 @@ class ImageManipulations extends Object
         $backupObject = SiteConfig::current_site_config();
         $backupField = $name;
         if ($backupObject->hasMethod($backupField)) {
-            $image = $backupObject->$backupField();
+            $image = $backupObject->{$backupField}();
         }
 
         return $image;
@@ -138,60 +130,61 @@ class ImageManipulations extends Object
 
     /**
      * placeholder image
-     * @param  int    $perfectWidth
+     * @param  int    $name
      * @param  int    $perfectHeight
      * @return string
      */
-    public static function get_placeholder_image_tag(string $name) : string
+    public static function get_placeholder_image_tag(string $name): string
     {
         $multiplier = PerfectCMSImages::get_multiplier(true);
         $perfectWidth = PerfectCMSImages::get_width($name, true);
         $perfectHeight = PerfectCMSImages::get_height($name, true);
-        $perfectWidth = $perfectWidth * $multiplier;
-        $perfectHeight = $perfectHeight * $multiplier;
+        $perfectWidth *= $multiplier;
+        $perfectHeight *= $multiplier;
         if ($perfectWidth || $perfectHeight) {
-            if (!$perfectWidth) {
+            if (! $perfectWidth) {
                 $perfectWidth = $perfectHeight;
             }
-            if (!$perfectHeight) {
+            if (! $perfectHeight) {
                 $perfectHeight = $perfectWidth;
             }
-            $text = "$perfectWidth x $perfectHeight /2 = ".round($perfectWidth/2)." x ".round($perfectHeight/2)."";
+            $text = "${perfectWidth} x ${perfectHeight} /2 = " . round($perfectWidth / 2) . ' x ' . round($perfectHeight / 2) . '';
 
-            return 'https://placehold.it/'.($perfectWidth).'x'.($perfectHeight).'?text='.urlencode($text);
-        } else {
-            return 'https://placehold.it/1500x1500?text='.urlencode('no size set');
+            return 'https://placehold.it/' . $perfectWidth . 'x' . $perfectHeight . '?text=' . urlencode($text);
         }
+        return 'https://placehold.it/1500x1500?text=' . urlencode('no size set');
     }
 
-    public static function web_p_link(string $link) : string
+    public static function web_p_link(string $link): string
     {
         if (self::web_p_enabled() && $link) {
-            $fileNameWithBaseFolder = Director::baseFolder() .$link;
+            $fileNameWithBaseFolder = Director::baseFolder() . $link;
             $arrayOfLink = explode('.', $link);
             $extension = array_pop($arrayOfLink);
             $pathWithoutExtension = rtrim($link, '.' . $extension);
             $webPFileName = $pathWithoutExtension . '_' . $extension . '.webp';
-            $webPFileNameWithBaseFolder = Director::baseFolder() . '/' .$webPFileName;
-            if(file_exists($fileNameWithBaseFolder)) {
-                if(isset($_GET['flush'])) {
+            $webPFileNameWithBaseFolder = Director::baseFolder() . '/' . $webPFileName;
+            if (file_exists($fileNameWithBaseFolder)) {
+                if (isset($_GET['flush'])) {
                     unlink($webPFileNameWithBaseFolder);
                 }
-                if(file_exists($webPFileNameWithBaseFolder)) {
+                if (file_exists($webPFileNameWithBaseFolder)) {
                     //todo: check that image is the same ...
                 } else {
-                    list($width, $height, $type, $attr) = getimagesize($fileNameWithBaseFolder);
+                    list($width, $height, $type) = getimagesize($fileNameWithBaseFolder);
                     $img = null;
-                    switch ($type) {
-                      case 2:
-                          $img = imagecreatefromjpeg($fileNameWithBaseFolder);
-                          break;
-                      case 3:
-                          $img = imagecreatefrompng($fileNameWithBaseFolder);
-                          imagesavealpha($img, true); // save alphablending setting (important)
-                    }
-                    if($img) {
-                        $webp = imagewebp($img, $webPFileNameWithBaseFolder, Config::inst()->get('ImageManipulations', 'webp_quality'));
+                    if ($width && $height) {
+                        switch ($type) {
+                          case 2:
+                              $img = imagecreatefromjpeg($fileNameWithBaseFolder);
+                                break;
+                          case 3:
+                              $img = imagecreatefrompng($fileNameWithBaseFolder);
+                              imagesavealpha($img, true); // save alphablending setting (important)
+                        }
+                        if ($img) {
+                            imagewebp($img, $webPFileNameWithBaseFolder, Config::inst()->get('ImageManipulations', 'webp_quality'));
+                        }
                     }
                 }
                 return $webPFileName;
@@ -199,10 +192,9 @@ class ImageManipulations extends Object
         }
 
         return $link;
-
     }
 
-    public static function add_fake_parts($image, string $link) : string
+    public static function add_fake_parts($image, string $link): string
     {
         if (class_exists('HashPathExtension')) {
             if ($curr = Controller::curr()) {
@@ -211,9 +203,9 @@ class ImageManipulations extends Object
                 }
             }
         }
-        if($image->Title) {
+        if ($image->Title) {
             $imageClasses = Config::inst()->get('PerfectCMSImages', 'perfect_cms_images_append_title_to_image_links_classes');
-            if (in_array($image->ClassName, $imageClasses)) {
+            if (in_array($image->ClassName, $imageClasses, true)) {
                 $link .= '?title=' . urlencode(Convert::raw2att($image->Title));
             }
         }
@@ -221,9 +213,9 @@ class ImageManipulations extends Object
         return $link;
     }
 
-    public static function web_p_enabled() : bool
+    public static function web_p_enabled(): bool
     {
-        if( Config::inst()->get('ImageManipulations', 'webp_enabled')) {
+        if (Config::inst()->get('ImageManipulations', 'webp_enabled')) {
             if (function_exists('imagewebp')) {
                 if (function_exists('imagecreatefromjpeg')) {
                     if (function_exists('imagecreatefrompng')) {
@@ -233,9 +225,5 @@ class ImageManipulations extends Object
             }
         }
         return false;
-
-
-
     }
-
 }

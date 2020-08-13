@@ -2,15 +2,12 @@
 
 namespace Sunnysideup\PerfectCmsImages\Model\File;
 
-use Sunnysideup\PerfectCmsImages\Api\PerfectCMSImages;
-use Sunnysideup\PerfectCmsImages\Api\ImageManipulations;
 use SilverStripe\Assets\Image;
 use SilverStripe\Control\Director;
-use SilverStripe\Core\Config\Config;
 use SilverStripe\Core\Convert;
 use SilverStripe\ORM\DataExtension;
-use SilverStripe\ORM\FieldType\DBHTMLText;
-use SilverStripe\SiteConfig\SiteConfig;
+use Sunnysideup\PerfectCmsImages\Api\ImageManipulations;
+use Sunnysideup\PerfectCmsImages\Api\PerfectCMSImages;
 
 /**
  * defines the image sizes
@@ -19,9 +16,7 @@ use SilverStripe\SiteConfig\SiteConfig;
 
 class PerfectCmsImageDataExtension extends DataExtension
 {
-
     /**
-     *
      * @param       string $name        PerfectCMSImages name
      * @param       bool   $inline      for use within existing image tag - optional
      * @param       string $alt         alt tag for image -optional
@@ -29,7 +24,7 @@ class PerfectCmsImageDataExtension extends DataExtension
      *
      * @return string (HTML)
      */
-    public function PerfectCMSImageTag(string $name, $inline = false, ?string $alt = '', ?string $attributes = '') : string
+    public function PerfectCMSImageTag(string $name, $inline = false, ?string $alt = '', ?string $attributes = ''): string
     {
         $retinaLink = $this->PerfectCMSImageLinkRetina($name);
         $nonRetinaLink = $this->PerfectCMSImageLinkNonRetina($name);
@@ -47,7 +42,7 @@ class PerfectCmsImageDataExtension extends DataExtension
         $height = PerfectCMSImages::get_height($name, true);
         $mobileMediaWidth = PerfectCMSImages::get_mobile_media_width($name);
 
-        if(! $alt) {
+        if (! $alt) {
             $alt = $this->owner->Title;
         }
 
@@ -69,102 +64,102 @@ class PerfectCmsImageDataExtension extends DataExtension
             ]
         );
         $template = 'PerfectCMSImageTag';
-        if($inline === true || intval($inline) === 1 || strtolower($inline) === 'true') {
+        if ($inline === true || intval($inline) === 1 || strtolower($inline) === 'true') {
             $template .= 'Inline';
         }
         return $arrayData->renderWith($template)->Raw();
     }
 
     /**
-     * @var string $name name of Image Field template
+     * @var string name of Image Field template
      * @return string (link)
      */
-    public function PerfectCMSImageLinkNonRetina(string $name) : string
+    public function PerfectCMSImageLinkNonRetina(string $name): string
     {
         return $this->PerfectCMSImageLink($name, false, false);
     }
 
     /**
-     * @var string $name name of Image Field template
+     * @var string name of Image Field template
      * @return string (link)
      */
-    public function PerfectCMSImageLinkRetina(string $name) : string
+    public function PerfectCMSImageLinkRetina(string $name): string
     {
         return $this->PerfectCMSImageLink($name, true, false);
     }
+
     /**
-     * @var string $name name of Image Field template
+     * @var string name of Image Field template
      * @return string (link)
      */
-    public function PerfectCMSImageLinkNonRetinaWebP(string $name) : string
+    public function PerfectCMSImageLinkNonRetinaWebP(string $name): string
     {
-        return $this->PerfectCMSImageLink($name, false,true);
+        return $this->PerfectCMSImageLink($name, false, true);
     }
 
     /**
-     * @var string $name name of Image Field template
+     * @var string name of Image Field template
      * @return string (link)
      */
-    public function PerfectCMSImageLinkRetinaWebP(string $name) : string
+    public function PerfectCMSImageLinkRetinaWebP(string $name): string
     {
         return $this->PerfectCMSImageLink($name, true, true);
     }
 
     /**
-     * @var string $name name of Image Field template
+     * @var string name of Image Field template
      * @return string (link)
      */
-    public function PerfectCMSImageLinkNonRetinaForMobile(string $name) : string
+    public function PerfectCMSImageLinkNonRetinaForMobile(string $name): string
     {
         return $this->PerfectCMSImageLink($name, false, false, true);
     }
 
     /**
-     * @var string $name name of Image Field template
+     * @var string name of Image Field template
      * @return string (link)
      */
-    public function PerfectCMSImageLinkRetinaForMobile(string $name) : string
+    public function PerfectCMSImageLinkRetinaForMobile(string $name): string
     {
         return $this->PerfectCMSImageLink($name, true, false, true);
     }
+
     /**
-     * @var string $name name of Image Field template
+     * @var string name of Image Field template
      * @return string (link)
      */
-    public function PerfectCMSImageLinkNonRetinaWebPForMobile(string $name) : string
+    public function PerfectCMSImageLinkNonRetinaWebPForMobile(string $name): string
     {
         return $this->PerfectCMSImageLink($name, false, true, true);
     }
 
     /**
-     * @var string $name name of Image Field template
+     * @var string name of Image Field template
      * @return string (link)
      */
-    public function PerfectCMSImageLinkRetinaWebPForMobile(string $name) : string
+    public function PerfectCMSImageLinkRetinaWebPForMobile(string $name): string
     {
         return $this->PerfectCMSImageLink($name, true, true, true);
     }
 
-
     /**
-     * @var string $name name of Image Field template
+     * @var string name of Image Field template
      * @return string (link)
      */
-    public function getPerfectCMSImageAbsoluteLink(string $link) : string
+    public function getPerfectCMSImageAbsoluteLink(string $link): string
     {
         return Director::absoluteURL($link);
     }
 
-
     /**
-     *
      * @param  string  $name
      * @param  boolean $useRetina
      * @param  boolean $isWebP
      * @return string
      */
-    public function PerfectCMSImageLink(string $name, ?bool $useRetina = false, ?bool $isWebP = false, ?bool $forMobile = false) : string
+    public function PerfectCMSImageLink(string $name, ?bool $useRetina = false, ?bool $isWebP = false, ?bool $forMobile = false): string
     {
+        /** @var Image|null */
         $image = $this->owner;
         if ($image && $image->exists() && $image instanceof Image) {
             //we are all good ...
@@ -173,23 +168,19 @@ class PerfectCmsImageDataExtension extends DataExtension
         }
 
         if ($image && $image->exists() && $image instanceof Image) {
-
             // $backEndString = Image::get_backend();
             // $backend = Injector::inst()->get($backEndString);
             $link = ImageManipulations::get_image_link($image, $name, $useRetina, $forMobile);
 
-            if($isWebP) {
+            if ($isWebP) {
                 $link = ImageManipulations::web_p_link($link);
             }
 
-            $link = $link ? ImageManipulations::add_fake_parts($image, $link) : '';
-
-            return $link;
+            return $link ? ImageManipulations::add_fake_parts($image, $link) : '';
         }
         // no image -> provide placeholder if in DEV MODE only!!!
         if (Director::isDev()) {
             return ImageManipulations::get_placeholder_image_tag($name);
         }
     }
-
 }

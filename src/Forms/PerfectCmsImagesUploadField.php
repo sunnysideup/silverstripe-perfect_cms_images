@@ -2,15 +2,11 @@
 
 namespace Sunnysideup\PerfectCmsImages\Forms;
 
-use Sunnysideup\PerfectCmsImages\Api\PerfectCMSImages;
-use Sunnysideup\PerfectCmsImages\Api\ImageManipulations;
 use SilverStripe\AssetAdmin\Forms\UploadField;
 use SilverStripe\Assets\Folder;
-use SilverStripe\Core\Config\Config;
-use SilverStripe\ORM\FieldType\DBField;
 use SilverStripe\ORM\SS_List;
+use Sunnysideup\PerfectCmsImages\Api\PerfectCMSImages;
 use Sunnysideup\PerfectCmsImages\Filesystem\PerfectCmsImageValidator;
-use Sunnysideup\PerfectCmsImages\Model\File\PerfectCmsImageDataExtension;
 
 /**
  * image-friendly upload field.
@@ -47,21 +43,19 @@ class PerfectCmsImagesUploadField extends UploadField
             $title,
             $items
         );
-        $perfectCMSImageValidator = new PerfectCMSImage_Validator();
+        $perfectCMSImageValidator = new PerfectCMSImageValidator();
         $this->setValidator($perfectCMSImageValidator);
         if ($alternativeName === null) {
             $alternativeName = $name;
         }
         $this->selectFormattingStandard($alternativeName);
-
-        return $this;
     }
 
     public function setRightTitle($string)
     {
         parent::setRightTitle(
-            $string.
-            '<br />'.
+            $string .
+            '<br />' .
             $this->RightTitle()
         );
         //important!
@@ -69,11 +63,8 @@ class PerfectCmsImagesUploadField extends UploadField
     }
 
     /**
-     *
-     *
-     *
      * @param  string $name Formatting Standard
-     * @return this
+     * @return $this
      */
     public function selectFormattingStandard(string $name)
     {
@@ -83,7 +74,7 @@ class PerfectCmsImagesUploadField extends UploadField
 
         $this->setAllowedFileCategories('image');
         $alreadyAllowed = $this->getAllowedExtensions();
-        $this->setAllowedExtensions($alreadyAllowed + array('svg'));
+        $this->setAllowedExtensions($alreadyAllowed + ['svg']);
         //keep the size reasonable
         $maxSizeInKilobytes = PerfectCMSImages::max_size_in_kilobytes($name);
         $this->getValidator()->setAllowedMaxFileSize(1 * 1024 * $maxSizeInKilobytes);
@@ -96,10 +87,10 @@ class PerfectCmsImagesUploadField extends UploadField
         $folderPrefix = $this->Config()->get('folder_prefix');
 
         $folderName = $this->folderName;
-        if(! $folderName) {
+        if (! $folderName) {
             //folder related stuff ...
             $folderName = PerfectCMSImages::get_folder($name);
-            if (!$folderName) {
+            if (! $folderName) {
                 $folderName = 'other-images';
             }
             $folderName = implode(
@@ -111,6 +102,5 @@ class PerfectCmsImagesUploadField extends UploadField
         Folder::find_or_make($folderName);
         //set folder
         $this->setFolderName($folderName);
-
     }
 }

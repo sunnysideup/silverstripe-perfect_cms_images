@@ -10,4 +10,5 @@ node_modules/
 coverage/
 /**/*.js.map
 
-/vendor
+/vendor/
+/resources/
