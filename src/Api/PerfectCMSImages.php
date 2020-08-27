@@ -7,6 +7,7 @@ use SilverStripe\Assets\Folder;
 use SilverStripe\Assets\Image;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Core\Flushable;
+use Sunnysideup\PerfectCmsImages\Model\File\PerfectCmsImageDataExtension;
 
 class PerfectCMSImages implements Flushable
 {
@@ -304,9 +305,9 @@ EOT;
     /**
      * @param string           $name
      *
-     * @return string
+     * @return string|null
      */
-    public static function get_mobile_media_width(string $name): string
+    public static function get_mobile_media_width(string $name)
     {
         return self::get_one_value_for_image(
             $name,
@@ -325,7 +326,7 @@ EOT;
         return self::get_one_value_for_image(
             $name,
             'padding_bg_colour',
-            Config::inst()->get('PerfectCMSImages', 'perfect_cms_images_background_padding_color')
+            Config::inst()->get(PerfectCmsImageDataExtension::class, 'perfect_cms_images_background_padding_color')
         );
     }
 
@@ -368,6 +369,6 @@ EOT;
      */
     protected static function get_all_values_for_images(): array
     {
-        return Config::inst()->get('PerfectCMSImages', 'perfect_cms_images_image_definitions');
+        return Config::inst()->get(PerfectCmsImageDataExtension::class, 'perfect_cms_images_image_definitions');
     }
 }

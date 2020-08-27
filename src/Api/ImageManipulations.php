@@ -3,8 +3,10 @@
 namespace Sunnysideup\PerfectCmsImages\Api;
 
 use SilverStripe\Core\Config\Config;
+use Sunnysideup\PerfectCmsImages\Model\File\PerfectCmsImageDataExtension;
+use SilverStripe\SiteConfig\SiteConfig;
 
-class ImageManipulations extends Object
+class ImageManipulations
 {
     private static $webp_enabled = true;
 
@@ -204,7 +206,7 @@ class ImageManipulations extends Object
             }
         }
         if ($image->Title) {
-            $imageClasses = Config::inst()->get('PerfectCMSImages', 'perfect_cms_images_append_title_to_image_links_classes');
+            $imageClasses = Config::inst()->get(PerfectCmsImageDataExtension::class, 'perfect_cms_images_append_title_to_image_links_classes');
             if (in_array($image->ClassName, $imageClasses, true)) {
                 $link .= '?title=' . urlencode(Convert::raw2att($image->Title));
             }

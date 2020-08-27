@@ -5,9 +5,11 @@ namespace Sunnysideup\PerfectCmsImages\Model\File;
 use SilverStripe\Assets\Image;
 use SilverStripe\Control\Director;
 use SilverStripe\Core\Convert;
+use SilverStripe\View\ArrayData;
 use SilverStripe\ORM\DataExtension;
 use Sunnysideup\PerfectCmsImages\Api\ImageManipulations;
 use Sunnysideup\PerfectCmsImages\Api\PerfectCMSImages;
+use SilverStripe\ORM\FieldType\DBField;
 
 /**
  * defines the image sizes
@@ -16,6 +18,11 @@ use Sunnysideup\PerfectCmsImages\Api\PerfectCMSImages;
 
 class PerfectCmsImageDataExtension extends DataExtension
 {
+
+    private static $casting = [
+        'PerfectCMSImageTag' => 'HTMLText'
+    ];
+
     /**
      * @param       string $name        PerfectCMSImages name
      * @param       bool   $inline      for use within existing image tag - optional
@@ -63,11 +70,11 @@ class PerfectCmsImageDataExtension extends DataExtension
                 'Attributes' => $attributes,
             ]
         );
-        $template = 'PerfectCMSImageTag';
+        $template = 'Includes/PerfectCMSImageTag';
         if ($inline === true || intval($inline) === 1 || strtolower($inline) === 'true') {
             $template .= 'Inline';
         }
-        return $arrayData->renderWith($template)->Raw();
+        return DBField::create_field('HTMLText', $arrayData->renderWith($template));
     }
 
     /**
