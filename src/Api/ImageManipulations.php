@@ -3,8 +3,9 @@
 namespace Sunnysideup\PerfectCmsImages\Api;
 
 use SilverStripe\Core\Config\Config;
-use Sunnysideup\PerfectCmsImages\Model\File\PerfectCmsImageDataExtension;
 use SilverStripe\SiteConfig\SiteConfig;
+use SilverStripe\Control\Director;
+use Sunnysideup\PerfectCmsImages\Model\File\PerfectCmsImageDataExtension;
 
 class ImageManipulations
 {
@@ -165,7 +166,7 @@ class ImageManipulations
             $extension = array_pop($arrayOfLink);
             $pathWithoutExtension = rtrim($link, '.' . $extension);
             $webPFileName = $pathWithoutExtension . '_' . $extension . '.webp';
-            $webPFileNameWithBaseFolder = Director::baseFolder() . '/' . $webPFileName;
+            $webPFileNameWithBaseFolder = Director::baseFolder() . $webPFileName;
             if (file_exists($fileNameWithBaseFolder)) {
                 if (isset($_GET['flush'])) {
                     unlink($webPFileNameWithBaseFolder);
@@ -217,7 +218,7 @@ class ImageManipulations
 
     public static function web_p_enabled(): bool
     {
-        if (Config::inst()->get('ImageManipulations', 'webp_enabled')) {
+        if (Config::inst()->get(ImageManipulations::class, 'webp_enabled')) {
             if (function_exists('imagewebp')) {
                 if (function_exists('imagecreatefromjpeg')) {
                     if (function_exists('imagecreatefrompng')) {

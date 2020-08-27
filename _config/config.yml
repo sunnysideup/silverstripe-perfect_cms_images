@@ -5,3 +5,7 @@ Name: perfect_cms_images
 SilverStripe\Assets\Image:
   extensions:
     - Sunnysideup\PerfectCmsImages\Model\File\PerfectCmsImageDataExtension
+
+SilverStripe\Assets\File:
+  allowed_extensions:
+    - webp
