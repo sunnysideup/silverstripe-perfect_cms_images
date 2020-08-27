@@ -20,7 +20,7 @@ use Sunnysideup\PerfectCmsImages\Filesystem\PerfectCmsImageValidator;
  */
 class PerfectCmsImagesUploadField extends UploadField
 {
-    private static $max_size_in_kilobytes = 1024;
+    private static $max_size_in_kilobytes = 2048;
 
     private static $folder_prefix = '';
 
