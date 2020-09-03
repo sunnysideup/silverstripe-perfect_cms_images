@@ -31,7 +31,12 @@ class PerfectCmsImageDataExtension extends DataExtension
      *
      * @return string (HTML)
      */
-    public function PerfectCMSImageTag(string $name, $inline = false, ?string $alt = '', ?string $attributes = ''): string
+    public function getPerfectCMSImageTag(string $name, $inline = false, ?string $alt = '', ?string $attributes = '')
+    {
+        return $this->PerfectCMSImageTag($name, $inline, $alt, $attributes);
+    }
+
+    public function PerfectCMSImageTag(string $name, $inline = false, ?string $alt = '', ?string $attributes = '')
     {
         $retinaLink = $this->PerfectCMSImageLinkRetina($name);
         $nonRetinaLink = $this->PerfectCMSImageLinkNonRetina($name);
