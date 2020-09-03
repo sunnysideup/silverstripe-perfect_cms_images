@@ -124,7 +124,7 @@ EOT;
             $actualHeightDescription = 'flexible';
         }
 
-        $rightTitle = '';
+        $rightTitle = '<span>';
 
         if ($actualWidthDescription === 'flexible') {
             $rightTitle .= 'Image width is flexible';
@@ -153,6 +153,8 @@ EOT;
                 $rightTitle .= '<strong>' . $recommendedFileType . '</strong>';
             }
         }
+
+        $rightTitle .= '</span>';
 
         return $rightTitle;
     }

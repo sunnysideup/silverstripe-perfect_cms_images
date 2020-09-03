@@ -5,6 +5,7 @@ namespace Sunnysideup\PerfectCmsImages\Forms;
 use SilverStripe\AssetAdmin\Forms\UploadField;
 use SilverStripe\Assets\Folder;
 use SilverStripe\ORM\SS_List;
+use SilverStripe\ORM\FieldType\DBField;
 use Sunnysideup\PerfectCmsImages\Api\PerfectCMSImages;
 use Sunnysideup\PerfectCmsImages\Filesystem\PerfectCmsImageValidator;
 
@@ -54,9 +55,7 @@ class PerfectCmsImagesUploadField extends UploadField
     public function setRightTitle($string)
     {
         parent::setRightTitle(
-            $string .
-            '<br />' .
-            $this->RightTitle()
+            DBField::create_field('HTMLText', $string . '<br />' . $this->RightTitle())
         );
         //important!
         return $this;
