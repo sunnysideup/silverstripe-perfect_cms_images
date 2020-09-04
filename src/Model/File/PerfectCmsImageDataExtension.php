@@ -5,11 +5,11 @@ namespace Sunnysideup\PerfectCmsImages\Model\File;
 use SilverStripe\Assets\Image;
 use SilverStripe\Control\Director;
 use SilverStripe\Core\Convert;
-use SilverStripe\View\ArrayData;
 use SilverStripe\ORM\DataExtension;
+use SilverStripe\ORM\FieldType\DBField;
+use SilverStripe\View\ArrayData;
 use Sunnysideup\PerfectCmsImages\Api\ImageManipulations;
 use Sunnysideup\PerfectCmsImages\Api\PerfectCMSImages;
-use SilverStripe\ORM\FieldType\DBField;
 
 /**
  * defines the image sizes
@@ -18,9 +18,8 @@ use SilverStripe\ORM\FieldType\DBField;
 
 class PerfectCmsImageDataExtension extends DataExtension
 {
-
     private static $casting = [
-        'PerfectCMSImageTag' => 'HTMLText'
+        'PerfectCMSImageTag' => 'HTMLText',
     ];
 
     /**

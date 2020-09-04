@@ -154,9 +154,7 @@ EOT;
             }
         }
 
-        $rightTitle .= '</span>';
-
-        return $rightTitle;
+        return $rightTitle . '</span>';
     }
 
     /**

@@ -4,8 +4,8 @@ namespace Sunnysideup\PerfectCmsImages\Forms;
 
 use SilverStripe\AssetAdmin\Forms\UploadField;
 use SilverStripe\Assets\Folder;
-use SilverStripe\ORM\SS_List;
 use SilverStripe\ORM\FieldType\DBField;
+use SilverStripe\ORM\SS_List;
 use Sunnysideup\PerfectCmsImages\Api\PerfectCMSImages;
 use Sunnysideup\PerfectCmsImages\Filesystem\PerfectCmsImageValidator;
 
