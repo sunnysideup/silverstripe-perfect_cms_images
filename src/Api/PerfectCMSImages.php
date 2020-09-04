@@ -187,7 +187,7 @@ EOT;
     /**
      * @param string           $name
      *
-     * @return boolean
+     * @return bool
      */
     public static function is_crop(string $name): bool
     {
@@ -295,7 +295,7 @@ EOT;
     /**
      * @param string           $name
      *
-     * @return boolean
+     * @return bool
      */
     public static function get_enforce_size(string $name): bool
     {
@@ -333,7 +333,7 @@ EOT;
     /**
      * @param string           $name
      *
-     * @return boolean
+     * @return bool
      */
     protected static function image_info_available(string $name): bool
     {

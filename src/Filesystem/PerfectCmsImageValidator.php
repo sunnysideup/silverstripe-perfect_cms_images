@@ -19,7 +19,7 @@ class PerfectCmsImageValidator extends Upload_Validator
      * checks as we're faking a POST request that PHP didn't generate
      * itself.
      *
-     * @return boolean
+     * @return bool
      */
     public function validate()
     {
