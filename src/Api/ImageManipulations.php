@@ -8,6 +8,7 @@ use SilverStripe\Core\Config\Config;
 use SilverStripe\Core\Convert;
 use SilverStripe\SiteConfig\SiteConfig;
 use Sunnysideup\PerfectCmsImages\Model\File\PerfectCmsImageDataExtension;
+use Sunnysideup\PerfectCmsImages\Api\PerfectCMSImages;
 use SilverStripe\Assets\Image;
 
 class ImageManipulations
@@ -210,7 +211,7 @@ class ImageManipulations
             }
         }
         if ($image->Title) {
-            $imageClasses = Config::inst()->get(PerfectCmsImageDataExtension::class, 'perfect_cms_images_append_title_to_image_links_classes');
+            $imageClasses = Config::inst()->get(PerfectCMSImages::class, 'perfect_cms_images_append_title_to_image_links_classes');
             if (in_array($image->ClassName, $imageClasses, true)) {
                 $link .= '?title=' . urlencode(Convert::raw2att($image->Title));
             }

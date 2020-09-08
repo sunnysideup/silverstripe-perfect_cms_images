@@ -1,9 +1,12 @@
 ---
 Name: perfect_cms_images_custom
 ---
-Sunnysideup\PerfectCmsImages\Model\File\PerfectCmsImageDataExtension:
+Sunnysideup\PerfectCmsImages\Api\PerfectCMSImages:
   perfect_cms_images_append_title_to_image_links_classes:
     - SilverStripe\Assets\Image
+
+Sunnysideup\PerfectCmsImages\Model\File\PerfectCmsImageDataExtension:
+
   perfect_cms_images_background_padding_color: "#ffffff"
   perfect_cms_images_image_definitions:
     nameBAR:
