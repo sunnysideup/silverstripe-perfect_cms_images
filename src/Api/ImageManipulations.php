@@ -2,14 +2,12 @@
 
 namespace Sunnysideup\PerfectCmsImages\Api;
 
+use SilverStripe\Assets\Image;
 use SilverStripe\Control\Controller;
 use SilverStripe\Control\Director;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Core\Convert;
 use SilverStripe\SiteConfig\SiteConfig;
-use Sunnysideup\PerfectCmsImages\Model\File\PerfectCmsImageDataExtension;
-use Sunnysideup\PerfectCmsImages\Api\PerfectCMSImages;
-use SilverStripe\Assets\Image;
 
 class ImageManipulations
 {
