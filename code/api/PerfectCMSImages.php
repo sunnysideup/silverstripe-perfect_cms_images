@@ -214,7 +214,7 @@ EOT;
      *
      * @return int?string
      */
-    public static function get_width(string $name, bool $forceInteger = false)
+    public static function get_width(string $name, bool $forceInteger = false) : int
     {
         $v = self::get_one_value_for_image($name, "width", 0);
         if ($forceInteger) {
@@ -230,7 +230,7 @@ EOT;
      *
      * @return int|string
      */
-    public static function get_height(string $name, bool $forceInteger = false)
+    public static function get_height(string $name, bool $forceInteger = false) : int
     {
         $v = self::get_one_value_for_image($name, "height", 0);
         if ($forceInteger) {
@@ -246,7 +246,7 @@ EOT;
      *
      * @return int?string
      */
-    public static function get_mobile_width(string $name, bool $forceInteger = false)
+    public static function get_mobile_width(string $name, bool $forceInteger = false) : int
     {
         $v = self::get_one_value_for_image($name, "mobile_width", 0);
         if ($forceInteger) {
@@ -262,7 +262,7 @@ EOT;
      *
      * @return int|string
      */
-    public static function get_mobile_height(string $name, bool $forceInteger = false)
+    public static function get_mobile_height(string $name, bool $forceInteger = false) : int
     {
         $v = self::get_one_value_for_image($name, "mobile_height", 0);
         if ($forceInteger) {
@@ -323,7 +323,7 @@ EOT;
      */
     public static function get_mobile_media_width(string $name) : string
     {
-        return self::get_one_value_for_image(
+        return '' . self::get_one_value_for_image(
             $name,
             "mobile_media_max_width",
             Config::inst()->get('PerfectCMSImages', 'mobile_media_max_width')
