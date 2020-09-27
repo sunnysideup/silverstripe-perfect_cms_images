@@ -2,16 +2,20 @@
 
 namespace Sunnysideup\PerfectCmsImages\Forms;
 
+use SilverStripe\Dev\Debug;
+
 use SilverStripe\AssetAdmin\Forms\UploadField;
 use SilverStripe\Assets\Folder;
-use SilverStripe\ORM\FieldType\DBField;
+use SilverStripe\Control\HTTPRequest;
+use SilverStripe\Control\HTTPResponse;
 use SilverStripe\ORM\SS_List;
+use SilverStripe\ORM\FieldType\DBField;
 use Sunnysideup\PerfectCmsImages\Api\PerfectCMSImages;
 use Sunnysideup\PerfectCmsImages\Filesystem\PerfectCmsImageValidator;
 
 /**
  * image-friendly upload field.
-
+ *
  * Usage:
  *     $field = PerfectCmsImagesUploadFielde::create(
  *         "ImageField",
@@ -26,16 +30,14 @@ class PerfectCmsImagesUploadField extends UploadField
     private static $folder_prefix = '';
 
     /**
-     * @param string  $name
-     * @param string  $title
+     * @param string $name The internal field name, passed to forms.
+     * @param string $title The field label.
      * @param SS_List|null $items If no items are defined, the field will try to auto-detect an existing relation
      * @param string|null $alternativeName
-     *
-     * @return UploadField
      */
     public function __construct(
         $name,
-        $title,
+        $title = null,
         SS_List $items = null,
         $alternativeName = null
     ) {
@@ -52,9 +54,9 @@ class PerfectCmsImagesUploadField extends UploadField
         $this->selectFormattingStandard($alternativeName);
     }
 
-    public function setDescription($string)
+    public function setRightTitle($string)
     {
-        parent::setDescription(
+        parent::setRightTitle(
             DBField::create_field('HTMLText', $string . '<br />' . $this->RightTitle())
         );
         //important!
@@ -69,7 +71,7 @@ class PerfectCmsImagesUploadField extends UploadField
     {
         $this->setPerfectFolderName($name);
 
-        $this->setDescription(PerfectCMSImages::get_description_for_cms($name));
+        $this->setRightTitle(PerfectCMSImages::get_description_for_cms($name));
 
         $this->setAllowedFileCategories('image');
         $alreadyAllowed = $this->getAllowedExtensions();
