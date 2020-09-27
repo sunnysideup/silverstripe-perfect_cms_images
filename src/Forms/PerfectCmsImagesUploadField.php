@@ -30,6 +30,16 @@ class PerfectCmsImagesUploadField extends UploadField
     private static $folder_prefix = '';
 
     /**
+     * @config
+     * @var array
+     */
+    private static $allowed_actions = [
+        'upload'
+    ];
+
+    private $afterUpload = null;
+
+    /**
      * @param string $name The internal field name, passed to forms.
      * @param string $title The field label.
      * @param SS_List|null $items If no items are defined, the field will try to auto-detect an existing relation
@@ -103,5 +113,35 @@ class PerfectCmsImagesUploadField extends UploadField
         Folder::find_or_make($folderName);
         //set folder
         $this->setFolderName($folderName);
+    }
+
+    /**
+     * Creates a single file based on a form-urlencoded upload.
+     * Allows for hooking AfterUpload
+     *
+     * @param HTTPRequest $request
+     * @return HTTPResponse
+     */
+    public function upload(HTTPRequest $request)
+    {
+        $response = parent::upload($request);
+
+        // If afterUpload is a function ..
+        return (is_callable($this->afterUpload)) ?
+            //  .. then return the results from that ..
+            ($this->afterUpload)($response) :
+            //  .. else return the original $response
+            $response;
+    }
+
+    /**
+     * Add an anonymous functions to run after upload completes
+     *
+     * @param $func
+     * @return $this
+     */
+    public function setAfterUpload($func) {
+        $this->afterUpload = $func;
+        return $this;
     }
 }
