@@ -2,16 +2,20 @@
 
 namespace Sunnysideup\PerfectCmsImages\Forms;
 
+use SilverStripe\Dev\Debug;
+
 use SilverStripe\AssetAdmin\Forms\UploadField;
 use SilverStripe\Assets\Folder;
-use SilverStripe\ORM\FieldType\DBField;
+use SilverStripe\Control\HTTPRequest;
+use SilverStripe\Control\HTTPResponse;
 use SilverStripe\ORM\SS_List;
+use SilverStripe\ORM\FieldType\DBField;
 use Sunnysideup\PerfectCmsImages\Api\PerfectCMSImages;
 use Sunnysideup\PerfectCmsImages\Filesystem\PerfectCmsImageValidator;
 
 /**
  * image-friendly upload field.
-
+ *
  * Usage:
  *     $field = PerfectCmsImagesUploadFielde::create(
  *         "ImageField",
@@ -26,16 +30,24 @@ class PerfectCmsImagesUploadField extends UploadField
     private static $folder_prefix = '';
 
     /**
-     * @param string  $name
-     * @param string  $title
+     * @config
+     * @var array
+     */
+    private static $allowed_actions = [
+        'upload'
+    ];
+
+    private $afterUpload = null;
+
+    /**
+     * @param string $name The internal field name, passed to forms.
+     * @param string $title The field label.
      * @param SS_List|null $items If no items are defined, the field will try to auto-detect an existing relation
      * @param string|null $alternativeName
-     *
-     * @return UploadField
      */
     public function __construct(
         $name,
-        $title,
+        $title = null,
         SS_List $items = null,
         $alternativeName = null
     ) {
@@ -52,9 +64,9 @@ class PerfectCmsImagesUploadField extends UploadField
         $this->selectFormattingStandard($alternativeName);
     }
 
-    public function setDescription($string)
+    public function setRightTitle($string)
     {
-        parent::setDescription(
+        parent::setRightTitle(
             DBField::create_field('HTMLText', $string . '<br />' . $this->RightTitle())
         );
         //important!
@@ -69,7 +81,7 @@ class PerfectCmsImagesUploadField extends UploadField
     {
         $this->setPerfectFolderName($name);
 
-        $this->setDescription(PerfectCMSImages::get_description_for_cms($name));
+        $this->setRightTitle(PerfectCMSImages::get_description_for_cms($name));
 
         $this->setAllowedFileCategories('image');
         $alreadyAllowed = $this->getAllowedExtensions();
@@ -101,5 +113,35 @@ class PerfectCmsImagesUploadField extends UploadField
         Folder::find_or_make($folderName);
         //set folder
         $this->setFolderName($folderName);
+    }
+
+    /**
+     * Creates a single file based on a form-urlencoded upload.
+     * Allows for hooking AfterUpload
+     *
+     * @param HTTPRequest $request
+     * @return HTTPResponse
+     */
+    public function upload(HTTPRequest $request)
+    {
+        $response = parent::upload($request);
+
+        // If afterUpload is a function ..
+        return (is_callable($this->afterUpload)) ?
+            //  .. then return the results from that ..
+            ($this->afterUpload)($response) :
+            //  .. else return the original $response
+            $response;
+    }
+
+    /**
+     * Add an anonymous functions to run after upload completes
+     *
+     * @param $func
+     * @return $this
+     */
+    public function setAfterUpload($func) {
+        $this->afterUpload = $func;
+        return $this;
     }
 }

@@ -2,11 +2,16 @@
 
 namespace Sunnysideup\PerfectCmsImages\Api;
 
+use SilverStripe\Dev\Debug;
+
+use Psr\Log\LoggerInterface;
 use SilverStripe\Assets\Filesystem;
 use SilverStripe\Assets\Folder;
 use SilverStripe\Assets\Image;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Core\Flushable;
+use SilverStripe\Core\Injector\Injector;
+use SilverStripe\Security\Security;
 use Sunnysideup\PerfectCmsImages\Model\File\PerfectCmsImageDataExtension;
 
 class PerfectCMSImages implements Flushable
@@ -352,15 +357,11 @@ EOT;
     protected static function get_one_value_for_image(string $name, string $key, ?string $default = '')
     {
         $sizes = self::get_all_values_for_images();
-        //print_r($sizes);die();
-        if (isset($sizes[$name])) {
-            if (isset($sizes[$name][$key])) {
-                return $sizes[$name][$key];
-            }
+        if (isset($sizes[$name]) && isset($sizes[$name][$key])) {
+            return $sizes[$name][$key];
         } else {
-            user_error('no information for image with name: ' . $name);
+            Injector::inst()->get(LoggerInterface::class)->info('no information for image with the name: ' . $name);
         }
-
         return $default;
     }
 
@@ -369,6 +370,9 @@ EOT;
      */
     protected static function get_all_values_for_images(): array
     {
-        return Config::inst()->get(PerfectCmsImageDataExtension::class, 'perfect_cms_images_image_definitions');
+        return Config::inst()->get(
+            PerfectCmsImageDataExtension::class,
+            'perfect_cms_images_image_definitions'
+        ) ?: [];
     }
 }

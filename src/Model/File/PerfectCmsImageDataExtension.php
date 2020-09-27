@@ -5,9 +5,9 @@ namespace Sunnysideup\PerfectCmsImages\Model\File;
 use SilverStripe\Assets\Image;
 use SilverStripe\Control\Director;
 use SilverStripe\Core\Convert;
+use SilverStripe\View\ArrayData;
 use SilverStripe\ORM\DataExtension;
 use SilverStripe\ORM\FieldType\DBField;
-use SilverStripe\View\ArrayData;
 use Sunnysideup\PerfectCmsImages\Api\ImageManipulations;
 use Sunnysideup\PerfectCmsImages\Api\PerfectCMSImages;
 
@@ -15,11 +15,11 @@ use Sunnysideup\PerfectCmsImages\Api\PerfectCMSImages;
  * defines the image sizes
  * and default upload folder.
  */
-
 class PerfectCmsImageDataExtension extends DataExtension
 {
+
     private static $casting = [
-        'PerfectCMSImageTag' => 'HTMLText',
+        'PerfectCMSImageTag' => 'HTMLText'
     ];
 
     /**
