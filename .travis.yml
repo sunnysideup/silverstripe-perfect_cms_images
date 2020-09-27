@@ -54,9 +54,9 @@ before_script:
   - composer self-update || true
   - echo 'memory_limit = 2048M' >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
   - git clone git://github.com/silverstripe-labs/silverstripe-travis-support.git ~/travis-support
-  - php ~/travis-support/travis_setup.php --source `pwd` --target ~/builds/ss
+  - php ~/travis-support/travis_setup.php --source `pwd` --target ~/builds/ss --require silverstripe/recipe-testing silverstripe/recipe-cms
   - cd ~/builds/ss
 
 script:
   # Execute tests with no coverage.  This is the fastest option
- - php framework/cli-script.php dev/build flush=all
+ - vendor/bin/sake dev/build flush=all
