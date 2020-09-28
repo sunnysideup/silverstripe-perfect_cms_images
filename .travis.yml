@@ -33,7 +33,13 @@ env:
 matrix:
   fast_finish: true
   include:
-    - php: 7.1
+    - php: 7.2
+      env:
+        - DB=MYSQL
+    - php: 7.3
+      env:
+        - DB=MYSQL
+    - php: 7.4
       env:
         - DB=MYSQL
 
@@ -53,4 +59,4 @@ before_script:
 
 script:
   # Execute tests with no coverage.  This is the fastest option
- - php framework/cli-script.php dev/build flush=all
+ - vendor/bin/sake dev/build flush=all
