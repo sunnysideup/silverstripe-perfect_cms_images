@@ -71,7 +71,7 @@ class PerfectCmsImageDataExtension extends DataExtension
                 'NonRetinaLink' => $nonRetinaLink,
                 'RetinaLinkWebP' => $retinaLinkWebP,
                 'NonRetinaLinkWebP' => $nonRetinaLinkWebP,
-                'Attributes' => $attributes,
+                'Attributes' => DBField::create_field('HTMLText', $attributes),
             ]
         );
         $template = 'Includes/PerfectCMSImageTag';
