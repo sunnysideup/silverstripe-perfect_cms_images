@@ -1,6 +1,4 @@
----
-title: Example implementation for a rapid uploader
----
+# Example implementation for a rapid uploader
 
 In some circumstances it may be desirable to allow CMS users to rapidly populate content by uploading files. You can use this module to handle additional actions after a file as been uploaded. For this example we will create a basic form controller that extends from LeftAndMain and has a PerfectCmsImagesUploadField.
 
