@@ -81,8 +81,8 @@ EOT;
      */
     public static function flush()
     {
-        if (! Config::inst()->get('Image', 'force_resample')) {
-            Config::inst()->update('Image', 'force_resample', true);
+        if (! Config::inst()->get(Image::class, 'force_resample')) {
+            Config::modify()->update(Image::class, 'force_resample', true);
         }
         if (class_exists('HashPathExtension')) {
             if (! file_exists(ASSETS_PATH)) {
