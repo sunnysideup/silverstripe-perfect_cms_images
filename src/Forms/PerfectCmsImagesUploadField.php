@@ -2,14 +2,12 @@
 
 namespace Sunnysideup\PerfectCmsImages\Forms;
 
-use SilverStripe\Dev\Debug;
-
 use SilverStripe\AssetAdmin\Forms\UploadField;
 use SilverStripe\Assets\Folder;
 use SilverStripe\Control\HTTPRequest;
 use SilverStripe\Control\HTTPResponse;
-use SilverStripe\ORM\SS_List;
 use SilverStripe\ORM\FieldType\DBField;
+use SilverStripe\ORM\SS_List;
 use Sunnysideup\PerfectCmsImages\Api\PerfectCMSImages;
 use Sunnysideup\PerfectCmsImages\Filesystem\PerfectCmsImageValidator;
 
@@ -34,7 +32,7 @@ class PerfectCmsImagesUploadField extends UploadField
      * @var array
      */
     private static $allowed_actions = [
-        'upload'
+        'upload',
     ];
 
     private $afterUpload = null;
@@ -93,6 +91,37 @@ class PerfectCmsImagesUploadField extends UploadField
         return $this;
     }
 
+    /**
+     * Creates a single file based on a form-urlencoded upload.
+     * Allows for hooking AfterUpload
+     *
+     * @param HTTPRequest $request
+     * @return HTTPResponse
+     */
+    public function upload(HTTPRequest $request)
+    {
+        $response = parent::upload($request);
+
+        // If afterUpload is a function ..
+        return is_callable($this->afterUpload) ?
+            //  .. then return the results from that ..
+            ($this->afterUpload)($response) :
+            //  .. else return the original $response
+            $response;
+    }
+
+    /**
+     * Add an anonymous functions to run after upload completes
+     *
+     * @param $func
+     * @return $this
+     */
+    public function setAfterUpload($func)
+    {
+        $this->afterUpload = $func;
+        return $this;
+    }
+
     protected function setPerfectFolderName(string $name)
     {
         $folderPrefix = $this->Config()->get('folder_prefix');
@@ -113,35 +142,5 @@ class PerfectCmsImagesUploadField extends UploadField
         Folder::find_or_make($folderName);
         //set folder
         $this->setFolderName($folderName);
-    }
-
-    /**
-     * Creates a single file based on a form-urlencoded upload.
-     * Allows for hooking AfterUpload
-     *
-     * @param HTTPRequest $request
-     * @return HTTPResponse
-     */
-    public function upload(HTTPRequest $request)
-    {
-        $response = parent::upload($request);
-
-        // If afterUpload is a function ..
-        return (is_callable($this->afterUpload)) ?
-            //  .. then return the results from that ..
-            ($this->afterUpload)($response) :
-            //  .. else return the original $response
-            $response;
-    }
-
-    /**
-     * Add an anonymous functions to run after upload completes
-     *
-     * @param $func
-     * @return $this
-     */
-    public function setAfterUpload($func) {
-        $this->afterUpload = $func;
-        return $this;
     }
 }

@@ -2,8 +2,6 @@
 
 namespace Sunnysideup\PerfectCmsImages\Api;
 
-use SilverStripe\Dev\Debug;
-
 use Psr\Log\LoggerInterface;
 use SilverStripe\Assets\Filesystem;
 use SilverStripe\Assets\Folder;
@@ -11,7 +9,6 @@ use SilverStripe\Assets\Image;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Core\Flushable;
 use SilverStripe\Core\Injector\Injector;
-use SilverStripe\Security\Security;
 use Sunnysideup\PerfectCmsImages\Model\File\PerfectCmsImageDataExtension;
 
 class PerfectCMSImages implements Flushable
@@ -359,9 +356,9 @@ EOT;
         $sizes = self::get_all_values_for_images();
         if (isset($sizes[$name]) && isset($sizes[$name][$key])) {
             return $sizes[$name][$key];
-        } else {
-            Injector::inst()->get(LoggerInterface::class)->info('no information for image with the name: ' . $name);
         }
+        Injector::inst()->get(LoggerInterface::class)->info('no information for image with the name: ' . $name);
+
         return $default;
     }
 
