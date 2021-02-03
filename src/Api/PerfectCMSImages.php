@@ -11,6 +11,7 @@ use SilverStripe\Core\Flushable;
 use SilverStripe\Core\Injector\Injector;
 use Sunnysideup\PerfectCmsImages\Model\File\PerfectCmsImageDataExtension;
 use Sunnysideup\PerfectCmsImages\Api\PerfectCMSImages;
+use Sunnysideup\PerfectCmsImages\Forms\PerfectCmsImagesUploadField;
 
 class PerfectCMSImages implements Flushable
 {
@@ -280,7 +281,7 @@ EOT;
     {
         $maxSizeInKilobytes = self::get_one_value_for_image($name, 'max_size_in_kilobytes', 0);
         if (! $maxSizeInKilobytes) {
-            $maxSizeInKilobytes = Config::inst()->get('PerfectCMSImagesUploadField', 'max_size_in_kilobytes');
+            $maxSizeInKilobytes = Config::inst()->get(PerfectCmsImagesUploadField::class, 'max_size_in_kilobytes');
         }
         return intval($maxSizeInKilobytes) - 0;
     }
