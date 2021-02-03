@@ -8,6 +8,7 @@ use SilverStripe\Control\Director;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Core\Convert;
 use SilverStripe\SiteConfig\SiteConfig;
+use Sunnysideup\PerfectCmsImages\Api\ImageManipulations;
 
 class ImageManipulations
 {
@@ -188,7 +189,8 @@ class ImageManipulations
                               imagesavealpha($img, true); // save alphablending setting (important)
                         }
                         if ($img) {
-                            imagewebp($img, $webPFileNameWithBaseFolder, Config::inst()->get('ImageManipulations', 'webp_quality'));
+                            $quality = Config::inst()->get(ImageManipulations::class, 'webp_quality');
+                            imagewebp($img, $webPFileNameWithBaseFolder, $quality);
                         }
                     }
                 }
