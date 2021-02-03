@@ -10,6 +10,7 @@ use SilverStripe\Core\Config\Config;
 use SilverStripe\Core\Flushable;
 use SilverStripe\Core\Injector\Injector;
 use Sunnysideup\PerfectCmsImages\Model\File\PerfectCmsImageDataExtension;
+use Sunnysideup\PerfectCmsImages\Api\PerfectCMSImages;
 
 class PerfectCMSImages implements Flushable
 {
@@ -87,7 +88,7 @@ EOT;
             }
             $fileName = ASSETS_PATH . '/.htaccess';
             if (! file_exists($fileName)) {
-                $string = Config::inst()->get('PerfectCMSImages', 'htaccess_content');
+                $string = Config::inst()->get(PerfectCMSImages::class, 'htaccess_content');
                 file_put_contents($fileName, $string);
             }
         }
@@ -178,7 +179,7 @@ EOT;
     {
         $multiplier = 1;
         if ($useRetina) {
-            $multiplier = Config::inst()->get('PerfectCMSImages', 'retina_multiplier');
+            $multiplier = Config::inst()->get(PerfectCMSImages::class, 'retina_multiplier');
         }
         if (! $multiplier) {
             $multiplier = 1;
@@ -314,7 +315,7 @@ EOT;
         return self::get_one_value_for_image(
             $name,
             'mobile_media_max_width',
-            Config::inst()->get('PerfectCMSImages', 'mobile_media_max_width')
+            Config::inst()->get(PerfectCMSImages::class, 'mobile_media_max_width')
         );
     }
 
