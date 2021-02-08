@@ -9,9 +9,8 @@ use SilverStripe\Assets\Image;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Core\Flushable;
 use SilverStripe\Core\Injector\Injector;
-use Sunnysideup\PerfectCmsImages\Model\File\PerfectCmsImageDataExtension;
-use Sunnysideup\PerfectCmsImages\Api\PerfectCMSImages;
 use Sunnysideup\PerfectCmsImages\Forms\PerfectCmsImagesUploadField;
+use Sunnysideup\PerfectCmsImages\Model\File\PerfectCmsImageDataExtension;
 
 class PerfectCMSImages implements Flushable
 {

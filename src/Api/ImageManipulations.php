@@ -8,7 +8,6 @@ use SilverStripe\Control\Director;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Core\Convert;
 use SilverStripe\SiteConfig\SiteConfig;
-use Sunnysideup\PerfectCmsImages\Api\ImageManipulations;
 
 class ImageManipulations
 {
