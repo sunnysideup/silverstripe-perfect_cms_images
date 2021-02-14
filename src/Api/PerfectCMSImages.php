@@ -358,7 +358,7 @@ EOT;
         if (isset($sizes[$name]) && isset($sizes[$name][$key])) {
             return $sizes[$name][$key];
         }
-        Injector::inst()->get(LoggerInterface::class)->info('no information for image with the name: ' . $name);
+        Injector::inst()->get(LoggerInterface::class)->info('no information for image with the name: ' . $name . '.' . $key);
 
         return $default;
     }
