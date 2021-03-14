@@ -116,8 +116,6 @@ class ImageManipulations
     /**
      * back-up image
      * @param  string $name
-     * @param  Image $backupObject
-     * @param  string $backupField
      *
      * @return Image|null
      */
@@ -125,9 +123,8 @@ class ImageManipulations
     {
         $image = null;
         $backupObject = SiteConfig::current_site_config();
-        $backupField = $name;
-        if ($backupObject->hasMethod($backupField)) {
-            $image = $backupObject->{$backupField}();
+        if ($backupObject->hasMethod($name)) {
+            $image = $backupObject->{$name}();
         }
 
         return $image;
@@ -135,8 +132,7 @@ class ImageManipulations
 
     /**
      * placeholder image
-     * @param  int    $name
-     * @param  int    $perfectHeight
+     * @param  string    $name
      * @return string
      */
     public static function get_placeholder_image_tag(string $name): string

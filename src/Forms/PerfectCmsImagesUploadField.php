@@ -113,10 +113,10 @@ class PerfectCmsImagesUploadField extends UploadField
     /**
      * Add an anonymous functions to run after upload completes
      *
-     * @param $func
-     * @return $this
+     * @param callable $func
+     * @return self
      */
-    public function setAfterUpload($func)
+    public function setAfterUpload($func) : self
     {
         $this->afterUpload = $func;
         return $this;
