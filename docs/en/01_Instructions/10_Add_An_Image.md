@@ -14,14 +14,15 @@ class MyPage extends Page
 
     public function getCMSFields() {
         $fields = parent::getCMSFields();
-       
+
         $fields->addFieldToTab(
             "Root.Images",
             PerfectCmsImagesUploadField::create(
-                "MyImage", "My Image"
+                "MyImage",
+                "My Image"
             )
         );
-        
+
         return $fields;
     }
 }
