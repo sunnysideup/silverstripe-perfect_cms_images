@@ -59,6 +59,8 @@ class PerfectCmsImagesUploadField extends UploadField
             $alternativeName = $name;
         }
         $this->selectFormattingStandard($alternativeName);
+
+        return $this;
     }
 
     public function setRightTitle($string)
