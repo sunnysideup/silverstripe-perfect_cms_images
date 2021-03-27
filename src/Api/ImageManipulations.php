@@ -27,12 +27,9 @@ class ImageManipulations
      * c. otherwise resize Height/Width/Both
      *
      * @param  Image     $image
-     * @param  string    $name
      * @param  bool|null $useRetina optional
      * @param  bool|null $forMobile optional
      * @param  int|null  $resizeToWidth optional
-     *
-     * @return string
      */
     public static function get_image_link($image, string $name, ?bool $useRetina = null, ?bool $forMobile = null, ?int $resizeToWidth = 0): string
     {
@@ -115,7 +112,6 @@ class ImageManipulations
 
     /**
      * back-up image
-     * @param  string $name
      *
      * @return Image|null
      */
@@ -132,8 +128,6 @@ class ImageManipulations
 
     /**
      * placeholder image
-     * @param  string    $name
-     * @return string
      */
     public static function get_placeholder_image_tag(string $name): string
     {

@@ -96,7 +96,6 @@ class PerfectCmsImagesUploadField extends UploadField
      * Creates a single file based on a form-urlencoded upload.
      * Allows for hooking AfterUpload
      *
-     * @param HTTPRequest $request
      * @return HTTPResponse
      */
     public function upload(HTTPRequest $request)
@@ -115,7 +114,6 @@ class PerfectCmsImagesUploadField extends UploadField
      * Add an anonymous functions to run after upload completes
      *
      * @param callable $func
-     * @return self
      */
     public function setAfterUpload($func): self
     {

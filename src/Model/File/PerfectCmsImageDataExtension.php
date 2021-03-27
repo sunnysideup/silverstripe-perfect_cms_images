@@ -162,14 +162,12 @@ class PerfectCmsImageDataExtension extends DataExtension
     }
 
     /**
-     * @param  string  $name
      * @param  boolean $useRetina
      * @param  boolean $isWebP
-     * @return string
      */
     public function PerfectCMSImageLink(string $name, ?bool $useRetina = false, ?bool $isWebP = false, ?bool $forMobile = false): string
     {
-        /** @var Image|null */
+        /** @var Image|null $image */
         $image = $this->owner;
         if ($image && $image->exists() && $image instanceof Image) {
             //we are all good ...

@@ -160,21 +160,13 @@ EOT;
         return $rightTitle . '</span>';
     }
 
-    /**
-     * @param string           $name
-     *
-     * @return bool
-     */
+
     public static function use_retina(string $name): bool
     {
         return self::get_one_value_for_image($name, 'use_retina', true);
     }
 
-    /**
-     * @param bool           $useRetina
-     *
-     * @return int
-     */
+
     public static function get_multiplier(bool $useRetina): int
     {
         $multiplier = 1;
@@ -187,20 +179,13 @@ EOT;
         return $multiplier;
     }
 
-    /**
-     * @param string           $name
-     *
-     * @return bool
-     */
+
     public static function is_crop(string $name): bool
     {
         return self::get_one_value_for_image($name, 'crop', false);
     }
 
     /**
-     * @param string           $name
-     * @param bool             $forceInteger
-     *
      * @return int?string
      */
     public static function get_width(string $name, bool $forceInteger = false)
@@ -214,9 +199,6 @@ EOT;
     }
 
     /**
-     * @param string           $name
-     * @param bool             $forceInteger
-     *
      * @return int|string
      */
     public static function get_height(string $name, bool $forceInteger = false)
@@ -230,9 +212,6 @@ EOT;
     }
 
     /**
-     * @param string           $name
-     * @param bool             $forceInteger
-     *
      * @return int?string
      */
     public static function get_mobile_width(string $name, bool $forceInteger = false)
@@ -246,9 +225,6 @@ EOT;
     }
 
     /**
-     * @param string           $name
-     * @param bool             $forceInteger
-     *
      * @return int|string
      */
     public static function get_mobile_height(string $name, bool $forceInteger = false)
@@ -261,21 +237,13 @@ EOT;
         return $v;
     }
 
-    /**
-     * @param string           $name
-     *
-     * @return string
-     */
+
     public static function get_folder(string $name): string
     {
         return self::get_one_value_for_image($name, 'folder', 'other-images');
     }
 
-    /**
-     * @param string           $name
-     *
-     * @return int
-     */
+
     public static function max_size_in_kilobytes(string $name): int
     {
         $maxSizeInKilobytes = self::get_one_value_for_image($name, 'max_size_in_kilobytes', 0);
@@ -285,29 +253,19 @@ EOT;
         return intval($maxSizeInKilobytes) - 0;
     }
 
-    /**
-     * @param string           $name
-     *
-     * @return string
-     */
+
     public static function get_file_type(string $name): string
     {
         return self::get_one_value_for_image($name, 'filetype', 'jpg');
     }
 
-    /**
-     * @param string           $name
-     *
-     * @return bool
-     */
+
     public static function get_enforce_size(string $name): bool
     {
         return self::get_one_value_for_image($name, 'enforce_size', false);
     }
 
     /**
-     * @param string           $name
-     *
      * @return string|null
      */
     public static function get_mobile_media_width(string $name)
@@ -319,11 +277,7 @@ EOT;
         );
     }
 
-    /**
-     * @param string           $name
-     *
-     * @return string
-     */
+
     public static function get_padding_bg_colour(string $name): string
     {
         return self::get_one_value_for_image(
@@ -333,11 +287,7 @@ EOT;
         );
     }
 
-    /**
-     * @param string           $name
-     *
-     * @return bool
-     */
+
     protected static function image_info_available(string $name): bool
     {
         $sizes = self::get_all_values_for_images();
@@ -346,8 +296,6 @@ EOT;
     }
 
     /**
-     * @param string    $name
-     * @param string    $key
      * @param string    $default
      *
      * @return mixed
@@ -363,9 +311,7 @@ EOT;
         return $default;
     }
 
-    /**
-     * @return array
-     */
+
     protected static function get_all_values_for_images(): array
     {
         return Config::inst()->get(
