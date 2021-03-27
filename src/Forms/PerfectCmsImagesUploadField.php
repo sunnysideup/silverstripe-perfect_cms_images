@@ -63,9 +63,9 @@ class PerfectCmsImagesUploadField extends UploadField
         return $this;
     }
 
-    public function setRightTitle($string)
+    public function setDescription($string)
     {
-        parent::setRightTitle(
+        parent::setDescription(
             DBField::create_field('HTMLText', $string . '<br />' . $this->RightTitle())
         );
         //important!
@@ -80,7 +80,7 @@ class PerfectCmsImagesUploadField extends UploadField
     {
         $this->setPerfectFolderName($name);
 
-        $this->setRightTitle(PerfectCMSImages::get_description_for_cms($name));
+        $this->setDescription(PerfectCMSImages::get_description_for_cms($name));
 
         $this->setAllowedFileCategories('image');
         $alreadyAllowed = $this->getAllowedExtensions();
