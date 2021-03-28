@@ -34,7 +34,7 @@ class PerfectCmsImagesUploadField extends UploadField
         'upload',
     ];
 
-    private $afterUpload = null;
+    private $afterUpload;
 
     /**
      * @param string $name The internal field name, passed to forms.
@@ -126,10 +126,10 @@ class PerfectCmsImagesUploadField extends UploadField
         $folderPrefix = $this->Config()->get('folder_prefix');
 
         $folderName = $this->folderName;
-        if (! $folderName) {
+        if ($folderName === '') {
             //folder related stuff ...
             $folderName = PerfectCMSImages::get_folder($name);
-            if (! $folderName) {
+            if ($folderName === '') {
                 $folderName = 'other-images';
             }
             $folderName = implode(

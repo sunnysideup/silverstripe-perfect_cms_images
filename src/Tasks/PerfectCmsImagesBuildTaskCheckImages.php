@@ -26,7 +26,7 @@ class PerfectCmsImagesBuildTaskCheckImages extends BuildTask
                 if ($singleton instanceof DataObject) {
                     if ($singleton->hasMethod($fieldName)) {
                         $objects = $parent::get()->where('"' . $fieldName . 'ID" <> 0 AND "' . $fieldName . 'ID" IS NOT NULL');
-                        for ($i = 0; $i < 100000; $i++) {
+                        for ($i = 0; $i < 100000; ++$i) {
                             $array = [];
                             $obj = $objects->limit(1, $i)->first();
                             if (! $obj) {
@@ -46,7 +46,7 @@ class PerfectCmsImagesBuildTaskCheckImages extends BuildTask
                                         $array[] = 'height is ' . round($height / $realHeight, 2) . '% of what it should be';
                                     }
                                 }
-                                if (count($array)) {
+                                if (count($array) > 0) {
                                     $this->outputToScreen('ERRORS WITH: ' . $obj->getTitle() . ' --- ' . implode('; ', $array), 'deleted');
                                 } else {
                                     $this->outputToScreen('PERFECT PASS FOR: ' . $obj->getTitle());

@@ -30,7 +30,7 @@ class PerfectCmsImageValidator extends Upload_Validator
             $multiplier = PerfectCMSImages::get_multiplier($useRetina);
             $widthRecommendation = PerfectCMSImages::get_width($name, true) * $multiplier;
             $heightRecommendation = PerfectCMSImages::get_height($name, true) * $multiplier;
-            if ($widthRecommendation) {
+            if ($widthRecommendation !== 0) {
                 if (! $this->isImageCorrectWidth(true, $widthRecommendation)) {
                     $this->errors[] = 'Expected width: ' . $widthRecommendation . 'px;';
                     $hasError = true;

@@ -96,16 +96,16 @@ EOT;
 
     public static function get_description_for_cms(string $name): string
     {
-        $widthRecommendation = PerfectCMSImages::get_width($name, false);
-        $heightRecommendation = PerfectCMSImages::get_height($name, false);
+        $widthRecommendation = PerfectCMSImages::get_width($name);
+        $heightRecommendation = PerfectCMSImages::get_height($name);
         $useRetina = PerfectCMSImages::use_retina($name);
         $recommendedFileType = PerfectCMSImages::get_file_type($name);
         $multiplier = PerfectCMSImages::get_multiplier($useRetina);
-        if (! $recommendedFileType) {
+        if ($recommendedFileType === '') {
             $recommendedFileType = 'jpg';
         }
-        if ($widthRecommendation) {
-            if (intval($widthRecommendation)) {
+        if ($widthRecommendation !== 0) {
+            if ((int) $widthRecommendation !== 0) {
                 //cater for retina
                 $widthRecommendation *= $multiplier;
                 $actualWidthDescription = $widthRecommendation . 'px';
@@ -116,7 +116,7 @@ EOT;
             $actualWidthDescription = 'flexible';
         }
         if ($heightRecommendation) {
-            if (intval($heightRecommendation)) {
+            if ((int) $heightRecommendation !== 0) {
                 //cater for retina
                 $heightRecommendation *= $multiplier;
                 $actualHeightDescription = $heightRecommendation . 'px';
@@ -132,7 +132,7 @@ EOT;
         if ($actualWidthDescription === 'flexible') {
             $rightTitle .= 'Image width is flexible';
         } else {
-            $rightTitle .= "Image should to be <strong>${actualWidthDescription}</strong> wide";
+            $rightTitle .= "Image should to be <strong>{$actualWidthDescription}</strong> wide";
         }
 
         $rightTitle .= ' and ';
@@ -140,16 +140,16 @@ EOT;
         if ($actualHeightDescription === 'flexible') {
             $rightTitle .= 'height is flexible';
         } else {
-            $rightTitle .= " <strong>${actualHeightDescription}</strong> tall";
+            $rightTitle .= " <strong>{$actualHeightDescription}</strong> tall";
         }
 
         $rightTitle .= '<br />';
         $maxSizeInKilobytes = PerfectCMSImages::max_size_in_kilobytes($name);
-        if ($maxSizeInKilobytes) {
+        if ($maxSizeInKilobytes !== 0) {
             $rightTitle .= 'Maximum file size: ' . round($maxSizeInKilobytes / 1024, 2) . ' megabyte.';
             $rightTitle .= '<br />';
         }
-        if ($recommendedFileType) {
+        if ($recommendedFileType !== '') {
             if (strlen($recommendedFileType) < 5) {
                 $rightTitle .= 'The recommend file type (file extension) is <strong>' . $recommendedFileType . '</strong>.';
             } else {
@@ -192,7 +192,7 @@ EOT;
     {
         $v = self::get_one_value_for_image($name, 'width', 0);
         if ($forceInteger) {
-            $v = intval($v) - 0;
+            $v = (int) $v - 0;
         }
 
         return $v;
@@ -205,7 +205,7 @@ EOT;
     {
         $v = self::get_one_value_for_image($name, 'height', 0);
         if ($forceInteger) {
-            $v = intval($v) - 0;
+            $v = (int) $v - 0;
         }
 
         return $v;
@@ -218,7 +218,7 @@ EOT;
     {
         $v = self::get_one_value_for_image($name, 'mobile_width', 0);
         if ($forceInteger) {
-            $v = intval($v) - 0;
+            $v = (int) $v - 0;
         }
 
         return $v;
@@ -231,7 +231,7 @@ EOT;
     {
         $v = self::get_one_value_for_image($name, 'mobile_height', 0);
         if ($forceInteger) {
-            $v = intval($v) - 0;
+            $v = (int) $v - 0;
         }
 
         return $v;
@@ -250,7 +250,7 @@ EOT;
         if (! $maxSizeInKilobytes) {
             $maxSizeInKilobytes = Config::inst()->get(PerfectCmsImagesUploadField::class, 'max_size_in_kilobytes');
         }
-        return intval($maxSizeInKilobytes) - 0;
+        return (int) $maxSizeInKilobytes - 0;
     }
 
 
@@ -292,7 +292,7 @@ EOT;
     {
         $sizes = self::get_all_values_for_images();
         //print_r($sizes);die();
-        return isset($sizes[$name]) ? true : false;
+        return isset($sizes[$name]);
     }
 
     /**

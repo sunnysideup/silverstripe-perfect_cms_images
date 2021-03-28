@@ -59,7 +59,7 @@ class ImageManipulations
 
             //if we are trying to resize to a width that is small than the perfect width
             //and the resize width is small than the current width, then lets resize...
-            if (intval($resizeToWidth)) {
+            if ((int) $resizeToWidth !== 0) {
                 if ($resizeToWidth < $perfectWidth && $resizeToWidth < $myWidth) {
                     $perfectWidth = $resizeToWidth;
                 }
@@ -137,13 +137,13 @@ class ImageManipulations
         $perfectWidth *= $multiplier;
         $perfectHeight *= $multiplier;
         if ($perfectWidth || $perfectHeight) {
-            if (! $perfectWidth) {
+            if ($perfectWidth === 0) {
                 $perfectWidth = $perfectHeight;
             }
             if (! $perfectHeight) {
                 $perfectHeight = $perfectWidth;
             }
-            $text = "${perfectWidth} x ${perfectHeight} /2 = " . round($perfectWidth / 2) . ' x ' . round($perfectHeight / 2) . '';
+            $text = "{$perfectWidth} x {$perfectHeight} /2 = " . round($perfectWidth / 2) . ' x ' . round($perfectHeight / 2) . '';
 
             return 'https://placehold.it/' . $perfectWidth . 'x' . $perfectHeight . '?text=' . urlencode($text);
         }
@@ -169,15 +169,13 @@ class ImageManipulations
                     list($width, $height, $type) = getimagesize($fileNameWithBaseFolder);
                     $img = null;
                     if ($width && $height) {
-                        switch ($type) {
-                          case 2:
-                              $img = imagecreatefromjpeg($fileNameWithBaseFolder);
-                                break;
-                          case 3:
-                              $img = imagecreatefrompng($fileNameWithBaseFolder);
-                              imagesavealpha($img, true); // save alphablending setting (important)
+                        if ($type == 2) {
+                            $img = imagecreatefromjpeg($fileNameWithBaseFolder);
+                        } elseif ($type == 3) {
+                            $img = imagecreatefrompng($fileNameWithBaseFolder);
+                            imagesavealpha($img, true);
                         }
-                        if ($img) {
+                        if ($img !== null) {
                             $quality = Config::inst()->get(ImageManipulations::class, 'webp_quality');
                             imagewebp($img, $webPFileNameWithBaseFolder, $quality);
                         }

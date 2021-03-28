@@ -74,7 +74,7 @@ class PerfectCmsImageDataExtension extends DataExtension
             ]
         );
         $template = 'Includes/PerfectCMSImageTag';
-        if ($inline === true || intval($inline) === 1 || strtolower($inline) === 'true') {
+        if ($inline === true || (int) $inline === 1 || strtolower($inline) === 'true') {
             $template .= 'Inline';
         }
         return DBField::create_field('HTMLText', $arrayData->renderWith($template));
@@ -86,7 +86,7 @@ class PerfectCmsImageDataExtension extends DataExtension
      */
     public function PerfectCMSImageLinkNonRetina(string $name): string
     {
-        return $this->PerfectCMSImageLink($name, false, false);
+        return $this->PerfectCMSImageLink($name);
     }
 
     /**
@@ -95,7 +95,7 @@ class PerfectCmsImageDataExtension extends DataExtension
      */
     public function PerfectCMSImageLinkRetina(string $name): string
     {
-        return $this->PerfectCMSImageLink($name, true, false);
+        return $this->PerfectCMSImageLink($name, true);
     }
 
     /**
@@ -184,7 +184,7 @@ class PerfectCmsImageDataExtension extends DataExtension
                 $link = ImageManipulations::web_p_link($link);
             }
 
-            return $link ? ImageManipulations::add_fake_parts($image, $link) : '';
+            return $link !== '' ? ImageManipulations::add_fake_parts($image, $link) : '';
         }
         // no image -> provide placeholder if in DEV MODE only!!!
         if (Director::isDev()) {
