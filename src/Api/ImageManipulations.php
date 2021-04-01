@@ -169,9 +169,9 @@ class ImageManipulations
                     list($width, $height, $type) = getimagesize($fileNameWithBaseFolder);
                     $img = null;
                     if ($width && $height) {
-                        if ($type == 2) {
+                        if ($type === 2) {
                             $img = imagecreatefromjpeg($fileNameWithBaseFolder);
-                        } elseif ($type == 3) {
+                        } elseif ($type === 3) {
                             $img = imagecreatefrompng($fileNameWithBaseFolder);
                             imagesavealpha($img, true);
                         }

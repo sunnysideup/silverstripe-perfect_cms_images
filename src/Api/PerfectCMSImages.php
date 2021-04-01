@@ -160,12 +160,10 @@ EOT;
         return $rightTitle . '</span>';
     }
 
-
     public static function use_retina(string $name): bool
     {
         return self::get_one_value_for_image($name, 'use_retina', true);
     }
-
 
     public static function get_multiplier(bool $useRetina): int
     {
@@ -178,7 +176,6 @@ EOT;
         }
         return $multiplier;
     }
-
 
     public static function is_crop(string $name): bool
     {
@@ -237,12 +234,10 @@ EOT;
         return $v;
     }
 
-
     public static function get_folder(string $name): string
     {
         return self::get_one_value_for_image($name, 'folder', 'other-images');
     }
-
 
     public static function max_size_in_kilobytes(string $name): int
     {
@@ -253,12 +248,10 @@ EOT;
         return (int) $maxSizeInKilobytes - 0;
     }
 
-
     public static function get_file_type(string $name): string
     {
         return self::get_one_value_for_image($name, 'filetype', 'jpg');
     }
-
 
     public static function get_enforce_size(string $name): bool
     {
@@ -277,7 +270,6 @@ EOT;
         );
     }
 
-
     public static function get_padding_bg_colour(string $name): string
     {
         return self::get_one_value_for_image(
@@ -286,7 +278,6 @@ EOT;
             Config::inst()->get(PerfectCmsImageDataExtension::class, 'perfect_cms_images_background_padding_color')
         );
     }
-
 
     protected static function image_info_available(string $name): bool
     {
@@ -310,7 +301,6 @@ EOT;
 
         return $default;
     }
-
 
     protected static function get_all_values_for_images(): array
     {
