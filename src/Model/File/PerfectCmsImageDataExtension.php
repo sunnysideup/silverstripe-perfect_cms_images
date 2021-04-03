@@ -22,10 +22,10 @@ class PerfectCmsImageDataExtension extends DataExtension
     ];
 
     /**
-     * @param       string $name        PerfectCMSImages name
-     * @param       bool   $inline      for use within existing image tag - optional
-     * @param       string $alt         alt tag for image -optional
-     * @param       string $attributes  additional attributes
+     * @param string $name       PerfectCMSImages name
+     * @param bool   $inline     for use within existing image tag - optional
+     * @param string $alt        alt tag for image -optional
+     * @param string $attributes additional attributes
      *
      * @return string (HTML)
      */
@@ -74,14 +74,16 @@ class PerfectCmsImageDataExtension extends DataExtension
             ]
         );
         $template = 'Includes/PerfectCMSImageTag';
-        if ($inline === true || (int) $inline === 1 || strtolower($inline) === 'true') {
+        if (true === $inline || 1 === (int) $inline || 'true' === strtolower($inline)) {
             $template .= 'Inline';
         }
+
         return DBField::create_field('HTMLText', $arrayData->renderWith($template));
     }
 
     /**
      * @var string name of Image Field template
+     *
      * @return string (link)
      */
     public function PerfectCMSImageLinkNonRetina(string $name): string
@@ -91,6 +93,7 @@ class PerfectCmsImageDataExtension extends DataExtension
 
     /**
      * @var string name of Image Field template
+     *
      * @return string (link)
      */
     public function PerfectCMSImageLinkRetina(string $name): string
@@ -100,6 +103,7 @@ class PerfectCmsImageDataExtension extends DataExtension
 
     /**
      * @var string name of Image Field template
+     *
      * @return string (link)
      */
     public function PerfectCMSImageLinkNonRetinaWebP(string $name): string
@@ -109,6 +113,7 @@ class PerfectCmsImageDataExtension extends DataExtension
 
     /**
      * @var string name of Image Field template
+     *
      * @return string (link)
      */
     public function PerfectCMSImageLinkRetinaWebP(string $name): string
@@ -118,6 +123,7 @@ class PerfectCmsImageDataExtension extends DataExtension
 
     /**
      * @var string name of Image Field template
+     *
      * @return string (link)
      */
     public function PerfectCMSImageLinkNonRetinaForMobile(string $name): string
@@ -127,6 +133,7 @@ class PerfectCmsImageDataExtension extends DataExtension
 
     /**
      * @var string name of Image Field template
+     *
      * @return string (link)
      */
     public function PerfectCMSImageLinkRetinaForMobile(string $name): string
@@ -136,6 +143,7 @@ class PerfectCmsImageDataExtension extends DataExtension
 
     /**
      * @var string name of Image Field template
+     *
      * @return string (link)
      */
     public function PerfectCMSImageLinkNonRetinaWebPForMobile(string $name): string
@@ -145,6 +153,7 @@ class PerfectCmsImageDataExtension extends DataExtension
 
     /**
      * @var string name of Image Field template
+     *
      * @return string (link)
      */
     public function PerfectCMSImageLinkRetinaWebPForMobile(string $name): string
@@ -154,6 +163,7 @@ class PerfectCmsImageDataExtension extends DataExtension
 
     /**
      * @var string name of Image Field template
+     *
      * @return string (link)
      */
     public function getPerfectCMSImageAbsoluteLink(string $link): string
@@ -162,11 +172,11 @@ class PerfectCmsImageDataExtension extends DataExtension
     }
 
     /**
-     * returns image link
+     * returns image link.
      */
     public function PerfectCMSImageLink(string $name, ?bool $useRetina = false, ?bool $isWebP = false, ?bool $forMobile = false): string
     {
-        /** @var Image|null $image */
+        /** @var null|Image $image */
         $image = $this->owner;
         if ($image && $image->exists() && $image instanceof Image) {
             //we are all good ...
@@ -183,12 +193,13 @@ class PerfectCmsImageDataExtension extends DataExtension
                 $link = ImageManipulations::web_p_link($link);
             }
 
-            return $link !== '' ? ImageManipulations::add_fake_parts($image, $link) : '';
+            return '' !== $link ? ImageManipulations::add_fake_parts($image, $link) : '';
         }
         // no image -> provide placeholder if in DEV MODE only!!!
         if (Director::isDev()) {
             return ImageManipulations::get_placeholder_image_tag($name);
         }
+
         return '';
     }
 }
