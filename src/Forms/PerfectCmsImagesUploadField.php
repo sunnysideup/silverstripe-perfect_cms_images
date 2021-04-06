@@ -28,6 +28,7 @@ class PerfectCmsImagesUploadField extends UploadField
 
     /**
      * @config
+     *
      * @var array
      */
     private static $allowed_actions = [
@@ -37,10 +38,10 @@ class PerfectCmsImagesUploadField extends UploadField
     private $afterUpload;
 
     /**
-     * @param string $name The internal field name, passed to forms.
-     * @param string $title The field label.
-     * @param SS_List|null $items If no items are defined, the field will try to auto-detect an existing relation
-     * @param string|null $alternativeName
+     * @param string       $name            the internal field name, passed to forms
+     * @param string       $title           the field label
+     * @param null|SS_List $items           If no items are defined, the field will try to auto-detect an existing relation
+     * @param null|string  $alternativeName
      */
     public function __construct(
         $name,
@@ -55,7 +56,7 @@ class PerfectCmsImagesUploadField extends UploadField
         );
         $perfectCMSImageValidator = new PerfectCMSImageValidator();
         $this->setValidator($perfectCMSImageValidator);
-        if ($alternativeName === null) {
+        if (null === $alternativeName) {
             $alternativeName = $name;
         }
         $this->selectFormattingStandard($alternativeName);
@@ -73,7 +74,8 @@ class PerfectCmsImagesUploadField extends UploadField
     }
 
     /**
-     * @param  string $name Formatting Standard
+     * @param string $name Formatting Standard
+     *
      * @return $this
      */
     public function selectFormattingStandard(string $name)
@@ -89,12 +91,13 @@ class PerfectCmsImagesUploadField extends UploadField
         $maxSizeInKilobytes = PerfectCMSImages::max_size_in_kilobytes($name);
         $this->getValidator()->setAllowedMaxFileSize(1 * 1024 * $maxSizeInKilobytes);
         $this->getValidator()->setFieldName($name);
+
         return $this;
     }
 
     /**
      * Creates a single file based on a form-urlencoded upload.
-     * Allows for hooking AfterUpload
+     * Allows for hooking AfterUpload.
      *
      * @return HTTPResponse
      */
@@ -111,13 +114,14 @@ class PerfectCmsImagesUploadField extends UploadField
     }
 
     /**
-     * Add an anonymous functions to run after upload completes
+     * Add an anonymous functions to run after upload completes.
      *
      * @param callable $func
      */
     public function setAfterUpload($func): self
     {
         $this->afterUpload = $func;
+
         return $this;
     }
 
@@ -126,10 +130,10 @@ class PerfectCmsImagesUploadField extends UploadField
         $folderPrefix = $this->Config()->get('folder_prefix');
 
         $folderName = $this->folderName;
-        if ($folderName === '') {
+        if ('' === $folderName) {
             //folder related stuff ...
             $folderName = PerfectCMSImages::get_folder($name);
-            if ($folderName === '') {
+            if ('' === $folderName) {
                 $folderName = 'other-images';
             }
             $folderName = implode(

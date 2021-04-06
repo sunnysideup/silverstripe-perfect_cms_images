@@ -16,9 +16,10 @@ class PerfectCMSImages implements Flushable
 {
     /**
      *.htaccess content for assets ...
+     *
      * @var string
      */
-    private static $htaccess_content = <<<EOT
+    private static $htaccess_content = <<<'EOT'
 <IfModule mod_rewrite.c>
     RewriteEngine On
     RewriteBase /
@@ -39,13 +40,13 @@ EOT;
 
     /**
      * used to set the max width of the media value for mobile images,
-     * eg <source srcset="small.jpg, small2x.jpg 2x" media="(max-width: 600px)">
+     * eg <source srcset="small.jpg, small2x.jpg 2x" media="(max-width: 600px)">.
      *
      * @var string
      */
     private static $mobile_media_max_width = '600px';
 
-    /***
+    /*
      * details of the images
      *     - width: 3200
      *     - height: 3200
@@ -62,7 +63,7 @@ EOT;
      */
     private static $perfect_cms_images_image_definitions = [];
 
-    /***
+    /*
      * Images Titles will be appended to the links only
      * if the ClassName of the Image is in this array
      * @var array
@@ -101,11 +102,11 @@ EOT;
         $useRetina = PerfectCMSImages::use_retina($name);
         $recommendedFileType = PerfectCMSImages::get_file_type($name);
         $multiplier = PerfectCMSImages::get_multiplier($useRetina);
-        if ($recommendedFileType === '') {
+        if ('' === $recommendedFileType) {
             $recommendedFileType = 'jpg';
         }
-        if ($widthRecommendation !== 0) {
-            if ((int) $widthRecommendation !== 0) {
+        if (0 !== $widthRecommendation) {
+            if (0 !== (int) $widthRecommendation) {
                 //cater for retina
                 $widthRecommendation *= $multiplier;
                 $actualWidthDescription = $widthRecommendation . 'px';
@@ -116,7 +117,7 @@ EOT;
             $actualWidthDescription = 'flexible';
         }
         if ($heightRecommendation) {
-            if ((int) $heightRecommendation !== 0) {
+            if (0 !== (int) $heightRecommendation) {
                 //cater for retina
                 $heightRecommendation *= $multiplier;
                 $actualHeightDescription = $heightRecommendation . 'px';
@@ -129,7 +130,7 @@ EOT;
 
         $rightTitle = '<span>';
 
-        if ($actualWidthDescription === 'flexible') {
+        if ('flexible' === $actualWidthDescription) {
             $rightTitle .= 'Image width is flexible';
         } else {
             $rightTitle .= "Image should to be <strong>{$actualWidthDescription}</strong> wide";
@@ -137,7 +138,7 @@ EOT;
 
         $rightTitle .= ' and ';
 
-        if ($actualHeightDescription === 'flexible') {
+        if ('flexible' === $actualHeightDescription) {
             $rightTitle .= 'height is flexible';
         } else {
             $rightTitle .= " <strong>{$actualHeightDescription}</strong> tall";
@@ -145,11 +146,11 @@ EOT;
 
         $rightTitle .= '<br />';
         $maxSizeInKilobytes = PerfectCMSImages::max_size_in_kilobytes($name);
-        if ($maxSizeInKilobytes !== 0) {
+        if (0 !== $maxSizeInKilobytes) {
             $rightTitle .= 'Maximum file size: ' . round($maxSizeInKilobytes / 1024, 2) . ' megabyte.';
             $rightTitle .= '<br />';
         }
-        if ($recommendedFileType !== '') {
+        if ('' !== $recommendedFileType) {
             if (strlen($recommendedFileType) < 5) {
                 $rightTitle .= 'The recommend file type (file extension) is <strong>' . $recommendedFileType . '</strong>.';
             } else {
@@ -160,12 +161,10 @@ EOT;
         return $rightTitle . '</span>';
     }
 
-
     public static function use_retina(string $name): bool
     {
         return self::get_one_value_for_image($name, 'use_retina', true);
     }
-
 
     public static function get_multiplier(bool $useRetina): int
     {
@@ -176,9 +175,9 @@ EOT;
         if (! $multiplier) {
             $multiplier = 1;
         }
+
         return $multiplier;
     }
-
 
     public static function is_crop(string $name): bool
     {
@@ -237,12 +236,10 @@ EOT;
         return $v;
     }
 
-
     public static function get_folder(string $name): string
     {
         return self::get_one_value_for_image($name, 'folder', 'other-images');
     }
-
 
     public static function max_size_in_kilobytes(string $name): int
     {
@@ -250,15 +247,14 @@ EOT;
         if (! $maxSizeInKilobytes) {
             $maxSizeInKilobytes = Config::inst()->get(PerfectCmsImagesUploadField::class, 'max_size_in_kilobytes');
         }
+
         return (int) $maxSizeInKilobytes - 0;
     }
-
 
     public static function get_file_type(string $name): string
     {
         return self::get_one_value_for_image($name, 'filetype', 'jpg');
     }
-
 
     public static function get_enforce_size(string $name): bool
     {
@@ -266,7 +262,7 @@ EOT;
     }
 
     /**
-     * @return string|null
+     * @return null|string
      */
     public static function get_mobile_media_width(string $name)
     {
@@ -277,7 +273,6 @@ EOT;
         );
     }
 
-
     public static function get_padding_bg_colour(string $name): string
     {
         return self::get_one_value_for_image(
@@ -287,7 +282,6 @@ EOT;
         );
     }
 
-
     protected static function image_info_available(string $name): bool
     {
         $sizes = self::get_all_values_for_images();
@@ -296,21 +290,20 @@ EOT;
     }
 
     /**
-     * @param string    $default
+     * @param string $default
      *
      * @return mixed
      */
     protected static function get_one_value_for_image(string $name, string $key, ?string $default = '')
     {
         $sizes = self::get_all_values_for_images();
-        if (isset($sizes[$name]) && isset($sizes[$name][$key])) {
+        if (isset($sizes[$name], $sizes[$name][$key])) {
             return $sizes[$name][$key];
         }
         Injector::inst()->get(LoggerInterface::class)->info('no information for image with the name: ' . $name . '.' . $key);
 
         return $default;
     }
-
 
     protected static function get_all_values_for_images(): array
     {

@@ -30,7 +30,7 @@ class PerfectCmsImageValidator extends Upload_Validator
             $multiplier = PerfectCMSImages::get_multiplier($useRetina);
             $widthRecommendation = PerfectCMSImages::get_width($name, true) * $multiplier;
             $heightRecommendation = PerfectCMSImages::get_height($name, true) * $multiplier;
-            if ($widthRecommendation !== 0) {
+            if (0 !== $widthRecommendation) {
                 if (! $this->isImageCorrectWidth(true, $widthRecommendation)) {
                     $this->errors[] = 'Expected width: ' . $widthRecommendation . 'px;';
                     $hasError = true;
@@ -48,6 +48,7 @@ class PerfectCmsImageValidator extends Upload_Validator
         if ($hasError) {
             return false;
         }
+
         return $parentResult;
     }
 
@@ -59,6 +60,7 @@ class PerfectCmsImageValidator extends Upload_Validator
                 return false;
             }
         }
+
         return true;
     }
 
@@ -73,12 +75,13 @@ class PerfectCmsImageValidator extends Upload_Validator
         //     $imageSize = getimagesize($imagefile);
         // }
 
-        if ($imageSize === false) {
+        if (false === $imageSize) {
             return false;
         }
         if ($isWidth) {
             return $imageSize[0];
         }
+
         return $imageSize[1];
     }
 }
