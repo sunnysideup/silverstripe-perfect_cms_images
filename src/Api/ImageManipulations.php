@@ -26,17 +26,17 @@ class ImageManipulations
      * b. if crop is set to true then Fill
      * c. otherwise resize Height/Width/Both
      *
-     * @param  Image     $image
-     * @param  bool|null $useRetina optional
-     * @param  bool|null $forMobile optional
-     * @param  int|null  $resizeToWidth optional
+     * @param Image     $image
+     * @param null|bool $useRetina     optional
+     * @param null|bool $forMobile     optional
+     * @param null|int  $resizeToWidth optional
      */
     public static function get_image_link($image, string $name, ?bool $useRetina = null, ?bool $forMobile = null, ?int $resizeToWidth = 0): string
     {
         $cacheKey = $image->ClassName . '_' . $image->ID . '_' . $name . '_' . ($useRetina ? 'Y' : 'N') . '_' . ($forMobile ? 'MY' : 'MN');
         if (empty(self::$imageLinkCache[$cacheKey])) {
             //work out perfect width and height
-            if ($useRetina === null) {
+            if (null === $useRetina) {
                 $useRetina = PerfectCMSImages::use_retina($name);
             }
             $crop = PerfectCMSImages::is_crop($name);
@@ -59,7 +59,7 @@ class ImageManipulations
 
             //if we are trying to resize to a width that is small than the perfect width
             //and the resize width is small than the current width, then lets resize...
-            if ((int) $resizeToWidth !== 0) {
+            if (0 !== (int) $resizeToWidth) {
                 if ($resizeToWidth < $perfectWidth && $resizeToWidth < $myWidth) {
                     $perfectWidth = $resizeToWidth;
                 }
@@ -111,9 +111,9 @@ class ImageManipulations
     }
 
     /**
-     * back-up image
+     * back-up image.
      *
-     * @return Image|null
+     * @return null|Image
      */
     public static function get_backup_image(string $name)
     {
@@ -127,7 +127,7 @@ class ImageManipulations
     }
 
     /**
-     * placeholder image
+     * placeholder image.
      */
     public static function get_placeholder_image_tag(string $name): string
     {
@@ -137,7 +137,7 @@ class ImageManipulations
         $perfectWidth *= $multiplier;
         $perfectHeight *= $multiplier;
         if ($perfectWidth || $perfectHeight) {
-            if ($perfectWidth === 0) {
+            if (0 === $perfectWidth) {
                 $perfectWidth = $perfectHeight;
             }
             if (! $perfectHeight) {
@@ -147,6 +147,7 @@ class ImageManipulations
 
             return 'https://placehold.it/' . $perfectWidth . 'x' . $perfectHeight . '?text=' . urlencode($text);
         }
+
         return 'https://placehold.it/1500x1500?text=' . urlencode('no size set');
     }
 
@@ -169,18 +170,19 @@ class ImageManipulations
                     list($width, $height, $type) = getimagesize($fileNameWithBaseFolder);
                     $img = null;
                     if ($width && $height) {
-                        if ($type === 2) {
+                        if (2 === $type) {
                             $img = imagecreatefromjpeg($fileNameWithBaseFolder);
-                        } elseif ($type === 3) {
+                        } elseif (3 === $type) {
                             $img = imagecreatefrompng($fileNameWithBaseFolder);
                             imagesavealpha($img, true);
                         }
-                        if ($img !== null) {
+                        if (null !== $img) {
                             $quality = Config::inst()->get(ImageManipulations::class, 'webp_quality');
                             imagewebp($img, $webPFileNameWithBaseFolder, $quality);
                         }
                     }
                 }
+
                 return $webPFileName;
             }
         }
@@ -218,6 +220,7 @@ class ImageManipulations
                 }
             }
         }
+
         return false;
     }
 }
