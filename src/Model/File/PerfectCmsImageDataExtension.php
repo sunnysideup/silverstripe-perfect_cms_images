@@ -190,5 +190,6 @@ class PerfectCmsImageDataExtension extends DataExtension
         if (Director::isDev()) {
             return ImageManipulations::get_placeholder_image_tag($name);
         }
+        return '';
     }
 }
