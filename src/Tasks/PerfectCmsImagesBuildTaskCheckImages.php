@@ -71,8 +71,8 @@ class PerfectCmsImagesBuildTaskCheckImages extends BuildTask
     }
 
     /**
-     * @param  string $message
-     * @param  string $type
+     * @param string $message
+     * @param string $type
      */
     protected function outputToScreen($message, $type = '')
     {
