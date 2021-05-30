@@ -125,7 +125,7 @@ class PerfectCmsImagesUploadField extends UploadField
         return $this;
     }
 
-    protected function setPerfectFolderName(string $name) : self
+    protected function setPerfectFolderName(string $name)
     {
         $folderPrefix = $this->Config()->get('folder_prefix');
 
@@ -145,7 +145,5 @@ class PerfectCmsImagesUploadField extends UploadField
         Folder::find_or_make($folderName);
         //set folder
         $this->setFolderName($folderName);
-
-        return $this;
     }
 }
