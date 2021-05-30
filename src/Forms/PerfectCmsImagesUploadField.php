@@ -64,7 +64,7 @@ class PerfectCmsImagesUploadField extends UploadField
         return $this;
     }
 
-    public function setDescription($string)
+    public function setDescription($string) : self
     {
         parent::setDescription(
             DBField::create_field('HTMLText', $string . '<br />' . $this->RightTitle())
@@ -76,9 +76,9 @@ class PerfectCmsImagesUploadField extends UploadField
     /**
      * @param string $name Formatting Standard
      *
-     * @return $this
+     * @return self
      */
-    public function selectFormattingStandard(string $name)
+    public function selectFormattingStandard(string $name) : self
     {
         $this->setPerfectFolderName($name);
 
@@ -125,7 +125,7 @@ class PerfectCmsImagesUploadField extends UploadField
         return $this;
     }
 
-    protected function setPerfectFolderName(string $name)
+    protected function setPerfectFolderName(string $name) : self
     {
         $folderPrefix = $this->Config()->get('folder_prefix');
 
@@ -145,5 +145,7 @@ class PerfectCmsImagesUploadField extends UploadField
         Folder::find_or_make($folderName);
         //set folder
         $this->setFolderName($folderName);
+
+        return $this;
     }
 }
