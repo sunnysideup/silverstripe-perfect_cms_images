@@ -172,8 +172,7 @@ class PerfectCmsImageDataExtension extends DataExtension
     }
 
     /**
-     * @param bool $useRetina
-     * @param bool $isWebP
+     * returns image link (if any)
      */
     public function PerfectCMSImageLink(string $name, ?bool $useRetina = false, ?bool $isWebP = false, ?bool $forMobile = false): string
     {
@@ -200,5 +199,7 @@ class PerfectCmsImageDataExtension extends DataExtension
         if (Director::isDev()) {
             return ImageManipulations::get_placeholder_image_tag($name);
         }
+
+        return '';
     }
 }
