@@ -171,6 +171,9 @@ class PerfectCmsImageDataExtension extends DataExtension
         return Director::absoluteURL($link);
     }
 
+    /**
+     * returns image link (if any)
+     */
     public function PerfectCMSImageLink(string $name, ?bool $useRetina = false, ?bool $isWebP = false, ?bool $forMobile = false): string
     {
         /** @var null|Image $image */
