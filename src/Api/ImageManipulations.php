@@ -82,8 +82,6 @@ class ImageManipulations
             } elseif ($perfectWidth) {
                 if ($myWidth === $perfectWidth) {
                     $link = $image->Link();
-                } elseif ($myWidth < $perfectWidth) {
-                    $link = $image->Link();
                 } elseif ($crop) {
                     $link = $image->Fill($perfectWidth, $myHeight)->Link();
                 } else {
@@ -91,8 +89,6 @@ class ImageManipulations
                 }
             } elseif ($perfectHeight) {
                 if ($myHeight === $perfectHeight) {
-                    $link = $image->Link();
-                } elseif ($myHeight < $perfectHeight) {
                     $link = $image->Link();
                 } elseif ($crop) {
                     $link = $image->Fill($myWidth, $perfectHeight)->Link();
