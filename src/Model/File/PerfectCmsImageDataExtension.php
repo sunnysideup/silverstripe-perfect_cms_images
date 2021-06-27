@@ -172,7 +172,7 @@ class PerfectCmsImageDataExtension extends DataExtension
     }
 
     /**
-     * returns image link (if any)
+     * returns image link (if any).
      */
     public function PerfectCMSImageLink(string $name, ?bool $useRetina = false, ?bool $isWebP = false, ?bool $forMobile = false): string
     {
