@@ -105,26 +105,20 @@ EOT;
         if ('' === $recommendedFileType) {
             $recommendedFileType = 'jpg';
         }
-        if (0 !== $widthRecommendation) {
-            if (0 !== (int) $widthRecommendation) {
-                //cater for retina
-                $widthRecommendation *= $multiplier;
-                $actualWidthDescription = $widthRecommendation . 'px';
-            } else {
-                $actualWidthDescription = $widthRecommendation;
-            }
+        if (0 !== (int) $widthRecommendation) {
+            //cater for retina
+            $widthRecommendation *= $multiplier;
+            $actualWidthDescription = $widthRecommendation . 'px';
         } else {
+            $actualWidthDescription = $widthRecommendation;
             $actualWidthDescription = 'flexible';
         }
-        if ($heightRecommendation) {
-            if (0 !== (int) $heightRecommendation) {
-                //cater for retina
-                $heightRecommendation *= $multiplier;
-                $actualHeightDescription = $heightRecommendation . 'px';
-            } else {
-                $actualHeightDescription = $heightRecommendation;
-            }
+        if (0 !== (int) $heightRecommendation) {
+            //cater for retina
+            $heightRecommendation *= $multiplier;
+            $actualHeightDescription = $heightRecommendation . 'px';
         } else {
+            $actualHeightDescription = $heightRecommendation;
             $actualHeightDescription = 'flexible';
         }
 
