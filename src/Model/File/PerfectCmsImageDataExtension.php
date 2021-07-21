@@ -36,6 +36,22 @@ class PerfectCmsImageDataExtension extends DataExtension
 
     public function PerfectCMSImageTag(string $name, $inline = false, ?string $alt = '', ?string $attributes = '')
     {
+        $arrayData = $this->getPerfectCMSImageTagArrayData($name, $inline, $alt, $attributes);
+        $template = 'Includes/PerfectCMSImageTag';
+        if (true === $inline || 1 === (int) $inline || 'true' === strtolower($inline)) {
+            $template .= 'Inline';
+        }
+
+        return DBField::create_field('HTMLText', $arrayData->renderWith($template));
+    }
+
+    public function PerfectCMSImageTagArrayData(string $name, $inline = false, ?string $alt = '', ?string $attributes = '')
+    {
+        return $this->getPerfectCMSImageTagArrayData($name, $inline, $alt, $attributes);
+    }
+
+    public function getPerfectCMSImageTagArrayData(string $name, $inline = false, ?string $alt = '', ?string $attributes = '')
+    {
         $retinaLink = $this->PerfectCMSImageLinkRetina($name);
         $nonRetinaLink = $this->PerfectCMSImageLinkNonRetina($name);
 
@@ -56,7 +72,7 @@ class PerfectCmsImageDataExtension extends DataExtension
             $alt = $this->owner->Title;
         }
 
-        $arrayData = ArrayData::create(
+        return ArrayData::create(
             [
                 'MobileMediaWidth' => $mobileMediaWidth,
                 'Width' => $width,
@@ -73,12 +89,6 @@ class PerfectCmsImageDataExtension extends DataExtension
                 'Attributes' => DBField::create_field('HTMLText', $attributes),
             ]
         );
-        $template = 'Includes/PerfectCMSImageTag';
-        if (true === $inline || 1 === (int) $inline || 'true' === strtolower($inline)) {
-            $template .= 'Inline';
-        }
-
-        return DBField::create_field('HTMLText', $arrayData->renderWith($template));
     }
 
     /**

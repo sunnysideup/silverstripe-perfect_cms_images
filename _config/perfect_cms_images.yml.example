@@ -6,7 +6,6 @@ Sunnysideup\PerfectCmsImages\Api\PerfectCMSImages:
     - SilverStripe\Assets\Image
 
 Sunnysideup\PerfectCmsImages\Model\File\PerfectCmsImageDataExtension:
-
   perfect_cms_images_background_padding_color: "#ffffff"
   perfect_cms_images_image_definitions:
     nameBAR:
@@ -26,12 +25,12 @@ Sunnysideup\PerfectCmsImages\Model\File\PerfectCmsImageDataExtension:
       filetype: "jpg or a png, no transparency is required"
       use_retina: false
       padding_bg_colour: '#000000'
-  nameFOOBAR:
-    width: 200
-    height: 200
-    enforce_size: false
-    folder: my-image-folder-a
-    filetype: "jpg or a png with a transparant background"
-    use_retina: true
-    padding_bg_colour: '#dddddd'
-    crop: false
+    nameFOOBAR:
+      width: 200
+      height: 200
+      enforce_size: false
+      folder: my-image-folder-a
+      filetype: "jpg or a png with a transparant background"
+      use_retina: true
+      padding_bg_colour: '#dddddd'
+      crop: false
