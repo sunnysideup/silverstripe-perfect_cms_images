@@ -17,7 +17,7 @@ use Sunnysideup\PerfectCmsImages\Api\PerfectCMSImages;
  */
 class PerfectCmsImageDataExtension extends DataExtension
 {
-    private static $perfect_cms_images_background_padding_color = "#ffffff";
+    private static $perfect_cms_images_background_padding_color = '#ffffff';
 
     private static $perfect_cms_images_image_definitions = [];
 

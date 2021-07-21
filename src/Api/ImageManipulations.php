@@ -189,7 +189,7 @@ class ImageManipulations
     public static function add_fake_parts($image, string $link): string
     {
         if (class_exists('HashPathExtension')) {
-            /** @var Controller|null $curr */
+            /** @var null|Controller $curr */
             $curr = Controller::curr();
             if ($curr) {
                 if ($curr->hasMethod('HashPath')) {
