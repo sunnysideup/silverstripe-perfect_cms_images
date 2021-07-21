@@ -39,15 +39,15 @@ class PerfectCmsImagesUploadField extends UploadField
 
     /**
      * @param string       $name            the internal field name, passed to forms
-     * @param string       $title           the field label
+     * @param null|string  $title           the field label
      * @param null|SS_List $items           If no items are defined, the field will try to auto-detect an existing relation
      * @param null|string  $alternativeName
      */
     public function __construct(
-        $name,
-        $title = null,
-        SS_List $items = null,
-        $alternativeName = null
+        string $name,
+        ?string $title = null,
+        ?SS_List $items = null,
+        ?string $alternativeName = null
     ) {
         parent::__construct(
             $name,

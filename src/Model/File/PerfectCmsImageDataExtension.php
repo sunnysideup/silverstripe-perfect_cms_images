@@ -17,6 +17,10 @@ use Sunnysideup\PerfectCmsImages\Api\PerfectCMSImages;
  */
 class PerfectCmsImageDataExtension extends DataExtension
 {
+    private static $perfect_cms_images_background_padding_color = "#ffffff";
+
+    private static $perfect_cms_images_image_definitions = [];
+
     private static $casting = [
         'PerfectCMSImageTag' => 'HTMLText',
     ];
@@ -34,6 +38,14 @@ class PerfectCmsImageDataExtension extends DataExtension
         return $this->PerfectCMSImageTag($name, $inline, $alt, $attributes);
     }
 
+    /**
+     * @param string $name       PerfectCMSImages name
+     * @param bool   $inline     for use within existing image tag - optional. can be TRUE, "TRUE" or 1 also...
+     * @param string $alt        alt tag for image -optional
+     * @param string $attributes additional attributes
+     *
+     * @return string (HTML)
+     */
     public function PerfectCMSImageTag(string $name, $inline = false, ?string $alt = '', ?string $attributes = '')
     {
         $arrayData = $this->getPerfectCMSImageTagArrayData($name, $inline, $alt, $attributes);
@@ -45,11 +57,27 @@ class PerfectCmsImageDataExtension extends DataExtension
         return DBField::create_field('HTMLText', $arrayData->renderWith($template));
     }
 
+    /**
+     * @param string $name       PerfectCMSImages name
+     * @param bool   $inline     for use within existing image tag - optional. can be TRUE, "TRUE" or 1 also...
+     * @param string $alt        alt tag for image -optional
+     * @param string $attributes additional attributes
+     *
+     * @return ArrayData
+     */
     public function PerfectCMSImageTagArrayData(string $name, $inline = false, ?string $alt = '', ?string $attributes = '')
     {
         return $this->getPerfectCMSImageTagArrayData($name, $inline, $alt, $attributes);
     }
 
+    /**
+     * @param string $name       PerfectCMSImages name
+     * @param bool   $inline     for use within existing image tag - optional. can be TRUE, "TRUE" or 1 also...
+     * @param string $alt        alt tag for image -optional
+     * @param string $attributes additional attributes
+     *
+     * @return ArrayData
+     */
     public function getPerfectCMSImageTagArrayData(string $name, $inline = false, ?string $alt = '', ?string $attributes = '')
     {
         $retinaLink = $this->PerfectCMSImageLinkRetina($name);
