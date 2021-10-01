@@ -38,6 +38,11 @@ Instructions
  * you can choose to only set the standard height or the width
 
 
+# using web p / webp images
+
+You must turn set `SS_ENABLE_WEBP=true` in your `.env` file.
+To turn it off, you have to remove `SS_ENABLE_WEBP` altogether.
+
 
 # Important Note for those using Hash Path module
 
