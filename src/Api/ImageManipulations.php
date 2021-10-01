@@ -150,14 +150,14 @@ class ImageManipulations
     public static function web_p_link(string $link): string
     {
         if (self::web_p_enabled() && $link) {
-            $fileNameWithBaseFolder = Director::baseFolder() . $link;
+            $fileNameWithBaseFolder = Director::baseFolder() .'/public' . $link;
             $arrayOfLink = explode('.', $link);
             $extension = array_pop($arrayOfLink);
             $pathWithoutExtension = rtrim($link, '.' . $extension);
             $webPFileName = $pathWithoutExtension . '_' . $extension . '.webp';
-            $webPFileNameWithBaseFolder = Director::baseFolder() . $webPFileName;
+            $webPFileNameWithBaseFolder = Director::baseFolder() .'/public' . $webPFileName;
             if (file_exists($fileNameWithBaseFolder)) {
-                if (isset($_GET['flush'])) {
+                if (isset($_GET['flush']) && file_exists($webPFileNameWithBaseFolder)) {
                     unlink($webPFileNameWithBaseFolder);
                 }
                 if (file_exists($webPFileNameWithBaseFolder)) {
