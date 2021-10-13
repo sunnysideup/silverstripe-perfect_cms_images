@@ -276,7 +276,7 @@ EOT;
         );
     }
 
-    protected static function image_info_available(string $name): bool
+    public static function image_info_available(string $name): bool
     {
         $sizes = self::get_all_values_for_images();
         //print_r($sizes);die();
