@@ -97,7 +97,7 @@ class PerfectCmsImageDataExtension extends DataExtension
         $mobileMediaWidth = PerfectCMSImages::get_mobile_media_width($name);
 
         if (! $alt) {
-            $alt = $this->owner->Title;
+            $alt = $this->getOwner()->Title;
         }
 
         return ArrayData::create(
