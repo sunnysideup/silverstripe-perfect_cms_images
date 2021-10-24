@@ -2,33 +2,29 @@
 
 namespace Sunnysideup\PerfectCmsImages\Tasks;
 
-
-use SilverStripe\Dev\BuildTask;
-use SilverStripe\Core\Injector\Injector;
-use SilverStripe\Control\HTTPRequest;
-use SilverStripe\Security\Permission;
-use SilverStripe\Assets\Image;
-use SilverStripe\ORM\DataObject;
-use SilverStripe\Assets\Flysystem\FlysystemAssetStore;
-use ReflectionMethod;
-use SilverStripe\Assets\Storage\AssetStore;
 use League\Flysystem\Filesystem;
+use ReflectionMethod;
+use SilverStripe\Assets\Flysystem\FlysystemAssetStore;
+use SilverStripe\Assets\Image;
+use SilverStripe\Assets\Storage\AssetStore;
+use SilverStripe\Control\HTTPRequest;
+use SilverStripe\Core\Injector\Injector;
+use SilverStripe\Dev\BuildTask;
+use SilverStripe\ORM\DataObject;
 
 /**
  * SOURCE: https://gist.github.com/blueo/6598bc349b406cf678f9a8f009587a95
- * Class DeleteGeneratedImagesTask
+ * Class DeleteGeneratedImagesTask.
  *
  * Hack to allow removing manipulated images
  * This is needed occasionally when manipulation functions change
  * It isn't directly possible with core so this is a workaround
  *
  * @see https://github.com/silverstripe/silverstripe-assets/issues/109
- * @package App\Tasks
  * @codeCoverageIgnore
  */
 class DeleteGeneratedImagesTask extends BuildTask
 {
-
     public function getDescription(): string
     {
         return 'Regenerate Images for an asset';
@@ -38,20 +34,22 @@ class DeleteGeneratedImagesTask extends BuildTask
      * Create test jobs for the purposes of testing.
      *
      * @param HTTPRequest $request
+     *
      * @throws \Psr\Container\NotFoundExceptionInterface
      */
     public function run($request) // phpcs:ignore
     {
-
         $Id = $request->getVar('ID');
-        if (!$Id) {
+        if (! $Id) {
             echo 'No ID provided, make sure to supply an ID to the URL eg ?ID=2';
+
             return;
         }
         $image = DataObject::get_by_id(Image::class, $Id);
 
-        if (!$image) {
+        if (! $image) {
             echo 'No Image found with that ID';
+
             return;
         }
         $asetValues = $image->File->getValue();
@@ -70,11 +68,11 @@ class DeleteGeneratedImagesTask extends BuildTask
         $findVariants->setAccessible(true);
         foreach ($findVariants->invoke($store, $flyID, $system) as $variant) {
             $isGenerated = strpos($variant, '__');
-            if (!$isGenerated) {
+            if (! $isGenerated) {
                 continue;
             }
             $system->delete($variant);
         }
-        echo "Deleted generated images for $image->Name";
+        echo "Deleted generated images for {$image->Name}";
     }
 }
