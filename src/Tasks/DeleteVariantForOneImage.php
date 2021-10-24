@@ -34,8 +34,6 @@ class DeleteGeneratedImagesTask extends BuildTask
      * Create test jobs for the purposes of testing.
      *
      * @param HTTPRequest $request
-     *
-     * @throws \Psr\Container\NotFoundExceptionInterface
      */
     public function run($request) // phpcs:ignore
     {
