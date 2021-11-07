@@ -8,9 +8,14 @@ use SilverStripe\Control\Director;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Core\Convert;
 use SilverStripe\SiteConfig\SiteConfig;
+use SilverStripe\Core\Config\Configurable;
+use SilverStripe\Core\Injector\Injectable;
 
 class ImageManipulations
 {
+    use Configurable;
+    use Injectable;
+
     private static $webp_enabled = true;
 
     private static $webp_quality = 77;
