@@ -6,10 +6,10 @@ use SilverStripe\Assets\Image;
 use SilverStripe\Control\Controller;
 use SilverStripe\Control\Director;
 use SilverStripe\Core\Config\Config;
-use SilverStripe\Core\Convert;
-use SilverStripe\SiteConfig\SiteConfig;
 use SilverStripe\Core\Config\Configurable;
+use SilverStripe\Core\Convert;
 use SilverStripe\Core\Injector\Injectable;
+use SilverStripe\SiteConfig\SiteConfig;
 
 class ImageManipulations
 {
