@@ -18,7 +18,7 @@ use Sunnysideup\PerfectCmsImages\Filesystem\PerfectCmsImageValidator;
  *     $field = PerfectCmsImagesUploadFielde::create(
  *         "ImageField",
  *         "Add Image",
- * 	   );
+ *        );
  */
 class PerfectCmsImagesUploadField extends UploadField
 {
