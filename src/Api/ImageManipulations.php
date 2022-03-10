@@ -93,12 +93,16 @@ class ImageManipulations
                     $link = $image->ScaleWidth($perfectWidth)->Link();
                 }
             } elseif ($perfectHeight) {
+                $newImage = null;
                 if ($myHeight === $perfectHeight) {
-                    $link = $image->Link();
+                    $newImage = $image;
                 } elseif ($crop) {
-                    $link = $image->Fill($myWidth, $perfectHeight)->Link();
+                    $newImage = $image->Fill($myWidth, $perfectHeight);
                 } else {
-                    $link = $image->ScaleHeight($perfectHeight)->Link();
+                    $newImage = $image->ScaleHeight($perfectHeight);
+                }
+                if($newImage) {
+                    $link = $newImage->Link();
                 }
             } elseif ($forMobile) {
                 $link = '';
