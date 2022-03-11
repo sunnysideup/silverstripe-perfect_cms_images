@@ -109,7 +109,7 @@ class ImageManipulations
             } else {
                 $link = $image->Link();
             }
-            self::$imageLinkCache[$cacheKey] = $link;
+            self::$imageLinkCache[$cacheKey] = (string) $link;
         }
 
         return self::$imageLinkCache[$cacheKey];
