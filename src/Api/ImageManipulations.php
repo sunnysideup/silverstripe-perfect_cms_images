@@ -206,12 +206,14 @@ class ImageManipulations
                 }
             }
         }
+        $link .= '?';
         if ($image->Title) {
             $imageClasses = Config::inst()->get(PerfectCMSImages::class, 'perfect_cms_images_append_title_to_image_links_classes');
             if (in_array($image->ClassName, $imageClasses, true)) {
-                $link .= '?title=' . urlencode(Convert::raw2att($image->Title));
+                $link .= 'title=' . urlencode(Convert::raw2att($image->Title));
             }
         }
+        $link .= '&time='.strtotime($image->LastEdited);
 
         return $link;
     }
