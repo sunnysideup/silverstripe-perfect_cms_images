@@ -61,7 +61,6 @@ class ImageManipulations
             //get current width and height
             $myWidth = $image->getWidth();
             $myHeight = $image->getHeight();
-
             //if we are trying to resize to a width that is small than the perfect width
             //and the resize width is small than the current width, then lets resize...
             if (0 !== (int) $resizeToWidth) {
@@ -69,6 +68,8 @@ class ImageManipulations
                     $perfectWidth = $resizeToWidth;
                 }
             }
+
+            $link = '';
             if ($perfectWidth && $perfectHeight) {
                 //if the height or the width are already perfect then we can not do anything about it.
                 if ($myWidth === $perfectWidth && $myHeight === $perfectHeight) {
