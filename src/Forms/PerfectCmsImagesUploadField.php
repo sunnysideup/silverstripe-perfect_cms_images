@@ -58,7 +58,9 @@ class PerfectCmsImagesUploadField extends UploadField
         if (null === $alternativeName) {
             $alternativeName = $name;
         }
+
         $this->selectFormattingStandard($alternativeName);
+
         return $this;
     }
 
@@ -132,11 +134,13 @@ class PerfectCmsImagesUploadField extends UploadField
             if ('' === $folderName) {
                 $folderName = 'other-images';
             }
+
             $folderName = implode(
                 '/',
                 array_filter([$folderPrefix, $folderName])
             );
         }
+
         //create folder
         Folder::find_or_make($folderName);
         //set folder

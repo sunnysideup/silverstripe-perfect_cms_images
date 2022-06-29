@@ -83,10 +83,12 @@ EOT;
         if (! Config::inst()->get(Image::class, 'force_resample')) {
             Config::modify()->update(Image::class, 'force_resample', true);
         }
+
         if (class_exists('HashPathExtension')) {
             if (! file_exists(ASSETS_PATH)) {
                 Filesystem::makeFolder(ASSETS_PATH);
             }
+
             $fileName = ASSETS_PATH . '/.htaccess';
             if (! file_exists($fileName)) {
                 $string = Config::inst()->get(PerfectCMSImages::class, 'htaccess_content');
@@ -105,6 +107,7 @@ EOT;
         if ('' === $recommendedFileType) {
             $recommendedFileType = 'jpg';
         }
+
         if (0 !== (int) $widthRecommendation) {
             //cater for retina
             $widthRecommendation *= $multiplier;
@@ -113,6 +116,7 @@ EOT;
             $actualWidthDescription = $widthRecommendation;
             $actualWidthDescription = 'flexible';
         }
+
         if (0 !== (int) $heightRecommendation) {
             //cater for retina
             $heightRecommendation *= $multiplier;
@@ -144,6 +148,7 @@ EOT;
             $rightTitle .= 'Maximum file size: ' . round($maxSizeInKilobytes / 1024, 2) . ' megabyte.';
             $rightTitle .= '<br />';
         }
+
         if ('' !== $recommendedFileType) {
             if (strlen($recommendedFileType) < 5) {
                 $rightTitle .= 'The recommend file type (file extension) is <strong>' . $recommendedFileType . '</strong>.';
@@ -166,6 +171,7 @@ EOT;
         if ($useRetina) {
             $multiplier = Config::inst()->get(PerfectCMSImages::class, 'retina_multiplier');
         }
+
         if (! $multiplier) {
             $multiplier = 1;
         }
@@ -294,6 +300,7 @@ EOT;
         if (isset($sizes[$name], $sizes[$name][$key])) {
             return $sizes[$name][$key];
         }
+
         // Injector::inst()->get(LoggerInterface::class)->info('no information for image with the name: ' . $name . '.' . $key);
 
         return $default;

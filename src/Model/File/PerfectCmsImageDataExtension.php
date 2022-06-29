@@ -233,6 +233,7 @@ class PerfectCmsImageDataExtension extends DataExtension
 
             return '' !== $link ? ImageManipulations::add_fake_parts($image, $link) : '';
         }
+
         // no image -> provide placeholder if in DEV MODE only!!!
         if (Director::isDev()) {
             return ImageManipulations::get_placeholder_image_tag($name);

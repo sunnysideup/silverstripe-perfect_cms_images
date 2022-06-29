@@ -43,6 +43,7 @@ class DeleteGeneratedImagesTask extends BuildTask
 
             return;
         }
+
         $image = DataObject::get_by_id(Image::class, $Id);
 
         if (! $image) {
@@ -50,6 +51,7 @@ class DeleteGeneratedImagesTask extends BuildTask
 
             return;
         }
+
         $asetValues = $image->File->getValue();
         $store = Injector::inst()->get(AssetStore::class);
 
@@ -71,8 +73,10 @@ class DeleteGeneratedImagesTask extends BuildTask
             if (! $isGenerated) {
                 continue;
             }
+
             $system->delete($variant);
         }
+
         echo "Deleted generated images for {$image->Name}";
     }
 }

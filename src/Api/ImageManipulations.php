@@ -38,12 +38,13 @@ class ImageManipulations
      */
     public static function get_image_link($image, string $name, ?bool $useRetina = null, ?bool $forMobile = null, ?int $resizeToWidth = 0): string
     {
-        $cacheKey = $image->ClassName . '_' . $image->ID . '_' . $name . '_' . ($useRetina ? 'Y' : 'N') . '_' . ($forMobile ? 'MY' : 'MN');
+        $cacheKey = $image->ClassName . \_::class . $image->ID . \_::class . $name . \_::class . ($useRetina ? 'Y' : 'N') . \_::class . ($forMobile ? 'MY' : 'MN');
         if (empty(self::$imageLinkCache[$cacheKey])) {
             //work out perfect width and height
             if (null === $useRetina) {
                 $useRetina = PerfectCMSImages::use_retina($name);
             }
+
             $crop = PerfectCMSImages::is_crop($name);
 
             $multiplier = PerfectCMSImages::get_multiplier($useRetina);
@@ -102,7 +103,8 @@ class ImageManipulations
                 } else {
                     $newImage = $image->ScaleHeight($perfectHeight);
                 }
-                if($newImage) {
+
+                if ($newImage) {
                     $link = $newImage->Link();
                 }
             } elseif ($forMobile) {
@@ -110,6 +112,7 @@ class ImageManipulations
             } else {
                 $link = $image->Link();
             }
+
             self::$imageLinkCache[$cacheKey] = (string) $link;
         }
 
@@ -146,9 +149,11 @@ class ImageManipulations
             if (0 === $perfectWidth) {
                 $perfectWidth = $perfectHeight;
             }
+
             if (! $perfectHeight) {
                 $perfectHeight = $perfectWidth;
             }
+
             $text = "{$perfectWidth} x {$perfectHeight} /2 = " . round($perfectWidth / 2) . ' x ' . round($perfectHeight / 2) . '';
 
             return 'https://placehold.it/' . $perfectWidth . 'x' . $perfectHeight . '?text=' . urlencode($text);
@@ -164,12 +169,13 @@ class ImageManipulations
             $arrayOfLink = explode('.', $link);
             $extension = array_pop($arrayOfLink);
             $pathWithoutExtension = rtrim($link, '.' . $extension);
-            $webPFileName = $pathWithoutExtension . '_' . $extension . '.webp';
+            $webPFileName = $pathWithoutExtension . \_::class . $extension . '.webp';
             $webPFileNameWithBaseFolder = Director::baseFolder() . '/public' . $webPFileName;
             if (file_exists($fileNameWithBaseFolder)) {
                 if (isset($_GET['flush']) && file_exists($webPFileNameWithBaseFolder)) {
                     unlink($webPFileNameWithBaseFolder);
                 }
+
                 if (file_exists($webPFileNameWithBaseFolder)) {
                     //todo: check that image is the same ...
                 } else {
@@ -182,6 +188,7 @@ class ImageManipulations
                             $img = imagecreatefrompng($fileNameWithBaseFolder);
                             imagesavealpha($img, true);
                         }
+
                         if (null !== $img) {
                             $quality = Config::inst()->get(ImageManipulations::class, 'webp_quality');
                             imagewebp($img, $webPFileNameWithBaseFolder, $quality);
@@ -207,6 +214,7 @@ class ImageManipulations
                 }
             }
         }
+
         $link .= '?';
         if ($image->Title) {
             $imageClasses = Config::inst()->get(PerfectCMSImages::class, 'perfect_cms_images_append_title_to_image_links_classes');
@@ -214,9 +222,8 @@ class ImageManipulations
                 $link .= 'title=' . urlencode(Convert::raw2att($image->Title));
             }
         }
-        $link .= '&time='.strtotime($image->LastEdited);
 
-        return $link;
+        return $link . ('&time=' . strtotime($image->LastEdited));
     }
 
     public static function web_p_enabled(): bool

@@ -32,6 +32,7 @@ class PerfectCmsImagesBuildTaskCheckImages extends BuildTask
                             if (! $obj) {
                                 break;
                             }
+
                             $image = $obj->{$fieldName}();
                             if ($image && $image instanceof $image && $image->exists()) {
                                 if ($width) {
@@ -40,12 +41,14 @@ class PerfectCmsImagesBuildTaskCheckImages extends BuildTask
                                         $array[] = 'width is ' . round($width / $realWidth, 2) . '% of what it should be';
                                     }
                                 }
+
                                 if ($height) {
                                     $realHeight = $image->getHeight();
                                     if ($realHeight !== $height) {
                                         $array[] = 'height is ' . round($height / $realHeight, 2) . '% of what it should be';
                                     }
                                 }
+
                                 if (count($array) > 0) {
                                     $this->outputToScreen('ERRORS WITH: ' . $obj->getTitle() . ' --- ' . implode('; ', $array), 'deleted');
                                 } else {
@@ -67,6 +70,7 @@ class PerfectCmsImagesBuildTaskCheckImages extends BuildTask
         } else {
             $this->outputToScreen('Please specify at least one of height or width.', 'deleted');
         }
+
         echo '<h1>--- COMPLETED ---</h1>';
     }
 
