@@ -120,7 +120,7 @@ class PerfectCmsImageDataExtension extends DataExtension
     }
 
     /**
-     * @var string name of Image Field template
+     * @param string $name of Image Field template
      *
      * @return string (link)
      */
@@ -130,7 +130,7 @@ class PerfectCmsImageDataExtension extends DataExtension
     }
 
     /**
-     * @var string name of Image Field template
+     * @param string $name of Image Field template
      *
      * @return string (link)
      */
@@ -140,7 +140,7 @@ class PerfectCmsImageDataExtension extends DataExtension
     }
 
     /**
-     * @var string name of Image Field template
+     * @param string $name of Image Field template
      *
      * @return string (link)
      */
@@ -150,7 +150,7 @@ class PerfectCmsImageDataExtension extends DataExtension
     }
 
     /**
-     * @var string name of Image Field template
+     * @param string $name of Image Field template
      *
      * @return string (link)
      */
@@ -160,7 +160,7 @@ class PerfectCmsImageDataExtension extends DataExtension
     }
 
     /**
-     * @var string name of Image Field template
+     * @param string $name of Image Field template
      *
      * @return string (link)
      */
@@ -170,7 +170,7 @@ class PerfectCmsImageDataExtension extends DataExtension
     }
 
     /**
-     * @var string name of Image Field template
+     * @param string $name of Image Field template
      *
      * @return string (link)
      */
@@ -180,7 +180,7 @@ class PerfectCmsImageDataExtension extends DataExtension
     }
 
     /**
-     * @var string name of Image Field template
+     * @param string $name of Image Field template
      *
      * @return string (link)
      */
@@ -190,7 +190,7 @@ class PerfectCmsImageDataExtension extends DataExtension
     }
 
     /**
-     * @var string name of Image Field template
+     * @param string $name of Image Field template
      *
      * @return string (link)
      */
@@ -200,7 +200,7 @@ class PerfectCmsImageDataExtension extends DataExtension
     }
 
     /**
-     * @var string name of Image Field template
+     * @param string $link
      *
      * @return string (link)
      */

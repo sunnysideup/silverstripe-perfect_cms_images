@@ -60,8 +60,6 @@ class PerfectCmsImagesUploadField extends UploadField
         }
 
         $this->selectFormattingStandard($alternativeName);
-
-        return $this;
     }
 
     public function setDescription($string): self

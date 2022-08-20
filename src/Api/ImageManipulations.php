@@ -38,7 +38,7 @@ class ImageManipulations
      */
     public static function get_image_link($image, string $name, ?bool $useRetina = null, ?bool $forMobile = null, ?int $resizeToWidth = 0): string
     {
-        $cacheKey = $image->ClassName . \_::class . $image->ID . \_::class . $name . \_::class . ($useRetina ? 'Y' : 'N') . \_::class . ($forMobile ? 'MY' : 'MN');
+        $cacheKey = $image->ClassName . '_' . $image->ID . '_' . $name . '_' . ($useRetina ? 'Y' : 'N') . '_' . ($forMobile ? 'MY' : 'MN');
         if (empty(self::$imageLinkCache[$cacheKey])) {
             //work out perfect width and height
             if (null === $useRetina) {
@@ -169,7 +169,7 @@ class ImageManipulations
             $arrayOfLink = explode('.', $link);
             $extension = array_pop($arrayOfLink);
             $pathWithoutExtension = rtrim($link, '.' . $extension);
-            $webPFileName = $pathWithoutExtension . \_::class . $extension . '.webp';
+            $webPFileName = $pathWithoutExtension . '_' . $extension . '.webp';
             $webPFileNameWithBaseFolder = Director::baseFolder() . '/public' . $webPFileName;
             if (file_exists($fileNameWithBaseFolder)) {
                 if (isset($_GET['flush']) && file_exists($webPFileNameWithBaseFolder)) {
