@@ -3,6 +3,7 @@
 namespace Sunnysideup\PerfectCmsImages\Model\File;
 
 use SilverStripe\Assets\Image;
+use SilverStripe\Assets\Folder;
 use SilverStripe\Control\Director;
 use SilverStripe\Core\Convert;
 use SilverStripe\ORM\DataExtension;
@@ -94,6 +95,7 @@ class PerfectCmsImageDataExtension extends DataExtension
 
         $width = PerfectCMSImages::get_width($name, true);
         $height = PerfectCMSImages::get_height($name, true);
+        $loadingStyle = PerfectCMSImages::loading_style($name);
         $mobileMediaWidth = PerfectCMSImages::get_mobile_media_width($name);
 
         if (! $alt) {
@@ -114,6 +116,7 @@ class PerfectCmsImageDataExtension extends DataExtension
                 'NonRetinaLink' => $nonRetinaLink,
                 'RetinaLinkWebP' => $retinaLinkWebP,
                 'NonRetinaLinkWebP' => $nonRetinaLinkWebP,
+                'LoadingStyle' => $loadingStyle,
                 'Attributes' => DBField::create_field('HTMLText', $attributes),
             ]
         );
@@ -241,4 +244,30 @@ class PerfectCmsImageDataExtension extends DataExtension
 
         return '';
     }
+
+    protected function PerfectCMSImageFixFolder($name, ?string $folderName): ?Folder
+    {
+        $folder = null;
+        if(PerfectCMSImages::move_to_right_folder($name) || $folderName) {
+            $image = $this->getOwner();
+            if(! $folderName) {
+                $folderName = PerfectCMSImages::get_folder($name);
+            }
+            $folder = Folder::find_or_make($folderName);
+            if(!$folder->exists()) {
+                $folder->write();
+            }
+            if ($image && $image->exists() && $image->ParentID !== $folder->ID) {
+                $isPublished = $image->isPublished();
+                $image->ParentID = $folder->ID;
+                $image->write();
+                if($isPublished) {
+                    $image->publishRecursive();
+                }
+            }
+        }
+        return $folder;
+    }
+
+
 }

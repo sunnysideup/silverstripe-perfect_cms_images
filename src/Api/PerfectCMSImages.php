@@ -241,6 +241,16 @@ EOT;
         return self::get_one_value_for_image($name, 'folder', 'other-images');
     }
 
+    public static function move_to_right_folder(string $name): bool
+    {
+        return self::get_one_value_for_image($name, 'move_to_right_folder', true);
+    }
+
+    public static function loading_style(string $name) : string
+    {
+        return self::get_one_value_for_image($name, 'loading_style', 'lazy');
+    }
+
     public static function max_size_in_kilobytes(string $name): int
     {
         $maxSizeInKilobytes = self::get_one_value_for_image($name, 'max_size_in_kilobytes', 0);
