@@ -250,19 +250,21 @@ class PerfectCmsImageDataExtension extends DataExtension
         $folder = null;
         if(PerfectCMSImages::move_to_right_folder($name) || $folderName) {
             $image = $this->getOwner();
-            if(! $folderName) {
-                $folderName = PerfectCMSImages::get_folder($name);
-            }
-            $folder = Folder::find_or_make($folderName);
-            if(!$folder->exists()) {
-                $folder->write();
-            }
-            if ($image && $image->exists() && $image->ParentID !== $folder->ID) {
-                $isPublished = $image->isPublished();
-                $image->ParentID = $folder->ID;
-                $image->write();
-                if($isPublished) {
-                    $image->publishRecursive();
+            if($image->exists()) {
+                if(! $folderName) {
+                    $folderName = PerfectCMSImages::get_folder($name);
+                }
+                $folder = Folder::find_or_make($folderName);
+                if(!$folder->exists()) {
+                    $folder->write();
+                }
+                if ($image && $image->exists() && $image->ParentID !== $folder->ID) {
+                    $isPublished = $image->isPublished();
+                    $image->ParentID = $folder->ID;
+                    $image->write();
+                    if($isPublished) {
+                        $image->publishRecursive();
+                    }
                 }
             }
         }

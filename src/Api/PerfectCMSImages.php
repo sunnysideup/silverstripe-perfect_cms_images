@@ -301,19 +301,16 @@ EOT;
 
     /**
      * @param string $default
+     * @param string $key
+     * @param mixed $default
      *
      * @return mixed
      */
-    protected static function get_one_value_for_image(string $name, string $key, ?string $default = '')
+    protected static function get_one_value_for_image(string $name, string $key, $default = '')
     {
         $sizes = self::get_all_values_for_images();
-        if (isset($sizes[$name], $sizes[$name][$key])) {
-            return $sizes[$name][$key];
-        }
-
+        return $sizes[$name][$key] ?? $default;
         // Injector::inst()->get(LoggerInterface::class)->info('no information for image with the name: ' . $name . '.' . $key);
-
-        return $default;
     }
 
     protected static function get_all_values_for_images(): array
