@@ -58,7 +58,8 @@ EOT;
      *     - use_retina: true
      *     - padding_bg_colour: '#dddddd'
      *     - crop: true
-     *
+     *     - move_to_right_folder: true
+     *     - loading_style: 'eager'
      * @var array
      */
     private static $perfect_cms_images_image_definitions = [];

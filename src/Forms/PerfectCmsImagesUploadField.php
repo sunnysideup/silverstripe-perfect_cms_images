@@ -88,7 +88,7 @@ class PerfectCmsImagesUploadField extends UploadField
         $maxSizeInKilobytes = PerfectCMSImages::max_size_in_kilobytes($name);
         $this->getValidator()->setAllowedMaxFileSize(1 * 1024 * $maxSizeInKilobytes);
         $this->getValidator()->setFieldName($name);
-
+        $this->setPerfectFolderName($name);
         return $this;
     }
 
@@ -139,9 +139,6 @@ class PerfectCmsImagesUploadField extends UploadField
                 array_filter([$folderPrefix, $folderName])
             );
         }
-
-        //create folder
-        Folder::find_or_make($folderName);
         //set folder
         $this->setFolderName($folderName);
     }
