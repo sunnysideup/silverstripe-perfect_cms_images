@@ -31,12 +31,6 @@ class PerfectCMSImages implements Flushable
 
 EOT;
 
-    /**
-     * background image for padded images...
-     *
-     * @var string
-     */
-    private static $perfect_cms_images_background_padding_color = '#cccccc';
 
     /**
      * used to set the max width of the media value for mobile images,
@@ -45,24 +39,6 @@ EOT;
      * @var string
      */
     private static $mobile_media_max_width = '600px';
-
-    /*
-     * details of the images
-     *     - width: 3200
-     *     - height: 3200
-     *     - folder: "myfolder"
-     *     - filetype: "try jpg"
-     *     - enforce_size: false
-     *     - folder: my-image-folder-a
-     *     - filetype: "jpg or a png with a transparant background"
-     *     - use_retina: true
-     *     - padding_bg_colour: '#dddddd'
-     *     - crop: true
-     *     - move_to_right_folder: true
-     *     - loading_style: 'eager'
-     * @var array
-     */
-    private static $perfect_cms_images_image_definitions = [];
 
     /*
      * Images Titles will be appended to the links only

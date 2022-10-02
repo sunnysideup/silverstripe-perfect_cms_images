@@ -8,6 +8,7 @@ use SilverStripe\Control\Director;
 use SilverStripe\Core\Convert;
 use SilverStripe\ORM\DataExtension;
 use SilverStripe\ORM\FieldType\DBField;
+use SilverStripe\ORM\FieldType\DBHTMLText;
 use SilverStripe\View\ArrayData;
 use Sunnysideup\PerfectCmsImages\Api\ImageManipulations;
 use Sunnysideup\PerfectCmsImages\Api\PerfectCMSImages;
@@ -18,8 +19,30 @@ use Sunnysideup\PerfectCmsImages\Api\PerfectCMSImages;
  */
 class PerfectCmsImageDataExtension extends DataExtension
 {
-    private static $perfect_cms_images_background_padding_color = '#ffffff';
 
+    /**
+     * background image for padded images...
+     *
+     * @var string
+     */
+    private static $perfect_cms_images_background_padding_color = '#cccccc';
+
+    /*
+     * details of the images
+     *     - width: 3200
+     *     - height: 3200
+     *     - folder: "myfolder"
+     *     - filetype: "try jpg"
+     *     - enforce_size: false
+     *     - folder: my-image-folder-a
+     *     - filetype: "jpg or a png with a transparant background"
+     *     - use_retina: true
+     *     - padding_bg_colour: '#dddddd'
+     *     - crop: true
+     *     - move_to_right_folder: true
+     *     - loading_style: 'eager'
+     * @var array
+     */
     private static $perfect_cms_images_image_definitions = [];
 
     private static $casting = [
@@ -245,12 +268,12 @@ class PerfectCmsImageDataExtension extends DataExtension
         return '';
     }
 
-    protected function PerfectCMSImageFixFolder($name, ?string $folderName): ?Folder
+    public function PerfectCMSImageFixFolder($name, ?string $folderName = ''): ?Folder
     {
         $folder = null;
         if(PerfectCMSImages::move_to_right_folder($name) || $folderName) {
             $image = $this->getOwner();
-            if($image->exists()) {
+            if($image && $image->exists()) {
                 if(! $folderName) {
                     $folderName = PerfectCMSImages::get_folder($name);
                 }
@@ -258,18 +281,42 @@ class PerfectCmsImageDataExtension extends DataExtension
                 if(!$folder->exists()) {
                     $folder->write();
                 }
-                if ($image && $image->exists() && $image->ParentID !== $folder->ID) {
-                    $isPublished = $image->isPublished();
+                if ($image->ParentID !== $folder->ID) {
+                    $wasPublished = $image->isPublished();
                     $image->ParentID = $folder->ID;
                     $image->write();
-                    if($isPublished) {
-                        $image->publishRecursive();
+                    if($wasPublished) {
+                        $image->publishSingle();
                     }
                 }
+            } else {
+                // user_error('could not find image');
             }
         }
         return $folder;
     }
 
+    public function getThumbnail() {
+        if($this->owner->ID){
+            if($this->owner->getExtension() == 'svg'){
+                $obj= DBHTMLText::create();
+                $obj->setValue(file_get_contents(BASE_PATH.$this->owner->Link()));
+                return $obj;
+            }else {
+                return $this->owner->CMSThumbnail();
+            }
+        } else {
+            return $this->owner->CMSThumbnail();
+        }
+    }
+
+    public function updatePreviewLink(&$link, $action)
+    {
+        $owner = $this->getOwner();
+        if($this->owner->getExtension() == 'svg'){
+            return $owner->Link();
+        }
+        return $link;
+    }
 
 }

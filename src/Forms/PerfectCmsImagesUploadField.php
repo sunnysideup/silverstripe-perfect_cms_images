@@ -56,11 +56,11 @@ class PerfectCmsImagesUploadField extends UploadField
         );
         $perfectCMSImageValidator = new PerfectCMSImageValidator();
         $this->setValidator($perfectCMSImageValidator);
-        if (null === $alternativeName) {
-            $alternativeName = $name;
+        $finalName = $name;
+        if (null !== $alternativeName) {
+            $finalName = $alternativeName;
         }
-
-        $this->selectFormattingStandard($alternativeName);
+        $this->selectFormattingStandard($finalName);
     }
 
     public function setDescription($string): self
@@ -77,18 +77,22 @@ class PerfectCmsImagesUploadField extends UploadField
      */
     public function selectFormattingStandard(string $name): self
     {
+        //folder
         $this->setPerfectFolderName($name);
 
+        // description
         $this->setDescription(PerfectCMSImages::get_description_for_cms($name));
 
+        // standard stuff
         $this->setAllowedFileCategories('image');
         $alreadyAllowed = $this->getAllowedExtensions();
         $this->setAllowedExtensions($alreadyAllowed + ['svg']);
         //keep the size reasonable
         $maxSizeInKilobytes = PerfectCMSImages::max_size_in_kilobytes($name);
         $this->getValidator()->setAllowedMaxFileSize(1 * 1024 * $maxSizeInKilobytes);
+
+        //make sure the validator knows about the name.
         $this->getValidator()->setFieldName($name);
-        $this->setPerfectFolderName($name);
         return $this;
     }
 
@@ -126,19 +130,14 @@ class PerfectCmsImagesUploadField extends UploadField
     {
         $folderPrefix = $this->Config()->get('folder_prefix');
 
-        $folderName = $this->folderName;
-        if ('' === $folderName) {
-            //folder related stuff ...
-            $folderName = PerfectCMSImages::get_folder($name);
-            if ('' === $folderName) {
-                $folderName = 'other-images';
-            }
-
-            $folderName = implode(
-                '/',
-                array_filter([$folderPrefix, $folderName])
-            );
-        }
+        $folderName = (string) trim($this->folderName);
+        //folder related stuff ...
+        $folderName = (string) PerfectCMSImages::get_folder($name);
+        $folderName = implode(
+            '/',
+            array_filter([$folderPrefix, $folderName])
+        );
+        Folder::find_or_make($folderName);
         //set folder
         $this->setFolderName($folderName);
     }
