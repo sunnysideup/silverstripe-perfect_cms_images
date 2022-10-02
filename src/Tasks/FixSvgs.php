@@ -40,7 +40,7 @@ class FixSvgs extends BuildTask
     public function run($request) // phpcs:ignore
     {
         $files = $this->getBatchOfFiles();
-        while($files) {
+        while($files && $files->exists()) {
             foreach($files as $file) {
                 if($file->getExtension() === 'svg') {
                     DB::alteration_message('Fixing '.$file->Link());
