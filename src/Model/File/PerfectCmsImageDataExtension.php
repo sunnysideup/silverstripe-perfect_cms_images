@@ -282,7 +282,7 @@ class PerfectCmsImageDataExtension extends DataExtension
                     $folder->write();
                 }
                 if ($image->ParentID !== $folder->ID) {
-                    $wasPublished = $image->isPublished();
+                    $wasPublished = $image->isPublished() && ! $image->isModifiedOnDraft();;
                     $image->ParentID = $folder->ID;
                     $image->write();
                     if($wasPublished) {
