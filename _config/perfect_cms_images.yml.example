@@ -23,7 +23,7 @@ Sunnysideup\PerfectCmsImages\Model\File\PerfectCmsImageDataExtension:
       crop: true
       move_to_right_folder: true
       loading_style: 'eager'
-      force_resize: false
+      force_third_party_resize: false
     nameFOO:
       width: 100
       height: 0
@@ -34,7 +34,7 @@ Sunnysideup\PerfectCmsImages\Model\File\PerfectCmsImageDataExtension:
       padding_bg_colour: '#000000'
       move_to_right_folder: false
       loading_style: 'lazy'
-      force_resize: true
+      force_third_party_resize: true
     nameFOOBAR:
       width: 200
       height: 200
@@ -46,4 +46,4 @@ Sunnysideup\PerfectCmsImages\Model\File\PerfectCmsImageDataExtension:
       crop: false
       move_to_right_folder: true
       loading_style: 'lazy'
-      force_resize: true
+      force_third_party_resize: true
