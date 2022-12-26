@@ -70,47 +70,47 @@ class ImageManipulations
                 }
             }
 
-            $link = '';
+            $tmpImage = null;
             if ($perfectWidth && $perfectHeight) {
                 //if the height or the width are already perfect then we can not do anything about it.
                 if ($myWidth === $perfectWidth && $myHeight === $perfectHeight) {
-                    $link = $image->Link();
+                    $tmpImage = $image;
                 } elseif ($myWidth < $perfectWidth || $myHeight < $perfectHeight) {
-                    $link = $image->Pad(
+                    $tmpImage = $image->Pad(
                         $perfectWidth,
                         $perfectHeight,
                         PerfectCMSImages::get_padding_bg_colour($name)
-                    )->Link();
+                    );
                 } elseif ($crop) {
-                    $link = $image->Fill($perfectWidth, $perfectHeight)->Link();
+                    $tmpImage = $image->Fill($perfectWidth, $perfectHeight);
                 } else {
-                    $link = $image->FitMax($perfectWidth, $perfectHeight)->Link();
+                    $tmpImage = $image->FitMax($perfectWidth, $perfectHeight);
                 }
             } elseif ($perfectWidth) {
                 if ($myWidth === $perfectWidth) {
-                    $link = $image->Link();
+                    $tmpImage = $image;
                 } elseif ($crop) {
-                    $link = $image->Fill($perfectWidth, $myHeight)->Link();
+                    $tmpImage = $image->Fill($perfectWidth, $myHeight);
                 } else {
-                    $link = $image->ScaleWidth($perfectWidth)->Link();
+                    $tmpImage = $image->ScaleWidth($perfectWidth);
                 }
             } elseif ($perfectHeight) {
-                $newImage = null;
                 if ($myHeight === $perfectHeight) {
-                    $newImage = $image;
+                    $tmpImage = $image;
                 } elseif ($crop) {
-                    $newImage = $image->Fill($myWidth, $perfectHeight);
+                    $tmpImage = $image->Fill($myWidth, $perfectHeight);
                 } else {
-                    $newImage = $image->ScaleHeight($perfectHeight);
-                }
-
-                if ($newImage) {
-                    $link = $newImage->Link();
+                    $tmpImage = $image->ScaleHeight($perfectHeight);
                 }
             } elseif ($forMobile) {
-                $link = '';
+                // todo: expplain this!
+                // basically, it is for mobile and there is not perfect height nor width
+                $tmpImage = null;
             } else {
-                $link = $image->Link();
+                $tmpImage = $image;
+            }
+            if($tmpImage) {
+                $link = $tmpImage->Link();
             }
 
             self::$imageLinkCache[$cacheKey] = (string) $link;
@@ -205,6 +205,15 @@ class ImageManipulations
 
     public static function add_fake_parts($image, string $link): string
     {
+        // first get the timestamp
+        $time1 = strtotime($image->LastEdited);
+        $time2 = 0;
+        $path = Controller::join_links(Director::baseFolder(),  PUBLIC_DIR, $link);
+        if(file_exists($path)) {
+            $time2 = filemtime($path);
+        }
+
+        // first convert to hash extension
         if (class_exists('HashPathExtension')) {
             /** @var null|Controller $curr */
             $curr = Controller::curr();
@@ -215,15 +224,18 @@ class ImageManipulations
             }
         }
 
-        $link .= '?';
+        // now you can add the time
+        $link .= '?time='.max($time1, $time2);
+
+        // finally add the title
         if ($image->Title) {
             $imageClasses = Config::inst()->get(PerfectCMSImages::class, 'perfect_cms_images_append_title_to_image_links_classes');
             if (in_array($image->ClassName, $imageClasses, true)) {
-                $link .= 'title=' . urlencode(Convert::raw2att($image->Title));
+                $link .= '&title=' . urlencode(Convert::raw2att($image->Title));
             }
         }
 
-        return $link . ('&time=' . strtotime($image->LastEdited));
+        return $link;
     }
 
     public static function web_p_enabled(): bool
