@@ -24,6 +24,9 @@ Sunnysideup\PerfectCmsImages\Model\File\PerfectCmsImageDataExtension:
       move_to_right_folder: true
       loading_style: 'eager'
       force_third_party_resize: false
+      used_by:
+        - Page.Logo
+        - Vendor\App\Pages\MyPage.OtherLogo
     nameFOO:
       width: 100
       height: 0
@@ -35,6 +38,9 @@ Sunnysideup\PerfectCmsImages\Model\File\PerfectCmsImageDataExtension:
       move_to_right_folder: false
       loading_style: 'lazy'
       force_third_party_resize: true
+      used_by:
+        - SilverStripe\Model\DataObject.Image
+
     nameFOOBAR:
       width: 200
       height: 200

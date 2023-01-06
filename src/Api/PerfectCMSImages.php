@@ -290,7 +290,7 @@ EOT;
         // Injector::inst()->get(LoggerInterface::class)->info('no information for image with the name: ' . $name . '.' . $key);
     }
 
-    protected static function get_all_values_for_images(): array
+    public static function get_all_values_for_images(): array
     {
         return Config::inst()->get(
             PerfectCmsImageDataExtension::class,
