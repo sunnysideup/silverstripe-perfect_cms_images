@@ -36,10 +36,10 @@ class SortOutFolders
     protected $unusedImagesFolder = null;
 
     /**
-     *
+     * if set to true then dont do it for real!
      * @var bool
      */
-    protected $debug = false;
+    protected $dryRun = false;
 
     /**
      *
@@ -55,9 +55,9 @@ class SortOutFolders
         return $this;
     }
 
-    public function setDebug(?bool $b = true)
+    public function setDryRun(?bool $b = true)
     {
-        $this->debug = $b;
+        $this->dryRun = $b;
         return $this;
     }
 
@@ -88,9 +88,16 @@ class SortOutFolders
         $listOfImageIds = $this->getListOfImages($folderArray);
 
         // remove
+        $imagesLeft = [];
         foreach($listOfImageIds as $folderName => $listOfIds) {
             DB::alteration_message('==== DOING '.$folderName.' of Image IDs ===='. count($listOfIds).' images to keep');
-            $this->removeUnusedFiles($folderName, $listOfIds);
+            $imagesLeft[$folderName] = $this->removeUnusedFiles($folderName, $listOfIds);
+        }
+
+        // reintroduce
+        foreach($imagesLeft as $folderName => $listOfIds) {
+            DB::alteration_message('==== DOING '.$folderName.' of Image IDs ===='. count($listOfIds).' images to re-introduce');
+            $this->moveUsedFilesIntoFolder($folderName, $listOfIds);
         }
     }
 
@@ -137,9 +144,11 @@ class SortOutFolders
                     $dataClassName = $fieldDetails['dataClassName'];
                     $list = $dataClassName::get()->relation($method)->columnUnique('ID');
                 }
-                $listOfIds = array_merge(
-                    $listOfIds,
-                    $list
+                $listOfIds = array_unique(
+                    array_merge(
+                        $listOfIds,
+                        $list
+                    )
                 );
             }
             if(count($listOfIds)) {
@@ -149,7 +158,13 @@ class SortOutFolders
         return $listOfImageIds;
     }
 
-    public function removeUnusedFiles(string $folderName, array $listOfImageIds)
+    /**
+     * returns the images in the ID list that were not found in the folder.
+     * @param  string $folderName                   Folder moving to
+     * @param  array  $listOfImageIds               Images that should be in the folder
+     * @return array                                Unused images
+     */
+    public function removeUnusedFiles(string $folderName, array $listOfImageIds) : array
     {
         $unusedFolderName = $this->unusedImagesFolder->Name;
         $folder = Folder::find_or_make($folderName);
@@ -158,12 +173,14 @@ class SortOutFolders
         $unused = Image::get()->where($where);
         if ($unused->exists()) {
             foreach ($unused as $file) {
+                if (in_array($file->ID, $listOfImageIds)) {
+                    unset($array[array_search($file->ID, $listOfImageIds)]);
+                }
                 $oldName = $file->getFileName();
                 if($this->verbose) {
                     DB::alteration_message('moving '.$file->getFileName().' to '.$unusedFolderName);
                 }
-                if($this->debug) {
-                } else {
+                if($this->dryRun === false) {
                     $file->ParentID = $this->unusedImagesFolder->ID;
                     $file->write();
                     $file->doPublish();
@@ -175,27 +192,31 @@ class SortOutFolders
                 }
             }
         }
+        return $listOfImageIds;
     }
 
     public function moveUsedFilesIntoFolder(string $folderName, array $listOfImageIds)
     {
-        $unusedFolderName = $this->unusedImagesFolder->Name;
         $folder = Folder::find_or_make($folderName);
         $listAsString = implode(',', $listOfImageIds);
         $where = ' ParentID <> ' . $folder->ID. ' AND File.ID IN('.$listAsString.')';
         $used = Image::get()->where($where);
         if ($used->exists()) {
             foreach ($used as $file) {
+                $oldFolderName = $file->Parent()->Name;
                 $oldName = $file->getFileName();
                 if($this->verbose) {
-                    DB::alteration_message('moving '.$file->getFileName().' to '.$unusedFolderName);
+                    DB::alteration_message('moving '.$file->getFileName().' to '.$folderName);
                 }
-                if($this->debug) {
-                } else {
+                if($this->dryRun === false) {
                     $file->ParentID = $folder->ID;
                     $file->write();
                     $file->doPublish();
-                    $newName = str_replace($unusedFolderName, $folder->Name, $oldName);
+                    if($oldFolderName === '') {
+                        $newName = $folder->Name . '/' . $oldName;
+                    } else {
+                        $newName = str_replace($oldFolderName, $folder->Name, $oldName);
+                    }
                     if($this->verbose && $newName !== $file->getFileName()) {
                         DB::alteration_message('ERROR: file names do not match. Compare: '.$newName. ' with ' . $file->getFileName(), 'deleted');
                     } else {
