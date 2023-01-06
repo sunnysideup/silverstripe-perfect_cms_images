@@ -168,18 +168,38 @@ class SortOutFolders
                     $file->write();
                     $file->doPublish();
                     $newName = str_replace($folder->Name, $unusedFolderName, $oldName);
-                    if ($newNameFull !== $oldNameFull) {
-                        $oldNameFull = Controller::join_links(ASSETS_PATH, $oldName);
-                        $newNameFull = Controller::join_links(ASSETS_PATH, $newName);
-                        if (file_exists($oldNameFull)) {
-                            if(file_exists($newNameFull)) {
-                                if ($this->verbose) {
-                                    DB::alteration_message('Deleting '.$newName.' to make place for a new file.', 'deleted');
-                                }
-                                unlink($newNameFull);
-                            }
-                            rename($oldNameFull, $newNameFull);
-                        }
+                    if($newName !== $file->getFileName()) {
+                        DB::alteration_message('ERROR: file names do not match. Compare: '.$newName. ' with ' . $file->getFileName());
+                    }
+                    $this->physicallyMovingImage($oldName, $newName);
+                }
+            }
+        }
+    }
+
+    public function moveUsedFilesIntoFolder(string $folderName, array $listOfImageIds)
+    {
+        $unusedFolderName = $this->unusedImagesFolder->Name;
+        $folder = Folder::find_or_make($folderName);
+        $listAsString = implode(',', $listOfImageIds);
+        $where = ' ParentID <> ' . $folder->ID. ' AND File.ID IN('.$listAsString.')';
+        $used = Image::get()->where($where);
+        if ($used->exists()) {
+            foreach ($used as $file) {
+                $oldName = $file->getFileName();
+                if($this->verbose) {
+                    DB::alteration_message('moving '.$file->getFileName().' to '.$unusedFolderName);
+                }
+                if($this->debug) {
+                } else {
+                    $file->ParentID = $folder->ID;
+                    $file->write();
+                    $file->doPublish();
+                    $newName = str_replace($unusedFolderName, $folder->Name, $oldName);
+                    if($this->verbose && $newName !== $file->getFileName()) {
+                        DB::alteration_message('ERROR: file names do not match. Compare: '.$newName. ' with ' . $file->getFileName(), 'deleted');
+                    } else {
+                        $this->physicallyMovingImage($oldName, $newName);
                     }
                 }
             }
@@ -214,5 +234,26 @@ class SortOutFolders
         return self::$my_field_cache[$key];
     }
 
+    protected function physicallyMovingImage(string $oldName, string $newName)
+    {
+        if ($oldName !== $newName) {
+            $oldNameFull = Controller::join_links(ASSETS_PATH, $oldName);
+            $newNameFull = Controller::join_links(ASSETS_PATH, $newName);
+            if (file_exists($oldNameFull)) {
+                if(file_exists($newNameFull)) {
+                    if ($this->verbose) {
+                        DB::alteration_message('Deleting '.$newName.' to make place for a new file.', 'deleted');
+                    }
+                    unlink($newNameFull);
+                }
+                if ($this->verbose) {
+                    DB::alteration_message('Moving '.$oldNameFull.' to '.$newNameFull, 'created');
+                }
+                rename($oldNameFull, $newNameFull);
+            }
+        } elseif($this->verbose) {
+            DB::alteration_message('ERROR: old and new file names are the same '.$oldName, 'deleted');
+        }
+    }
 
 }
