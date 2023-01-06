@@ -185,8 +185,9 @@ class SortOutFolders
                     $file->write();
                     $file->doPublish();
                     $newName = str_replace($folder->Name, $unusedFolderName, $oldName);
+                    $file->flushCache();
                     if($newName !== $file->getFileName()) {
-                        DB::alteration_message('ERROR: file names do not match. Compare: '.$newName. ' with ' . $file->getFileName());
+                        DB::alteration_message('ERROR: file names do not match. Compare: '.$newName. ' with ' . $file->getFileName(), 'deleted');
                     }
                     $this->physicallyMovingImage($oldName, $newName);
                 }
@@ -217,6 +218,7 @@ class SortOutFolders
                     } else {
                         $newName = str_replace($oldFolderName, $folder->Name, $oldName);
                     }
+                    $file->flushCache();
                     if($this->verbose && $newName !== $file->getFileName()) {
                         DB::alteration_message('ERROR: file names do not match. Compare: '.$newName. ' with ' . $file->getFileName(), 'deleted');
                     } else {
@@ -275,6 +277,11 @@ class SortOutFolders
         } elseif($this->verbose) {
             DB::alteration_message('ERROR: old and new file names are the same '.$oldName, 'deleted');
         }
+    }
+
+    protected function checkForRogueFiles()
+    {
+
     }
 
 }
