@@ -45,7 +45,7 @@ class SortOutFolders
      *
      * @var bool
      */
-    protected $verbose = false;
+    protected $verbose = true;
 
     private static $unused_images_folder_name = 'unusedimages';
 
@@ -77,30 +77,26 @@ class SortOutFolders
      */
     public function run(string $unusedFolderName, array $data) // phpcs:ignore
     {
-        $unusedImagesFolder = Folder::find_or_make($unusedFolderName);
+        $this->unusedImagesFolder = Folder::find_or_make($unusedFolderName);
 
         $folderArray = $this->getFolderArray($data);
         if ($this->verbose) {
             DB::alteration_message('==== List of folders ====');
-            print_r($folderArray);
+            echo '<pre>'.print_r($folderArray, 1).'</pre>';
         }
 
         $listOfImageIds = $this->getListOfImages($folderArray);
-        if ($this->verbose) {
-            DB::alteration_message('==== List of Image IDs ====');
-            print_r($listOfImageIds);
-        }
 
         // remove
         foreach($listOfImageIds as $folderName => $listOfIds) {
+            DB::alteration_message('==== DOING '.$folderName.' of Image IDs ===='. count($listOfIds).' images to keep');
             $this->removeUnusedFiles($folderName, $listOfIds);
         }
     }
 
 
-    protected function getFolderArray(array $data) :array
+    public function getFolderArray(array $data) :array
     {
-
         // check folders
         $folderArray = [];
         foreach($data as $dataInner) {
@@ -108,19 +104,21 @@ class SortOutFolders
             if($folder) {
                 $folderArray[$folder] = [];
                 $classes = $dataInner['used_by'] ?? [];
-                if(is_array($classes) && ! empty($classes)) {
-                    foreach($classes as $classAndMethodList) {
-                        $folderArray[$folder][$classAndMethodList] = $classAndMethodList;
+                if(! empty($classes)) {
+                    if(is_array($classes)) {
+                        foreach($classes as $classAndMethodList) {
+                            $folderArray[$folder][$classAndMethodList] = $classAndMethodList;
+                        }
+                    } else {
+                        user_error('Bad definition for: '.print_r($dataInner, 1));
                     }
-                } else {
-                    user_error('Bad definition for: '.print_r($dataInner, 1));
                 }
             }
         }
         return $folderArray;
     }
 
-    protected function getListOfImages(array $folderArray) : array
+    public function getListOfImages(array $folderArray) : array
     {
         $listOfImageIds = [];
         foreach($folderArray as $folderName => $classAndMethodList) {
@@ -130,7 +128,7 @@ class SortOutFolders
             foreach($classAndMethodList as $classAndMethod) {
                 list($className, $method) = explode('.', $classAndMethod);
                 $fieldDetails = $this->getFieldDetails($className, $method);
-                if(empty($field)) {
+                if(empty($fieldDetails)) {
                     user_error('Could not find relation: '.$className.'.'.$method);
                 }
                 if($fieldDetails['dataType'] === 'has_one') {
@@ -139,54 +137,61 @@ class SortOutFolders
                     $dataClassName = $fieldDetails['dataClassName'];
                     $list = $dataClassName::get()->relation($method)->columnUnique('ID');
                 }
-                $listOfImageIds = array_merge(
-                    $listOfImageIds,
+                $listOfIds = array_merge(
+                    $listOfIds,
                     $list
                 );
             }
-            $listOfImageIds[$folderName] = $listOfIds;
+            if(count($listOfIds)) {
+                $listOfImageIds[$folderName] = $listOfIds;
+            }
         }
         return $listOfImageIds;
     }
 
-    protected function removeUnusedFiles(string $folderName, array $listOfImageIds)
+    public function removeUnusedFiles(string $folderName, array $listOfImageIds)
     {
         $unusedFolderName = $this->unusedImagesFolder->Name;
         $folder = Folder::find_or_make($folderName);
-        $where = " ParentID = " . $folder->ID. ' AND File.ID NOT IN('.implode('.$listOfImageIds.').')';
+        $listAsString = implode(',', $listOfImageIds);
+        $where = ' ParentID = ' . $folder->ID. ' AND File.ID NOT IN('.$listAsString.')';
         $unused = Image::get()->where($where);
         if ($unused->exists()) {
             foreach ($unused as $file) {
-                $oldName = $file->getFullPath();
+                $oldName = $file->getFileName();
                 if($this->verbose) {
-                    DB::alteration_message('DEBUG ONLY '.$file->getFileName().' to '.$unusedFolderName);
+                    DB::alteration_message('moving '.$file->getFileName().' to '.$unusedFolderName);
                 }
                 if($this->debug) {
-                    echo 'skipping as we are in debug mode';
                 } else {
                     $file->ParentID = $this->unusedImagesFolder->ID;
                     $file->write();
                     $file->doPublish();
                     $newName = str_replace($folder->Name, $unusedFolderName, $oldName);
-                    $oldNameFull = Controller::join_links(ASSETS_PATH, $oldName);
-                    $newNameFull = Controller::join_links(ASSETS_PATH, $newName);
-                    if (file_exists($oldNameFull) && $newNameFull !== $oldNameFull) {
-                        if(file_exists($newNameFull)) {
-                            unlink($newNameFull);
+                    if ($newNameFull !== $oldNameFull) {
+                        $oldNameFull = Controller::join_links(ASSETS_PATH, $oldName);
+                        $newNameFull = Controller::join_links(ASSETS_PATH, $newName);
+                        if (file_exists($oldNameFull)) {
+                            if(file_exists($newNameFull)) {
+                                if ($this->verbose) {
+                                    DB::alteration_message('Deleting '.$newName.' to make place for a new file.', 'deleted');
+                                }
+                                unlink($newNameFull);
+                            }
+                            rename($oldNameFull, $newNameFull);
                         }
-                        rename($oldNameFull, $newNameFull);
                     }
                 }
             }
         }
     }
 
-    protected static $my_cache = [];
+    protected static $my_field_cache = [];
 
     protected function getFieldDetails(string $originClassName, string $originMethod) : array
     {
         $key = $originClassName.'_'.$originMethod;
-        if(! isset(self::$my_cache[$key])) {
+        if(! isset(self::$my_field_cache[$key])) {
             $types = ['has_one', 'has_many', 'many_many'];
             $classNames = ClassInfo::ancestry($originClassName, true);
             foreach ($classNames as $className) {
@@ -195,8 +200,8 @@ class SortOutFolders
                     $rels = Config::inst()->get($className, $type, Config::UNINHERITED);
                     if (is_array($rels) && ! empty($rels)) {
                         foreach ($rels as $relName => $relType) {
-                            if (Image::class === $relType && $relName === $originatingFieldName) {
-                                self::$my_cache[$key] = [
+                            if (Image::class === $relType && $relName === $originMethod) {
+                                self::$my_field_cache[$key] = [
                                     'dataClassName' => $className,
                                     'dataType' => $type,
                                 ];
@@ -206,7 +211,7 @@ class SortOutFolders
                 }
             }
         }
-        return self::$my_cache[$key];
+        return self::$my_field_cache[$key];
     }
 
 
