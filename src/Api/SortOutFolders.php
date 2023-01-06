@@ -27,7 +27,19 @@ class SortOutFolders
     /**
      * @var Folder
      */
-    public $unusedImagesFolder = null;
+    protected $unusedImagesFolder = null;
+
+    /**
+     *
+     * @var bool
+     */
+    protected $debug = false;
+
+    /**
+     *
+     * @var bool
+     */
+    protected $verbose = false;
 
     private static $unused_images_folder_name = 'unusedimages';
 
@@ -43,8 +55,16 @@ class SortOutFolders
     {
 
         $folderArray = $this->getFolderArray($data);
+        if ($this->verbose) {
+            print_r($folderArray);
+        }
 
         $listOfImageIds = $this->getListOfImages($folderArray);
+        if ($this->verbose) {
+            print_r($listOfImageIds);
+        }
+
+        // remove
         foreach($listOfImageIds as $folderName => $listOfIds) {
             $this->removeUnusedFiles($folderName, $listOfIds);
         }
@@ -78,12 +98,21 @@ class SortOutFolders
             $listOfIds = [];
             foreach($classAndMethodList as $classAndMethod) {
                 list($className, $method) = explode('.', $classAndMethod);
+                $fieldDetails = $this->getFieldDetails($className, $method);
+                if(empty($field)) {
+                    user_error('Could not find relation: '.$className.'.'.$method);
+                }
+                if($fieldDetails['dataType'] === 'has_one') {
+                    $list = $className::get()->columnUnique($method.'ID');
+                } else {
+                    $dataClassName = $fieldDetails['dataClassName'];
+                    $list = $dataClassName::get()->relation($method)->columnUnique('ID');
+                }
                 $listOfImageIds = array_merge(
                     $listOfImageIds,
-                    $className::get()->columnUnique($method.'ID')
+                    $list
                 );
             }
-            // remove files
             $listOfImageIds[$folderName] = $listOfIds;
         }
         return $listOfImageIds;
@@ -98,46 +127,55 @@ class SortOutFolders
         if ($unused->exists()) {
             foreach ($unused as $file) {
                 $oldName = $file->getFullPath();
-                $file->ParentID = $this->unusedImagesFolder->ID;
-                $file->write();
-                $file->doPublish();
-                $newName = str_replace($folder->Name, $unusedFolderName, $oldName);
-                $oldNameFull = Controller::join_links(ASSETS_PATH, $oldName);
-                $newNameFull = Controller::join_links(ASSETS_PATH, $newName);
-                if (file_exists($oldNameFull) && $newNameFull !== $oldNameFull) {
-                    if(file_exists($newNameFull)) {
-                        unlink($newNameFull);
+                if($this->verbose) {
+                    DB::alteration_message('DEBUG ONLY '.$file->getFileName().' to '.$unusedFolderName);
+                }
+                if($this->debug) {
+                    echo 'skipping as we are in debug mode';
+                } else {
+                    $file->ParentID = $this->unusedImagesFolder->ID;
+                    $file->write();
+                    $file->doPublish();
+                    $newName = str_replace($folder->Name, $unusedFolderName, $oldName);
+                    $oldNameFull = Controller::join_links(ASSETS_PATH, $oldName);
+                    $newNameFull = Controller::join_links(ASSETS_PATH, $newName);
+                    if (file_exists($oldNameFull) && $newNameFull !== $oldNameFull) {
+                        if(file_exists($newNameFull)) {
+                            unlink($newNameFull);
+                        }
+                        rename($oldNameFull, $newNameFull);
                     }
-                    rename($oldNameFull, $newNameFull);
                 }
             }
         }
     }
 
-    private static $my_cache = [];
+    protected static $my_cache = [];
 
-    protected function getField(string $originClassName, string $originFieldName)
+    protected function getFieldDetails(string $originClassName, string $originMethod) : array
     {
-        $types = ['has_one', 'has_many', 'many_many', 'belongs_many_many', 'belongs_to'];
-        $classNames = ClassInfo::ancestry($className, true);
-        foreach ($classNames as $className) {
-            $obj = Injector::inst()->get($className);
-            foreach ($types as $type) {
-                $rels = Config::inst()->get($className, $type, Config::UNINHERITED);
-                if (is_array($rels) && ! empty($rels)) {
-                    foreach ($rels as $relName => $relType) {
-                        if (Image::class === $relType && $relName === $originatingFieldName) {
-                            self::$my_cache[$originatingClassName.'_'.$originFieldName] => [
-                                'originClass' => $originClassName,
-                                'originFieldName' => $originFieldName,
-                                'dataClassName' => $className,
-                                'dataType' => $type,
-                            ];
+        $key = $originClassName.'_'.$originMethod;
+        if(! isset(self::$my_cache[$key])) {
+            $types = ['has_one', 'has_many', 'many_many'];
+            $classNames = ClassInfo::ancestry($originClassName, true);
+            foreach ($classNames as $className) {
+                $obj = Injector::inst()->get($className);
+                foreach ($types as $type) {
+                    $rels = Config::inst()->get($className, $type, Config::UNINHERITED);
+                    if (is_array($rels) && ! empty($rels)) {
+                        foreach ($rels as $relName => $relType) {
+                            if (Image::class === $relType && $relName === $originatingFieldName) {
+                                self::$my_cache[$key] = [
+                                    'dataClassName' => $className,
+                                    'dataType' => $type,
+                                ];
+                            }
                         }
                     }
                 }
             }
         }
+        return self::$my_cache[$key];
     }
 
 
