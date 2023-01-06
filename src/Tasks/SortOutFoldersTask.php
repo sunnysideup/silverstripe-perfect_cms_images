@@ -22,7 +22,7 @@ class MoveUnexpectedImages extends BuildTask
 
     public function getTitle(): string
     {
-        return 'Careful: experimental - DELETE ALL IMAGES THAT ARE IN A FOLDER AND SHOULD NOT BE THERE';
+        return 'Careful: experimental - MOVE ALL IMAGES THAT ARE IN A FOLDER AND SHOULD NOT BE THERE';
     }
 
     public function getDescription(): string

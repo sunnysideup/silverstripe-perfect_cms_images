@@ -19,6 +19,12 @@ use SilverStripe\Core\Config\Configurable;
 use SilverStripe\Core\ClassInfo;
 
 use SilverStripe\Core\Injector\Injector;
+
+
+/**
+ * the assumption we make here is that a particular group of images (e.g. Page.Image) live
+ * live in a particular folder.
+ */
 class SortOutFolders
 {
 
@@ -43,24 +49,45 @@ class SortOutFolders
 
     private static $unused_images_folder_name = 'unusedimages';
 
+    public function setVerbose(?bool $b = true)
+    {
+        $this->verbose = $b;
+        return $this;
+    }
+
+    public function setDebug(?bool $b = true)
+    {
+        $this->debug = $b;
+        return $this;
+    }
+
+
     /**
+     * @param string $unusedFolderName
+     * @param array $data
      * Create test jobs for the purposes of testing.
      * The array must contains arrays with
      * - folder
-     * - used_by (has_one / has_many / many_many relation)
+     * - used_by
+     * used_by is an array that has ClassNames and Relations
+     * (has_one / has_many / many_many relations)
+     * e.g. Page.Image, MyDataObject.MyImages
      *
      * @param HTTPRequest $request
      */
     public function run(string $unusedFolderName, array $data) // phpcs:ignore
     {
+        $unusedImagesFolder = Folder::find_or_make($unusedFolderName);
 
         $folderArray = $this->getFolderArray($data);
         if ($this->verbose) {
+            DB::alteration_message('==== List of folders ====');
             print_r($folderArray);
         }
 
         $listOfImageIds = $this->getListOfImages($folderArray);
         if ($this->verbose) {
+            DB::alteration_message('==== List of Image IDs ====');
             print_r($listOfImageIds);
         }
 
@@ -81,8 +108,12 @@ class SortOutFolders
             if($folder) {
                 $folderArray[$folder] = [];
                 $classes = $dataInner['used_by'] ?? [];
-                foreach($classes as $classAndMethodList) {
-                    $folderArray[$folder][$classAndMethodList] = $classAndMethodList;
+                if(is_array($classes) && ! empty($classes)) {
+                    foreach($classes as $classAndMethodList) {
+                        $folderArray[$folder][$classAndMethodList] = $classAndMethodList;
+                    }
+                } else {
+                    user_error('Bad definition for: '.print_r($dataInner, 1));
                 }
             }
         }
@@ -120,8 +151,8 @@ class SortOutFolders
 
     protected function removeUnusedFiles(string $folderName, array $listOfImageIds)
     {
-        $folder = Folder::find_or_make($this->config()->get('unused_images_folder_name'));
         $unusedFolderName = $this->unusedImagesFolder->Name;
+        $folder = Folder::find_or_make($folderName);
         $where = " ParentID = " . $folder->ID. ' AND File.ID NOT IN('.implode('.$listOfImageIds.').')';
         $unused = Image::get()->where($where);
         if ($unused->exists()) {
