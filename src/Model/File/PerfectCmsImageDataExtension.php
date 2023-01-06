@@ -41,6 +41,10 @@ class PerfectCmsImageDataExtension extends DataExtension
      *     - crop: true
      *     - move_to_right_folder: true
      *     - loading_style: 'eager'
+     *     - used_by:
+     *       - MyClass.MyHasOne
+     *       - MyOtherClass.MyHasManyMethod
+     *       - MyOtherClass.MyManyManyRel
      * @var array
      */
     private static $perfect_cms_images_image_definitions = [];

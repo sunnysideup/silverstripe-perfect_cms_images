@@ -32,6 +32,9 @@ class PerfectCMSImages implements Flushable
 EOT;
 
 
+    private static $unused_images_folder_name = 'unusedimages';
+
+
     /**
      * used to set the max width of the media value for mobile images,
      * eg <source srcset="small.jpg, small2x.jpg 2x" media="(max-width: 600px)">.
