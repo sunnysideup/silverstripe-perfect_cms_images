@@ -16,7 +16,7 @@ use SilverStripe\Core\Config\Config;
 use Sunnysideup\PerfectCmsImages\Api\SortOutFolders;
 use Sunnysideup\PerfectCmsImages\Api\PerfectCMSImages;
 
-class MoveUnexpectedImages extends BuildTask
+class SortOutFoldersTask extends BuildTask
 {
 
 
@@ -38,10 +38,7 @@ class MoveUnexpectedImages extends BuildTask
     public function run($request) // phpcs:ignore
     {
         (new SortOutFolders())
-            ->run(
-                Config::inst()->get(PerfectCMSImages::class, 'unused_images_folder_name'),
-                PerfectCMSImages::get_all_values_for_images()
-            );
+            ->runStandard();
     }
 
 }
