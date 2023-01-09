@@ -102,6 +102,7 @@ class SortOutFolders
             $imagesLeft[$folderName] = $this->removeUnusedFiles($folderName, $listOfIds);
         }
 
+        DB::alteration_message('==========================================');
         // move to right folder
         foreach($listOfImageIds as $folderName => $listOfIds) {
             if($this->verbose) {
@@ -110,10 +111,12 @@ class SortOutFolders
             $this->moveUsedFilesIntoFolder($folderName, $listOfIds);
         }
 
+        DB::alteration_message('==========================================');
+
         // check for rogue files
         foreach(array_keys($listOfImageIds) as $folderName) {
             if($this->verbose) {
-                DB::alteration_message('<br /><br /><br />==== Checking for rogue files in <u>'.$folderName.'</u>');
+                DB::alteration_message('<br /><br /><br />==== Checking for rogue FILES in <u>'.$folderName.'</u>');
             }
             $this->findRoqueFilesInFolder($folderName);
         }
@@ -151,6 +154,7 @@ class SortOutFolders
             // find all images that should be there...
             $listOfIds = [];
             foreach($classAndMethodList as $classAndMethod) {
+                $dataClassName = '';
                 list($className, $method) = explode('.', $classAndMethod);
                 $fieldDetails = $this->getFieldDetails($className, $method);
                 if(empty($fieldDetails)) {
@@ -160,8 +164,14 @@ class SortOutFolders
                     $list = $className::get()->columnUnique($method.'ID');
                 } else {
                     $dataClassName = $fieldDetails['dataClassName'];
-                    $list = $dataClassName::get()->relation($method)->columnUnique('ID');
+                    $outerList = $className::get();
+                    $list = [];
+                    foreach($outerList as $obj) {
+                        $list = array_merge($list, $obj->$method()->columnUnique('ID'));
+                    }
+                    $list = array_unique($list);
                 }
+                DB::alteration_message($className . '::' .$method . ' resulted in '.count($list));
                 $listOfIds = array_unique(
                     array_merge(
                         $listOfIds,
@@ -217,19 +227,19 @@ class SortOutFolders
         $used = Image::get()->where($where);
         if ($used->exists()) {
             foreach ($used as $file) {
-                $oldFolderName = $file->Parent()->Name;
                 $oldName = $file->getFilename();
+
+                $oldFolderName = $file->Parent()->getFilename();
+                $newFolderName = $folder->getFilename();
+
                 if($this->verbose) {
-                    DB::alteration_message('moving '.$file->getFilename().' to '.$folderName, 'created');
+                    DB::alteration_message('moving '.$file->getFilename().' to '.$newFolderName, 'created');
                 }
                 if($this->dryRun === false) {
+                    $newName =  Controller::join_links($newFolderName, $file->Name);
+                    $file->setFilename($newName);
                     $file->ParentID = $folder->ID;
                     $this->writeFileOrFolder($file);
-                    if($oldFolderName === '') {
-                        $newName = $folder->Name . '/' . $oldName;
-                    } else {
-                        $newName = str_replace($oldFolderName, $folder->Name, $oldName);
-                    }
                     if($this->verbose && $newName !== $file->getFilename()) {
                         DB::alteration_message('ERROR: file names do not match. Compare: '.$newName. ' with ' . $file->getFilename(), 'deleted');
                     } else {
@@ -313,23 +323,23 @@ class SortOutFolders
             if (file_exists($oldNameFull)) {
                 if(file_exists($newNameFull)) {
                     if ($this->verbose) {
-                        DB::alteration_message('Deleting '.$newName.' to make place for a new file.', 'deleted');
+                        DB::alteration_message('... ... Deleting '.$newName.' to make place for a new file.', 'deleted');
                     }
                     if($this->dryRun === false) {
                         unlink($newNameFull);
                     }
                 }
                 if ($this->verbose) {
-                    DB::alteration_message('Moving '.$oldNameFull.' to '.$newNameFull, 'created');
+                    DB::alteration_message('... Moving '.$oldNameFull.' to '.$newNameFull, 'created');
                 }
                 if($this->dryRun === false) {
                     rename($oldNameFull, $newNameFull);
                 }
             } elseif($this->verbose) {
-                DB::alteration_message('Error could not find:  '.$oldNameFull, 'created');
+                DB::alteration_message('... Error could not find:  '.$oldNameFull, 'created');
             }
         } elseif($this->verbose) {
-            DB::alteration_message('ERROR: old and new file names are the same '.$oldName, 'deleted');
+            DB::alteration_message('... ERROR: old and new file names are the same '.$oldName, 'deleted');
         }
     }
 
@@ -337,6 +347,7 @@ class SortOutFolders
     {
         $fileOrFolder->write();
         $fileOrFolder->doPublish();
+        $fileOrFolder->publishFile();
         $fileOrFolder->flushCache();
 
         return $fileOrFolder;
