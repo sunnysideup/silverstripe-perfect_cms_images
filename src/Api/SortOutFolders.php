@@ -191,16 +191,16 @@ class SortOutFolders
         $unused = Image::get()->where($where);
         if ($unused->exists()) {
             foreach ($unused as $file) {
-                $oldName = $file->getFileName();
+                $oldName = $file->getFilename();
                 if($this->verbose) {
-                    DB::alteration_message('moving '.$file->getFileName().' to '.$unusedFolderName);
+                    DB::alteration_message('moving '.$file->getFilename().' to '.$unusedFolderName);
                 }
                 if($this->dryRun === false) {
                     $file->ParentID = $this->unusedImagesFolder->ID;
                     $this->writeFileOrFolder($file);
                     $newName = str_replace($folder->Name, $unusedFolderName, $oldName);
-                    if($newName !== $file->getFileName()) {
-                        DB::alteration_message('ERROR: file names do not match. Compare: '.$newName. ' with ' . $file->getFileName(), 'deleted');
+                    if($newName !== $file->getFilename()) {
+                        DB::alteration_message('ERROR: file names do not match. Compare: '.$newName. ' with ' . $file->getFilename(), 'deleted');
                     }
                     $this->physicallyMovingImage($oldName, $newName);
                 }
@@ -218,9 +218,9 @@ class SortOutFolders
         if ($used->exists()) {
             foreach ($used as $file) {
                 $oldFolderName = $file->Parent()->Name;
-                $oldName = $file->getFileName();
+                $oldName = $file->getFilename();
                 if($this->verbose) {
-                    DB::alteration_message('moving '.$file->getFileName().' to '.$folderName, 'created');
+                    DB::alteration_message('moving '.$file->getFilename().' to '.$folderName, 'created');
                 }
                 if($this->dryRun === false) {
                     $file->ParentID = $folder->ID;
@@ -230,8 +230,8 @@ class SortOutFolders
                     } else {
                         $newName = str_replace($oldFolderName, $folder->Name, $oldName);
                     }
-                    if($this->verbose && $newName !== $file->getFileName()) {
-                        DB::alteration_message('ERROR: file names do not match. Compare: '.$newName. ' with ' . $file->getFileName(), 'deleted');
+                    if($this->verbose && $newName !== $file->getFilename()) {
+                        DB::alteration_message('ERROR: file names do not match. Compare: '.$newName. ' with ' . $file->getFilename(), 'deleted');
                     } else {
                         $this->physicallyMovingImage($oldName, $newName);
                     }
@@ -247,9 +247,9 @@ class SortOutFolders
         $folder = Folder::find_or_make($folderName);
         $this->writeFileOrFolder($folder);
         $path = Controller::join_links(ASSETS_PATH, $folder->getFilename());
-        $excludeArray = Image::get()->filter(['ParentID' => $folder->ID])->columnUnique('Name') + ['.' => '.', '..' => '..', ];
+        $excludeArray = Image::get()->filter(['ParentID' => $folder->ID])->columnUnique('Name');
         if (is_dir($path)) {
-            $files = scandir($path);
+            $files = array_diff(scandir($path), array('.', '..'));
             foreach ($files as $fileName) {
                 if(! in_array($fileName, $excludeArray)) {
                     $associatedClassName = File::get_class_for_file_extension(pathinfo($fileName, PATHINFO_EXTENSION));
