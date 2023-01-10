@@ -128,18 +128,31 @@ class SortOutFolders
         // check folders
         $folderArray = [];
         foreach($data as $dataInner) {
-            $folder = $dataInner['folder'] ?? '';
-            if($folder) {
-                $folderArray[$folder] = [];
+            $folderName = $dataInner['folder'] ?? '';
+            if($folderName) {
+                $folderArray[$folderName] = [];
+                $folderArray[$folderName]['classesAndMethods'] = [];
+                $folderArray[$folderName]['resize'] = isset($dataInner['resize']) && $dataInner['resize'] === true  ? true : false;
                 $classes = $dataInner['used_by'] ?? [];
                 if(! empty($classes)) {
                     if(is_array($classes)) {
-                        foreach($classes as $classAndMethodList) {
-                            $folderArray[$folder][$classAndMethodList] = $classAndMethodList;
+                        foreach($classes as $classAndMethod) {
+                            $folderArray[$folderName]['classesAndMethods'][$classAndMethod] = $classAndMethod;
                         }
                     } else {
                         user_error('Bad definition for: '.print_r($dataInner, 1));
                     }
+                }
+            }
+        }
+        $test = [];
+        foreach($folderArray as $folderName => $folderData) {
+            $classAndMethodList = $folderData['classesAndMethods'];
+            foreach($classAndMethodList as $classAndMethod) {
+                if(! isset($test[$classAndMethod])) {
+                    $test[$classAndMethod] = true;
+                } else {
+                    user_error('You have doubled up on folder for Class and Method: '.$classAndMethod);
                 }
             }
         }
@@ -149,7 +162,8 @@ class SortOutFolders
     public function getListOfImages(array $folderArray) : array
     {
         $listOfImageIds = [];
-        foreach($folderArray as $folderName => $classAndMethodList) {
+        foreach($folderArray as $folderName => $folderData) {
+            $classAndMethodList = $folderData['classesAndMethods'];
 
             // find all images that should be there...
             $listOfIds = [];
@@ -346,12 +360,72 @@ class SortOutFolders
     protected function writeFileOrFolder($fileOrFolder)
     {
         $fileOrFolder->write();
-        $fileOrFolder->doPublish();
+        $fileOrFolder->publishSingle();
         $fileOrFolder->publishFile();
         $fileOrFolder->flushCache();
 
         return $fileOrFolder;
     }
+
+    /**
+     * code copied from: https://github.com/axllent/silverstripe-scaled-uploads/blob/master/src/ScaledUploads.php
+     * @param  Image  $image
+     * @param  int    $maxWidth
+     * @param  int    $maxHeight
+     * @return Image
+     */
+    public function scaleUploadedImage(Image $image, int $maxWidth, int $maxHeight) : ?Image
+    {
+        $backend = $image->getImageBackend();
+
+        // temporary location for image manipulation
+        $tmp_image = TEMP_FOLDER . '/resampled-' . mt_rand(100000, 999999) . '.' . $image->getExtension();
+
+        $tmp_contents = $image->getString();
+
+        // write to tmp file
+        @file_put_contents($tmp_image, $tmp_contents);
+
+        $backend->loadFrom($tmp_image);
+
+        if ($backend->getImageResource()) {
+            $modified = false;
+
+            // clone original
+            $transformed = $backend;
+
+            // resize to max values
+            if (
+                $transformed &&
+                (
+                    ($maxWidth && $transformed->getWidth() > $maxWidth) ||
+                    ($maxHeight && $transformed->getHeight() > $maxHeight)
+                )
+            ) {
+                if ($maxWidth && $maxHeight) {
+                    $transformed = $transformed->resizeRatio($maxWidth, $maxHeight);
+                } elseif ($maxWidth) {
+                    $transformed = $transformed->resizeByWidth($maxWidth);
+                } else {
+                    $transformed = $transformed->resizeByHeight($maxHeight);
+                }
+                $modified = true;
+            }
+
+            // write to tmp file and then overwrite original
+            if ($transformed && $modified) {
+                $transformed->writeTo($tmp_image);
+                // if !legacy_filenames then delete original, else rogue copies are left on filesystem
+                $image->setFromLocalFile($tmp_image, $image->FileName); // set new image
+                $image->write();
+                $image->publishSingle();
+            }
+        }
+
+        @unlink($tmp_image); // delete tmp file
+        return $image;
+    }
+
 
 
 }
