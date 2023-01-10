@@ -40,6 +40,7 @@ class ImageManipulations
     {
         $cacheKey = $image->ClassName . '_' . $image->ID . '_' . $name . '_' . ($useRetina ? 'Y' : 'N') . '_' . ($forMobile ? 'MY' : 'MN');
         if (empty(self::$imageLinkCache[$cacheKey])) {
+            $link = '';
             //work out perfect width and height
             if (null === $useRetina) {
                 $useRetina = PerfectCMSImages::use_retina($name);

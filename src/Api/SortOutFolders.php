@@ -132,7 +132,7 @@ class SortOutFolders
             if($folderName) {
                 $folderArray[$folderName] = [];
                 $folderArray[$folderName]['classesAndMethods'] = [];
-                $folderArray[$folderName]['resize'] = isset($dataInner['resize']) && $dataInner['resize'] === true  ? true : false;
+                // $folderArray[$folderName]['resize'] = isset($dataInner['force_resize']) && $dataInner['force_resize'] === true  ? true : false;
                 $classes = $dataInner['used_by'] ?? [];
                 if(! empty($classes)) {
                     if(is_array($classes)) {
@@ -301,6 +301,8 @@ class SortOutFolders
         }
     }
 
+
+
     protected static $my_field_cache = [];
 
     protected function getFieldDetails(string $originClassName, string $originMethod) : array
@@ -367,64 +369,6 @@ class SortOutFolders
         return $fileOrFolder;
     }
 
-    /**
-     * code copied from: https://github.com/axllent/silverstripe-scaled-uploads/blob/master/src/ScaledUploads.php
-     * @param  Image  $image
-     * @param  int    $maxWidth
-     * @param  int    $maxHeight
-     * @return Image
-     */
-    public function scaleUploadedImage(Image $image, int $maxWidth, int $maxHeight) : ?Image
-    {
-        $backend = $image->getImageBackend();
-
-        // temporary location for image manipulation
-        $tmp_image = TEMP_FOLDER . '/resampled-' . mt_rand(100000, 999999) . '.' . $image->getExtension();
-
-        $tmp_contents = $image->getString();
-
-        // write to tmp file
-        @file_put_contents($tmp_image, $tmp_contents);
-
-        $backend->loadFrom($tmp_image);
-
-        if ($backend->getImageResource()) {
-            $modified = false;
-
-            // clone original
-            $transformed = $backend;
-
-            // resize to max values
-            if (
-                $transformed &&
-                (
-                    ($maxWidth && $transformed->getWidth() > $maxWidth) ||
-                    ($maxHeight && $transformed->getHeight() > $maxHeight)
-                )
-            ) {
-                if ($maxWidth && $maxHeight) {
-                    $transformed = $transformed->resizeRatio($maxWidth, $maxHeight);
-                } elseif ($maxWidth) {
-                    $transformed = $transformed->resizeByWidth($maxWidth);
-                } else {
-                    $transformed = $transformed->resizeByHeight($maxHeight);
-                }
-                $modified = true;
-            }
-
-            // write to tmp file and then overwrite original
-            if ($transformed && $modified) {
-                $transformed->writeTo($tmp_image);
-                // if !legacy_filenames then delete original, else rogue copies are left on filesystem
-                $image->setFromLocalFile($tmp_image, $image->FileName); // set new image
-                $image->write();
-                $image->publishSingle();
-            }
-        }
-
-        @unlink($tmp_image); // delete tmp file
-        return $image;
-    }
 
 
 
