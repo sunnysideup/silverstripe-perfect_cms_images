@@ -79,10 +79,8 @@ class SortOutFolders
      * used_by is an array that has ClassNames and Relations
      * (has_one / has_many / many_many relations)
      * e.g. Page.Image, MyDataObject.MyImages
-     *
-     * @param HTTPRequest $request
      */
-    public function runAdvanced(string $unusedFolderName, array $data) // phpcs:ignore
+    public function runAdvanced(string $unusedFolderName, array $data)
     {
         $this->unusedImagesFolder = Folder::find_or_make($unusedFolderName);
 
