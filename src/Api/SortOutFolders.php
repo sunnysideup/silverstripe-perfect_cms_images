@@ -21,6 +21,8 @@ use SilverStripe\Core\ClassInfo;
 
 use SilverStripe\Core\Injector\Injector;
 
+use SilverStripe\Versioned\Versioned;
+
 
 /**
  * the assumption we make here is that a particular group of images (e.g. Page.Image) live
@@ -364,7 +366,7 @@ class SortOutFolders
 
     protected function writeFileOrFolder($fileOrFolder)
     {
-        $fileOrFolder->write();
+        $fileOrFolder->writeToStage(Versioned::DRAFT);
         $fileOrFolder->publishSingle();
         $fileOrFolder->flushCache();
 
