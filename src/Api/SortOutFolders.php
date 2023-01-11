@@ -90,6 +90,8 @@ class SortOutFolders
             echo '<pre>'.print_r($folderArray, 1).'</pre>';
         }
 
+        DB::alteration_message('==========================================');
+
         $listOfImageIds = $this->getListOfImages($folderArray);
 
         // remove
@@ -218,8 +220,13 @@ class SortOutFolders
                     DB::alteration_message('moving '.$file->getFilename().' to '.$unusedFolderName);
                 }
                 if($this->dryRun === false) {
-                    $this->moveToNewFolder($file, $this->unusedImagesFolder);
-                    $this->physicallyMovingImage($oldName, $newName);
+                    $newName = Controller::join_links($this->unusedImagesFolder->getFileName(), $file->Name);
+                    $file = $this->moveToNewFolder($file, $this->unusedImagesFolder, $newName);
+                    if($newName !== $file->getFilename()) {
+                        DB::alteration_message('ERROR: file names do not match. Compare: '.$newName. ' with ' . $file->getFilename(), 'deleted');
+                    } else {
+                        $this->physicallyMovingImage($oldName, $newName);
+                    }
                 }
             }
         }
@@ -244,9 +251,12 @@ class SortOutFolders
                 }
                 if($this->dryRun === false) {
                     $newName =  Controller::join_links($newFolderName, $file->Name);
-                    $file->setFilename($newName);
-                    $file->ParentID = $folder->ID;
-                    $this->writeFileOrFolder($file);
+                    $file = $this->moveToNewFolder($file, $folder, $newName);
+                    if($newName !== $file->getFilename()) {
+                        DB::alteration_message('ERROR: file names do not match. Compare: '.$newName. ' with ' . $file->getFilename(), 'deleted');
+                    } else {
+                        $this->physicallyMovingImage($oldName, $newName);
+                    }
                     if($this->verbose && $newName !== $file->getFilename()) {
                         DB::alteration_message('ERROR: file names do not match. Compare: '.$newName. ' with ' . $file->getFilename(), 'deleted');
                     } else {
@@ -361,7 +371,7 @@ class SortOutFolders
         return $fileOrFolder;
     }
 
-    protected function moveToNewFolder($image, Folder $newFolder)
+    protected function moveToNewFolder($image, Folder $newFolder, string $newName)
     {
         $beforePath = (Controller::join_links(ASSETS_PATH, $image->getFilename()));
         $afterPath = (Controller::join_links(ASSETS_PATH, $newFolder->getFileName(), $image->Name));
@@ -369,16 +379,13 @@ class SortOutFolders
             unlink($afterPath);
         }
         $image->ParentID = $newFolder->ID;
-        $newName = Controller::join_links($newFolder->getFileName(), $image->Name);
         $image->setFilename($newName);
         $image = $this->writeFileOrFolder($image);
-        if($newName !== $file->getFilename()) {
-            DB::alteration_message('ERROR: file names do not match. Compare: '.$newName. ' with ' . $file->getFilename(), 'deleted');
-        }
         $image->flushCache();
         if(file_exists($beforePath) && ! file_exists($afterPath)) {
             rename($beforePath, $afterPath);
         }
+        return $image;
     }
 
 
