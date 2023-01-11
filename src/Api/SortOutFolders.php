@@ -218,12 +218,7 @@ class SortOutFolders
                     DB::alteration_message('moving '.$file->getFilename().' to '.$unusedFolderName);
                 }
                 if($this->dryRun === false) {
-                    $file->ParentID = $this->unusedImagesFolder->ID;
-                    $this->writeFileOrFolder($file);
-                    $newName = str_replace($folder->Name, $unusedFolderName, $oldName);
-                    if($newName !== $file->getFilename()) {
-                        DB::alteration_message('ERROR: file names do not match. Compare: '.$newName. ' with ' . $file->getFilename(), 'deleted');
-                    }
+                    $this->moveToNewFolder($file, $this->unusedImagesFolder);
                     $this->physicallyMovingImage($oldName, $newName);
                 }
             }
@@ -268,15 +263,15 @@ class SortOutFolders
         $unusedFolderName = $this->unusedImagesFolder->Name;
         $folder = Folder::find_or_make($folderName);
         $this->writeFileOrFolder($folder);
-        $path = Controller::join_links(ASSETS_PATH, $folder->getFilename());
+        $fullFolderPath = Controller::join_links(ASSETS_PATH, $folder->getFilename());
         $excludeArray = Image::get()->filter(['ParentID' => $folder->ID])->columnUnique('Name');
-        if (is_dir($path)) {
-            $files = array_diff(scandir($path), array('.', '..'));
+        if (is_dir($fullFolderPath)) {
+            $files = array_diff(scandir($fullFolderPath), array('.', '..'));
             foreach ($files as $fileName) {
                 if(! in_array($fileName, $excludeArray)) {
                     $associatedClassName = File::get_class_for_file_extension(pathinfo($fileName, PATHINFO_EXTENSION));
                     if($associatedClassName === Image::class) {
-                        $filePath = Controller::join_links($path, $fileName);
+                        $filePath = Controller::join_links($fullFolderPath, $fileName);
                         if (is_file($filePath)) {
                             $oldName = $folderName . '/' . $fileName;
                             $newName = $unusedFolderName . '/' . $fileName;
@@ -295,7 +290,7 @@ class SortOutFolders
                 }
             }
         } elseif($this->verbose) {
-            DB::alteration_message('skippping '.$path. ', because it is not a valid directory.');
+            DB::alteration_message('skippping '.$fullFolderPath. ', because it is not a valid directory.');
         }
     }
 
@@ -344,13 +339,13 @@ class SortOutFolders
                     }
                 }
                 if ($this->verbose) {
-                    DB::alteration_message('... Moving '.$oldNameFull.' to '.$newNameFull, 'created');
+                    DB::alteration_message('... Moving '.$oldNameFull.' to '.$newNameFull. ' (file only)', 'created');
                 }
                 if($this->dryRun === false) {
                     rename($oldNameFull, $newNameFull);
                 }
-            } elseif($this->verbose) {
-                DB::alteration_message('... Error could not find:  '.$oldNameFull, 'created');
+            } elseif($this->verbose && !file_exists($newNameFull)) {
+                DB::alteration_message('... Error: could not find:  '.$oldNameFull . ' and it is also not here: '.$newNameFull, 'created');
             }
         } elseif($this->verbose) {
             DB::alteration_message('... ERROR: old and new file names are the same '.$oldName, 'deleted');
@@ -361,10 +356,29 @@ class SortOutFolders
     {
         $fileOrFolder->write();
         $fileOrFolder->publishSingle();
-        $fileOrFolder->publishFile();
         $fileOrFolder->flushCache();
 
         return $fileOrFolder;
+    }
+
+    protected function moveToNewFolder($image, Folder $newFolder)
+    {
+        $beforePath = (Controller::join_links(ASSETS_PATH, $image->getFilename()));
+        $afterPath = (Controller::join_links(ASSETS_PATH, $newFolder->getFileName(), $image->Name));
+        if(file_exists($afterPath)) {
+            unlink($afterPath);
+        }
+        $image->ParentID = $newFolder->ID;
+        $newName = Controller::join_links($newFolder->getFileName(), $image->Name);
+        $image->setFilename($newName);
+        $image = $this->writeFileOrFolder($image);
+        if($newName !== $file->getFilename()) {
+            DB::alteration_message('ERROR: file names do not match. Compare: '.$newName. ' with ' . $file->getFilename(), 'deleted');
+        }
+        $image->flushCache();
+        if(file_exists($beforePath) && ! file_exists($afterPath)) {
+            rename($beforePath, $afterPath);
+        }
     }
 
 
