@@ -207,7 +207,7 @@ class ImageManipulations
     public static function add_fake_parts($image, string $link): string
     {
         // first get the timestamp
-        $time1 = strtotime($image->LastEdited);
+        $time1 = strtotime((string) $image->LastEdited);
         $time2 = 0;
         $path = Controller::join_links(Director::baseFolder(),  PUBLIC_DIR, $link);
         if(file_exists($path)) {
