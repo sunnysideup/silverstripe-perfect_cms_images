@@ -110,7 +110,7 @@ class ImageManipulations
             } else {
                 $tmpImage = $image;
             }
-            if($tmpImage) {
+            if ($tmpImage) {
                 $link = $tmpImage->Link();
             }
 
@@ -209,8 +209,8 @@ class ImageManipulations
         // first get the timestamp
         $time1 = strtotime((string) $image->LastEdited);
         $time2 = 0;
-        $path = Controller::join_links(Director::baseFolder(),  PUBLIC_DIR, $link);
-        if(file_exists($path)) {
+        $path = Controller::join_links(Director::baseFolder(), PUBLIC_DIR, $link);
+        if (file_exists($path)) {
             $time2 = filemtime($path);
         }
 
@@ -226,7 +226,7 @@ class ImageManipulations
         }
 
         // now you can add the time
-        $link .= '?time='.max($time1, $time2);
+        $link .= '?time=' . max($time1, $time2);
 
         // finally add the title
         if ($image->Title) {

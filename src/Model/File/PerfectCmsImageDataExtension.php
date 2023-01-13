@@ -2,8 +2,8 @@
 
 namespace Sunnysideup\PerfectCmsImages\Model\File;
 
-use SilverStripe\Assets\Image;
 use SilverStripe\Assets\Folder;
+use SilverStripe\Assets\Image;
 use SilverStripe\Control\Director;
 use SilverStripe\Core\Convert;
 use SilverStripe\ORM\DataExtension;
@@ -19,7 +19,6 @@ use Sunnysideup\PerfectCmsImages\Api\PerfectCMSImages;
  */
 class PerfectCmsImageDataExtension extends DataExtension
 {
-
     /**
      * background image for padded images...
      *
@@ -230,8 +229,6 @@ class PerfectCmsImageDataExtension extends DataExtension
     }
 
     /**
-     * @param string $link
-     *
      * @return string (link)
      */
     public function getPerfectCMSImageAbsoluteLink(string $link): string
@@ -275,52 +272,54 @@ class PerfectCmsImageDataExtension extends DataExtension
     public function PerfectCMSImageFixFolder($name, ?string $folderName = ''): ?Folder
     {
         $folder = null;
-        if(PerfectCMSImages::move_to_right_folder($name) || $folderName) {
+        if (PerfectCMSImages::move_to_right_folder($name) || $folderName) {
             $image = $this->getOwner();
-            if($image && $image->exists()) {
-                if(! $folderName) {
+            if ($image && $image->exists()) {
+                if (! $folderName) {
                     $folderName = PerfectCMSImages::get_folder($name);
                 }
                 $folder = Folder::find_or_make($folderName);
-                if(!$folder->exists()) {
+                if (! $folder->exists()) {
                     $folder->write();
                 }
                 if ($image->ParentID !== $folder->ID) {
-                    $wasPublished = $image->isPublished() && ! $image->isModifiedOnDraft();;
+                    $wasPublished = $image->isPublished() && ! $image->isModifiedOnDraft();
                     $image->ParentID = $folder->ID;
                     $image->write();
-                    if($wasPublished) {
+                    if ($wasPublished) {
                         $image->publishSingle();
                     }
                 }
-            } else {
-                // user_error('could not find image');
             }
+            // user_error('could not find image');
         }
+
         return $folder;
     }
 
-    public function getThumbnail() {
-        if($this->owner->ID){
-            if($this->owner->getExtension() == 'svg'){
-                $obj= DBHTMLText::create();
-                $obj->setValue(file_get_contents(BASE_PATH.$this->owner->Link()));
+    public function getThumbnail()
+    {
+        if ($this->owner->ID) {
+            if ('svg' === $this->owner->getExtension()) {
+                $obj = DBHTMLText::create();
+                $obj->setValue(file_get_contents(BASE_PATH . $this->owner->Link()));
+
                 return $obj;
-            }else {
-                return $this->owner->CMSThumbnail();
             }
-        } else {
+
             return $this->owner->CMSThumbnail();
         }
+
+        return $this->owner->CMSThumbnail();
     }
 
     public function updatePreviewLink(&$link, $action)
     {
         $owner = $this->getOwner();
-        if($this->owner->getExtension() == 'svg'){
+        if ('svg' === $this->owner->getExtension()) {
             return $owner->Link();
         }
+
         return $link;
     }
-
 }

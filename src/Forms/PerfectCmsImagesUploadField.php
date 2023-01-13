@@ -38,10 +38,10 @@ class PerfectCmsImagesUploadField extends UploadField
     private $afterUpload;
 
     /**
-     * @param string       $name  the internal field name, passed to forms
-     * @param null|string  $title the field label
-     * @param null|SS_List $items If no items are defined, the field will try to auto-detect an existing relation
-     * @param null|string $alternativeName - name used for formatting
+     * @param string       $name            the internal field name, passed to forms
+     * @param null|string  $title           the field label
+     * @param null|SS_List $items           If no items are defined, the field will try to auto-detect an existing relation
+     * @param null|string  $alternativeName - name used for formatting
      */
     public function __construct(
         string $name,
@@ -93,6 +93,7 @@ class PerfectCmsImagesUploadField extends UploadField
 
         //make sure the validator knows about the name.
         $this->getValidator()->setFieldName($name);
+
         return $this;
     }
 

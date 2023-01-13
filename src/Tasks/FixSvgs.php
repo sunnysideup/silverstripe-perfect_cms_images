@@ -2,13 +2,11 @@
 
 namespace Sunnysideup\PerfectCmsImages\Tasks;
 
-use SilverStripe\Control\Director;
+use SilverStripe\Assets\File;
+use SilverStripe\Assets\Image;
 use SilverStripe\Control\HTTPRequest;
 use SilverStripe\Dev\BuildTask;
 use SilverStripe\ORM\DB;
-
-use SilverStripe\Assets\File;
-use SilverStripe\Assets\Image;
 
 /**
  * Class DeleteGeneratedImagesTask.
@@ -40,21 +38,20 @@ class FixSvgs extends BuildTask
     public function run($request) // phpcs:ignore
     {
         $files = $this->getBatchOfFiles();
-        while($files && $files->exists()) {
-            foreach($files as $file) {
-                if($file->getExtension() === 'svg') {
-                    DB::alteration_message('Fixing '.$file->Link());
+        while ($files && $files->exists()) {
+            foreach ($files as $file) {
+                if ('svg' === $file->getExtension()) {
+                    DB::alteration_message('Fixing ' . $file->Link());
                     $wasPublished = $file->isPublished() && ! $file->isModifiedOnDraft();
                     $file->ClassName = Image::class;
                     $file->write();
-                    if($wasPublished) {
+                    if ($wasPublished) {
                         $file->publishSingle();
                     }
                 }
             }
             $files = $this->getBatchOfFiles();
         }
-
     }
 
     protected function getBatchOfFiles()
