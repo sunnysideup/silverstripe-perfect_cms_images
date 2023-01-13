@@ -211,12 +211,13 @@ class SortOutFolders
     {
         $unusedFolderName = $this->unusedImagesFolder->Name;
         $folder = Folder::find_or_make($folderName);
-        $this->writeFileOrFolder($folder);
+        $this->writeFolder($folder);
         $listAsString = implode(',', $listOfImageIds);
         $where = ' ParentID = ' . $folder->ID. ' AND File.ID NOT IN('.$listAsString.')';
         $unused = Image::get()->where($where);
         if ($unused->exists()) {
             foreach ($unused as $file) {
+                echo '.';
                 $oldName = $file->getFilename();
                 if($this->verbose) {
                     DB::alteration_message('moving '.$file->getFilename().' to '.$unusedFolderName);
@@ -237,7 +238,7 @@ class SortOutFolders
     public function moveUsedFilesIntoFolder(string $folderName, array $listOfImageIds)
     {
         $folder = Folder::find_or_make($folderName);
-        $this->writeFileOrFolder($folder);
+        $this->writeFolder($folder);
         $listAsString = implode(',', $listOfImageIds);
         $where = ' ParentID <> ' . $folder->ID. ' AND File.ID IN('.$listAsString.')';
         $used = Image::get()->where($where);
@@ -274,7 +275,7 @@ class SortOutFolders
     {
         $unusedFolderName = $this->unusedImagesFolder->Name;
         $folder = Folder::find_or_make($folderName);
-        $this->writeFileOrFolder($folder);
+        $this->writeFolder($folder);
         $fullFolderPath = Controller::join_links(ASSETS_PATH, $folder->getFilename());
         $excludeArray = Image::get()->filter(['ParentID' => $folder->ID])->columnUnique('Name');
         if (is_dir($fullFolderPath)) {
@@ -371,6 +372,16 @@ class SortOutFolders
         $fileOrFolder->flushCache();
 
         return $fileOrFolder;
+    }
+
+    protected function writeFolder($folder) {
+        if(! $folder->exists()) {
+            $folder->write();
+        }
+        if(! $folder->isPublished()) {
+            //publish single is SUPER SLOW!
+            $folder->doPublish();
+        }
     }
 
     protected function moveToNewFolder($image, Folder $newFolder, string $newName)
