@@ -4,7 +4,6 @@ namespace Sunnysideup\PerfectCmsImages\Api;
 
 use Psr\Log\LoggerInterface;
 use SilverStripe\Assets\Filesystem;
-use SilverStripe\Assets\Folder;
 use SilverStripe\Assets\Image;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Core\Flushable;
@@ -31,9 +30,7 @@ class PerfectCMSImages implements Flushable
 
 EOT;
 
-
     private static $unused_images_folder_name = 'unusedimages';
-
 
     /**
      * used to set the max width of the media value for mobile images,
@@ -226,7 +223,7 @@ EOT;
         return self::get_one_value_for_image($name, 'move_to_right_folder', true);
     }
 
-    public static function loading_style(string $name) : string
+    public static function loading_style(string $name): string
     {
         return self::get_one_value_for_image($name, 'loading_style', 'lazy');
     }
@@ -279,9 +276,16 @@ EOT;
         return isset($sizes[$name]);
     }
 
+    public static function get_all_values_for_images(): array
+    {
+        return Config::inst()->get(
+            PerfectCmsImageDataExtension::class,
+            'perfect_cms_images_image_definitions'
+        ) ?: [];
+    }
+
     /**
-     * @param string $default
-     * @param string $key
+     * @param mixed $key
      * @param mixed $default
      *
      * @return mixed
@@ -289,15 +293,8 @@ EOT;
     protected static function get_one_value_for_image(string $name, string $key, $default = '')
     {
         $sizes = self::get_all_values_for_images();
+
         return $sizes[$name][$key] ?? $default;
         // Injector::inst()->get(LoggerInterface::class)->info('no information for image with the name: ' . $name . '.' . $key);
-    }
-
-    public static function get_all_values_for_images(): array
-    {
-        return Config::inst()->get(
-            PerfectCmsImageDataExtension::class,
-            'perfect_cms_images_image_definitions'
-        ) ?: [];
     }
 }
