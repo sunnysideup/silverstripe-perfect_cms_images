@@ -259,11 +259,6 @@ class SortOutFolders
                     } else {
                         $this->physicallyMovingImage($oldName, $newName);
                     }
-                    if($this->verbose && $newName !== $file->getFilename()) {
-                        DB::alteration_message('ERROR: file names do not match. Compare: '.$newName. ' with ' . $file->getFilename(), 'deleted');
-                    } else {
-                        $this->physicallyMovingImage($oldName, $newName);
-                    }
                 }
             }
         }
@@ -368,7 +363,6 @@ class SortOutFolders
     {
         $fileOrFolder->writeToStage(Versioned::DRAFT);
         $fileOrFolder->publishSingle();
-        $fileOrFolder->flushCache();
 
         return $fileOrFolder;
     }
