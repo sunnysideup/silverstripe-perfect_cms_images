@@ -285,8 +285,9 @@ EOT;
     }
 
     /**
-     * @param mixed $key
-     * @param mixed $default
+     * @param string $name
+     * @param string $key
+     * @param mixed $default - optional
      *
      * @return mixed
      */

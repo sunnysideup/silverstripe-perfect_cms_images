@@ -243,13 +243,13 @@ class PerfectCmsImageDataExtension extends DataExtension
     {
         /** @var null|Image $image */
         $image = $this->owner;
-        if ($image && $image->exists() && $image instanceof Image) {
+        if ($image && $image instanceof Image) {
             //we are all good ...
         } else {
             $image = ImageManipulations::get_backup_image($name);
         }
 
-        if ($image && $image->exists() && $image instanceof Image) {
+        if ($image && $image instanceof Image) {
             // $backEndString = Image::get_backend();
             // $backend = Injector::inst()->get($backEndString);
             $link = ImageManipulations::get_image_link($image, $name, $useRetina, $forMobile);
@@ -274,12 +274,12 @@ class PerfectCmsImageDataExtension extends DataExtension
         $folder = null;
         if (PerfectCMSImages::move_to_right_folder($name) || $folderName) {
             $image = $this->getOwner();
-            if ($image && $image->exists()) {
+            if ($image) {
                 if (! $folderName) {
                     $folderName = PerfectCMSImages::get_folder($name);
                 }
                 $folder = Folder::find_or_make($folderName);
-                if (! $folder->exists()) {
+                if (! $folder->ID) {
                     $folder->write();
                 }
                 if ($image->ParentID !== $folder->ID) {
