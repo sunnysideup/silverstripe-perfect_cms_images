@@ -8,8 +8,11 @@ use SilverStripe\Control\Director;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Core\Config\Configurable;
 use SilverStripe\Core\Convert;
-use SilverStripe\Core\Injector\Injectable;
+<<<<<<< HEAD
 use SilverStripe\ORM\DataObject;
+=======
+use SilverStripe\Core\Injector\Injectable;
+>>>>>>> 091b64056c310a6826e99524cafb4e823be247ff
 use SilverStripe\SiteConfig\SiteConfig;
 use Sunnysideup\PerfectCmsImages\Model\PerfectCMSImageCache;
 
@@ -54,11 +57,14 @@ class ImageManipulations
                 )
             );
         if (empty(self::$imageLinkCache[$cacheKey])) {
-            $item = DataObject::get_one(PerfectCMSImageCache::class, ['Code' => $cacheKey, 'ImageID' => $image->ID]);
+<<<<<<< HEAD
+            $item = DataObject::get_one(PerfectCMSImageCache::class, ['Code' => $cacheKey]);
             if ($item) {
                 return $item->Link;
             }
+=======
             $link = '';
+>>>>>>> 091b64056c310a6826e99524cafb4e823be247ff
             //work out perfect width and height
             if (null === $useRetina) {
                 $useRetina = PerfectCMSImages::use_retina($name);
@@ -81,7 +87,12 @@ class ImageManipulations
             //get current width and height
             $myWidth = $image->getWidth();
             $myHeight = $image->getHeight();
+<<<<<<< HEAD
+
+            //if we are trying to resize to a width that is smaller than the perfect width
+=======
             //if we are trying to resize to a width that is small than the perfect width
+>>>>>>> 091b64056c310a6826e99524cafb4e823be247ff
             //and the resize width is small than the current width, then lets resize...
             if (0 !== (int) $resizeToWidth) {
                 if ($resizeToWidth < $perfectWidth && $resizeToWidth < $myWidth) {
@@ -91,16 +102,35 @@ class ImageManipulations
 
             $tmpImage = null;
             if ($perfectWidth && $perfectHeight) {
-                //if the height or the width are already perfect then we can not do anything about it.
                 if ($myWidth === $perfectWidth && $myHeight === $perfectHeight) {
+<<<<<<< HEAD
+                    // perfect already?
+                    $link = $image->Link();
+                } elseif ($myWidth < $perfectWidth || $myHeight < $perfectHeight) {
+                    // too small? adding padding.
+                    $link = $image->Pad(
+=======
                     $tmpImage = $image;
                 } elseif ($myWidth < $perfectWidth || $myHeight < $perfectHeight) {
                     $tmpImage = $image->Pad(
+>>>>>>> 091b64056c310a6826e99524cafb4e823be247ff
                         $perfectWidth,
                         $perfectHeight,
                         PerfectCMSImages::get_padding_bg_colour($name)
                     );
                 } elseif ($crop) {
+<<<<<<< HEAD
+                    // first of two situations where we make it smaller.
+                    $link = $image->Fill($perfectWidth, $perfectHeight)->Link();
+                } else {
+                    // second of two situations where we make it smaller.
+                    $link = $image->FitMax($perfectWidth, $perfectHeight)->Link();
+                }
+            } elseif ($perfectWidth) {
+                if ($myWidth === $perfectWidth) {
+                    // perfect already?
+                    $link = $image->Link();
+=======
                     $tmpImage = $image->Fill($perfectWidth, $perfectHeight);
                 } else {
                     $tmpImage = $image->FitMax($perfectWidth, $perfectHeight);
@@ -108,6 +138,7 @@ class ImageManipulations
             } elseif ($perfectWidth) {
                 if ($myWidth === $perfectWidth) {
                     $tmpImage = $image;
+>>>>>>> 091b64056c310a6826e99524cafb4e823be247ff
                 } elseif ($crop) {
                     $tmpImage = $image->Fill($perfectWidth, $myHeight);
                 } else {
@@ -128,12 +159,16 @@ class ImageManipulations
             } else {
                 $tmpImage = $image;
             }
-            $link = '';
-            if ($tmpImage) {
-                $link = (string) $tmpImage->getUrl();
-                PerfectCMSImageCache::add_one($cacheKey, $link, $image);
-            }
+<<<<<<< HEAD
             self::$imageLinkCache[$cacheKey] = $link;
+            PerfectCMSImageCache::add_one($cacheKey, $link);
+=======
+            if ($tmpImage) {
+                $link = $tmpImage->Link();
+            }
+
+            self::$imageLinkCache[$cacheKey] = (string) $link;
+>>>>>>> 091b64056c310a6826e99524cafb4e823be247ff
         }
 
         return self::$imageLinkCache[$cacheKey];
@@ -170,7 +205,13 @@ class ImageManipulations
                 $perfectWidth = 200;
             } elseif (0 === $perfectWidth) {
                 $perfectWidth = $perfectHeight;
+<<<<<<< HEAD
             } elseif ($perfectHeight === 0) {
+=======
+            }
+
+            if (! $perfectHeight) {
+>>>>>>> 091b64056c310a6826e99524cafb4e823be247ff
                 $perfectHeight = $perfectWidth;
             }
 

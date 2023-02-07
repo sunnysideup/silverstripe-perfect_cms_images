@@ -18,13 +18,17 @@ class PerfectCMSImageCache extends DataObject
         'Link' => 'Text',
     ];
 
+    private static $has_one = [
+        'Image' => Image::class,
+    ];
+
     private static $indexes = [
         'Code' => true
     ];
 
-    public static function add_one($code, $link)
+    public static function add_one(string $code, string $link, $image)
     {
-        $item = DataObject::get_one(self::class, ['Code' => $code], false);
+        $item = DataObject::get_one(self::class, ['Code' => $code, 'ImageID' => $image->ID], false);
         if (!$item) {
             PerfectCMSImageCache::create(['Code' => $code, 'Link' => $link])->write();
         }
