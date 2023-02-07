@@ -7,7 +7,9 @@ use SilverStripe\Control\Controller;
 use SilverStripe\Control\Director;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Core\Convert;
+use SilverStripe\ORM\DataObject;
 use SilverStripe\SiteConfig\SiteConfig;
+use Sunnysideup\PerfectCmsImages\Model\PerfectCMSImageCache;
 
 class ImageManipulations
 {
@@ -33,8 +35,24 @@ class ImageManipulations
      */
     public static function get_image_link($image, string $name, ?bool $useRetina = null, ?bool $forMobile = null, ?int $resizeToWidth = 0): string
     {
-        $cacheKey = $image->ClassName . '_' . $image->ID . '_' . $name . '_' . ($useRetina ? 'Y' : 'N') . '_' . ($forMobile ? 'MY' : 'MN');
+        $cacheKey =
+            implode(
+                '_',
+                array_filter(
+                    [
+                        $image->ID,
+                        $name,
+                        ($useRetina ? 'Y' : 'N'),
+                        ($forMobile ? 'MY' : 'MN'),
+                        $resizeToWidth
+                    ]
+                )
+            );
         if (empty(self::$imageLinkCache[$cacheKey])) {
+            $item = DataObject::get_one(PerfectCMSImageCache::class, ['Code' => $cacheKey]);
+            if ($item) {
+                return $item->Link;
+            }
             //work out perfect width and height
             if (null === $useRetina) {
                 $useRetina = PerfectCMSImages::use_retina($name);
@@ -42,12 +60,12 @@ class ImageManipulations
             $crop = PerfectCMSImages::is_crop($name);
 
             $multiplier = PerfectCMSImages::get_multiplier($useRetina);
-            $perfectWidth = PerfectCMSImages::get_width($name, true);
-            $perfectHeight = PerfectCMSImages::get_height($name, true);
+            $perfectWidth = (int) PerfectCMSImages::get_width($name, true);
+            $perfectHeight = (int) PerfectCMSImages::get_height($name, true);
 
             if ($forMobile) {
-                $perfectWidth = PerfectCMSImages::get_mobile_width($name, true);
-                $perfectHeight = PerfectCMSImages::get_mobile_height($name, true);
+                $perfectWidth = (int) PerfectCMSImages::get_mobile_width($name, true);
+                $perfectHeight = (int) PerfectCMSImages::get_mobile_height($name, true);
             }
 
             $perfectWidth *= $multiplier;
@@ -57,7 +75,7 @@ class ImageManipulations
             $myWidth = $image->getWidth();
             $myHeight = $image->getHeight();
 
-            //if we are trying to resize to a width that is small than the perfect width
+            //if we are trying to resize to a width that is smaller than the perfect width
             //and the resize width is small than the current width, then lets resize...
             if (0 !== (int) $resizeToWidth) {
                 if ($resizeToWidth < $perfectWidth && $resizeToWidth < $myWidth) {
@@ -65,22 +83,26 @@ class ImageManipulations
                 }
             }
             if ($perfectWidth && $perfectHeight) {
-                //if the height or the width are already perfect then we can not do anything about it.
                 if ($myWidth === $perfectWidth && $myHeight === $perfectHeight) {
+                    // perfect already?
                     $link = $image->Link();
                 } elseif ($myWidth < $perfectWidth || $myHeight < $perfectHeight) {
+                    // too small? adding padding.
                     $link = $image->Pad(
                         $perfectWidth,
                         $perfectHeight,
                         PerfectCMSImages::get_padding_bg_colour($name)
                     )->Link();
                 } elseif ($crop) {
+                    // first of two situations where we make it smaller.
                     $link = $image->Fill($perfectWidth, $perfectHeight)->Link();
                 } else {
+                    // second of two situations where we make it smaller.
                     $link = $image->FitMax($perfectWidth, $perfectHeight)->Link();
                 }
             } elseif ($perfectWidth) {
                 if ($myWidth === $perfectWidth) {
+                    // perfect already?
                     $link = $image->Link();
                 } elseif ($crop) {
                     $link = $image->Fill($perfectWidth, $myHeight)->Link();
@@ -101,6 +123,7 @@ class ImageManipulations
                 $link = $image->Link();
             }
             self::$imageLinkCache[$cacheKey] = $link;
+            PerfectCMSImageCache::add_one($cacheKey, $link);
         }
 
         return self::$imageLinkCache[$cacheKey];
@@ -127,16 +150,17 @@ class ImageManipulations
      */
     public static function get_placeholder_image_tag(string $name): string
     {
-        $multiplier = PerfectCMSImages::get_multiplier(true);
-        $perfectWidth = PerfectCMSImages::get_width($name, true);
-        $perfectHeight = PerfectCMSImages::get_height($name, true);
+        $multiplier = (int) PerfectCMSImages::get_multiplier(true);
+        $perfectWidth = (int) PerfectCMSImages::get_width($name, true);
+        $perfectHeight = (int) PerfectCMSImages::get_height($name, true);
         $perfectWidth *= $multiplier;
         $perfectHeight *= $multiplier;
         if ($perfectWidth || $perfectHeight) {
-            if (0 === $perfectWidth) {
+            if (0 === $perfectWidth && $perfectHeight === 0) {
+                $perfectWidth = 200;
+            } elseif (0 === $perfectWidth) {
                 $perfectWidth = $perfectHeight;
-            }
-            if (! $perfectHeight) {
+            } elseif ($perfectHeight === 0) {
                 $perfectHeight = $perfectWidth;
             }
             $text = "{$perfectWidth} x {$perfectHeight} /2 = " . round($perfectWidth / 2) . ' x ' . round($perfectHeight / 2) . '';

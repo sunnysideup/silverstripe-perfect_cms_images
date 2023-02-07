@@ -28,17 +28,17 @@ class PerfectCmsImageValidator extends Upload_Validator
         if (PerfectCMSImages::get_enforce_size($name)) {
             $useRetina = PerfectCMSImages::use_retina($name);
             $multiplier = PerfectCMSImages::get_multiplier($useRetina);
-            $widthRecommendation = PerfectCMSImages::get_width($name, true) * $multiplier;
-            $heightRecommendation = PerfectCMSImages::get_height($name, true) * $multiplier;
+            $widthRecommendation = ((int) PerfectCMSImages::get_width($name, true)) * $multiplier;
+            $heightRecommendation = ((int)PerfectCMSImages::get_height($name, true)) * $multiplier;
             if (0 !== $widthRecommendation) {
-                if (! $this->isImageCorrectWidth(true, $widthRecommendation)) {
+                if (!$this->isImageCorrectWidth(true, $widthRecommendation)) {
                     $this->errors[] = 'Expected width: ' . $widthRecommendation . 'px;';
                     $hasError = true;
                 }
             }
 
             if ($heightRecommendation) {
-                if (! $this->isImageCorrectWidth(false, $heightRecommendation)) {
+                if (!$this->isImageCorrectWidth(false, $heightRecommendation)) {
                     $this->errors[] = 'Expected height: ' . $heightRecommendation . 'px;';
                     $hasError = true;
                 }

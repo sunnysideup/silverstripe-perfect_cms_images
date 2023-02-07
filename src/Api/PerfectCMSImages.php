@@ -9,6 +9,7 @@ use SilverStripe\Assets\Image;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Core\Flushable;
 use SilverStripe\Core\Injector\Injector;
+use SilverStripe\ORM\DB;
 use Sunnysideup\PerfectCmsImages\Forms\PerfectCmsImagesUploadField;
 use Sunnysideup\PerfectCmsImages\Model\File\PerfectCmsImageDataExtension;
 
@@ -80,15 +81,16 @@ EOT;
      */
     public static function flush()
     {
-        if (! Config::inst()->get(Image::class, 'force_resample')) {
-            Config::modify()->update(Image::class, 'force_resample', true);
+        DB::query('DELETE FROM PerfectCMSImageCache;');
+        if (!Config::inst()->get(Image::class, 'force_resample')) {
+            Config::modify()->merge(Image::class, 'force_resample', true);
         }
         if (class_exists('HashPathExtension')) {
-            if (! file_exists(ASSETS_PATH)) {
+            if (!file_exists(ASSETS_PATH)) {
                 Filesystem::makeFolder(ASSETS_PATH);
             }
             $fileName = ASSETS_PATH . '/.htaccess';
-            if (! file_exists($fileName)) {
+            if (!file_exists($fileName)) {
                 $string = Config::inst()->get(PerfectCMSImages::class, 'htaccess_content');
                 file_put_contents($fileName, $string);
             }
@@ -97,8 +99,8 @@ EOT;
 
     public static function get_description_for_cms(string $name): string
     {
-        $widthRecommendation = PerfectCMSImages::get_width($name);
-        $heightRecommendation = PerfectCMSImages::get_height($name);
+        $widthRecommendation = (int) PerfectCMSImages::get_width($name);
+        $heightRecommendation = (int) PerfectCMSImages::get_height($name);
         $useRetina = PerfectCMSImages::use_retina($name);
         $recommendedFileType = PerfectCMSImages::get_file_type($name);
         $multiplier = PerfectCMSImages::get_multiplier($useRetina);
@@ -166,7 +168,7 @@ EOT;
         if ($useRetina) {
             $multiplier = Config::inst()->get(PerfectCMSImages::class, 'retina_multiplier');
         }
-        if (! $multiplier) {
+        if (!$multiplier) {
             $multiplier = 1;
         }
 
@@ -179,7 +181,7 @@ EOT;
     }
 
     /**
-     * @return int?string
+     * @return int|string
      */
     public static function get_width(string $name, bool $forceInteger = false)
     {
@@ -204,7 +206,14 @@ EOT;
         return $v;
     }
 
+
+    public static function has_mobile($name): bool
+    {
+        return (bool) (self::get_mobile_width($name, true) || self::get_mobile_height($name, true);
+    }
+
     /**
+     *
      * @return int?string
      */
     public static function get_mobile_width(string $name, bool $forceInteger = false)
@@ -238,7 +247,7 @@ EOT;
     public static function max_size_in_kilobytes(string $name): int
     {
         $maxSizeInKilobytes = self::get_one_value_for_image($name, 'max_size_in_kilobytes', 0);
-        if (! $maxSizeInKilobytes) {
+        if (!$maxSizeInKilobytes) {
             $maxSizeInKilobytes = Config::inst()->get(PerfectCmsImagesUploadField::class, 'max_size_in_kilobytes');
         }
 

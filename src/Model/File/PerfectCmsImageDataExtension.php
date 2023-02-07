@@ -4,6 +4,7 @@ namespace Sunnysideup\PerfectCmsImages\Model\File;
 
 use SilverStripe\Assets\Image;
 use SilverStripe\Control\Director;
+use SilverStripe\Core\Config\Config;
 use SilverStripe\Core\Convert;
 use SilverStripe\ORM\DataExtension;
 use SilverStripe\ORM\FieldType\DBField;
@@ -27,26 +28,13 @@ class PerfectCmsImageDataExtension extends DataExtension
 
     /**
      * @param string $name       PerfectCMSImages name
-     * @param bool   $inline     for use within existing image tag - optional
-     * @param string $alt        alt tag for image -optional
-     * @param string $attributes additional attributes
-     *
-     * @return string (HTML)
-     */
-    public function getPerfectCMSImageTag(string $name, $inline = false, ?string $alt = '', ?string $attributes = '')
-    {
-        return $this->PerfectCMSImageTag($name, $inline, $alt, $attributes);
-    }
-
-    /**
-     * @param string $name       PerfectCMSImages name
      * @param bool   $inline     for use within existing image tag - optional. can be TRUE, "TRUE" or 1 also...
      * @param string $alt        alt tag for image -optional
      * @param string $attributes additional attributes
      *
      * @return string (HTML)
      */
-    public function PerfectCMSImageTag(string $name, $inline = false, ?string $alt = '', ?string $attributes = '')
+    public function getPerfectCMSImageTag(string $name, $inline = false, ?string $alt = '', ?string $attributes = '')
     {
         $arrayData = $this->getPerfectCMSImageTagArrayData($name, $inline, $alt, $attributes);
         $template = 'Includes/PerfectCMSImageTag';
@@ -65,38 +53,38 @@ class PerfectCmsImageDataExtension extends DataExtension
      *
      * @return ArrayData
      */
-    public function PerfectCMSImageTagArrayData(string $name, $inline = false, ?string $alt = '', ?string $attributes = '')
-    {
-        return $this->getPerfectCMSImageTagArrayData($name, $inline, $alt, $attributes);
-    }
-
-    /**
-     * @param string $name       PerfectCMSImages name
-     * @param bool   $inline     for use within existing image tag - optional. can be TRUE, "TRUE" or 1 also...
-     * @param string $alt        alt tag for image -optional
-     * @param string $attributes additional attributes
-     *
-     * @return ArrayData
-     */
     public function getPerfectCMSImageTagArrayData(string $name, $inline = false, ?string $alt = '', ?string $attributes = '')
     {
-        $retinaLink = $this->PerfectCMSImageLinkRetina($name);
-        $nonRetinaLink = $this->PerfectCMSImageLinkNonRetina($name);
-
-        $retinaLinkWebP = $this->PerfectCMSImageLinkRetinaWebP($name);
-        $nonRetinaLinkWebP = $this->PerfectCMSImageLinkNonRetinaWebP($name);
-
-        $mobileRetinaLink = $this->PerfectCMSImageLinkRetinaForMobile($name);
-        $mobileNonRetinaLink = $this->PerfectCMSImageLinkNonRetinaForMobile($name);
-
-        $mobileRetinaLinkWebP = $this->PerfectCMSImageLinkRetinaWebPForMobile($name);
-        $mobileNonRetinaLinkWebP = $this->PerfectCMSImageLinkNonRetinaWebPForMobile($name);
 
         $width = PerfectCMSImages::get_width($name, true);
         $height = PerfectCMSImages::get_height($name, true);
-        $mobileMediaWidth = PerfectCMSImages::get_mobile_media_width($name);
 
-        if (! $alt) {
+        $hasWebP = (bool) Config::inst()->get(ImageManipulations::class, 'webp_enabled');
+        $hasMobile = PerfectCMSImages::has_mobile($name);
+        $mobileRetinaLink = '';
+        $mobileNonRetinaLink = '';
+        $mobileMediaWidth = '';
+
+        $retinaLink = $this->PerfectCMSImageLinkRetina($name);
+        $nonRetinaLink = $this->PerfectCMSImageLinkNonRetina($name);
+        if ($hasMobile) {
+            $mobileRetinaLink = $this->PerfectCMSImageLinkRetinaForMobile($name);
+            $mobileNonRetinaLink = $this->PerfectCMSImageLinkNonRetinaForMobile($name);
+        }
+        if ($hasWebP) {
+            $retinaLinkWebP = $this->PerfectCMSImageLinkRetinaWebP($name);
+            $nonRetinaLinkWebP = $this->PerfectCMSImageLinkNonRetinaWebP($name);
+            if ($hasMobile) {
+                $mobileRetinaLinkWebP = $this->PerfectCMSImageLinkRetinaWebPForMobile($name);
+                $mobileNonRetinaLinkWebP = $this->PerfectCMSImageLinkNonRetinaWebPForMobile($name);
+            }
+        }
+
+        if ($hasMobile) {
+            $mobileMediaWidth = PerfectCMSImages::get_mobile_media_width($name);
+        }
+
+        if (!$alt) {
             $alt = $this->getOwner()->Title;
         }
 
@@ -108,19 +96,21 @@ class PerfectCmsImageDataExtension extends DataExtension
                 'Alt' => Convert::raw2att($alt),
                 'MobileRetinaLink' => $mobileRetinaLink,
                 'MobileNonRetinaLink' => $mobileNonRetinaLink,
-                'MobileRetinaLinkWebP' => $mobileRetinaLinkWebP,
-                'MobileNonRetinaLinkWebP' => $mobileNonRetinaLinkWebP,
                 'RetinaLink' => $retinaLink,
                 'NonRetinaLink' => $nonRetinaLink,
+                'MobileRetinaLinkWebP' => $mobileRetinaLinkWebP,
+                'MobileNonRetinaLinkWebP' => $mobileNonRetinaLinkWebP,
                 'RetinaLinkWebP' => $retinaLinkWebP,
                 'NonRetinaLinkWebP' => $nonRetinaLinkWebP,
+                'Type' => $this->owner->getMimeType(),
+                'HasWebP' => $hasWebP,
                 'Attributes' => DBField::create_field('HTMLText', $attributes),
             ]
         );
     }
 
     /**
-     * @var string name of Image Field template
+     * @param string name of Image Field template
      *
      * @return string (link)
      */
@@ -130,7 +120,7 @@ class PerfectCmsImageDataExtension extends DataExtension
     }
 
     /**
-     * @var string name of Image Field template
+     * @param string name of Image Field template
      *
      * @return string (link)
      */
@@ -140,7 +130,7 @@ class PerfectCmsImageDataExtension extends DataExtension
     }
 
     /**
-     * @var string name of Image Field template
+     * @param string name of Image Field template
      *
      * @return string (link)
      */
@@ -150,7 +140,7 @@ class PerfectCmsImageDataExtension extends DataExtension
     }
 
     /**
-     * @var string name of Image Field template
+     * @param string name of Image Field template
      *
      * @return string (link)
      */
@@ -160,7 +150,7 @@ class PerfectCmsImageDataExtension extends DataExtension
     }
 
     /**
-     * @var string name of Image Field template
+     * @param string name of Image Field template
      *
      * @return string (link)
      */
@@ -170,7 +160,7 @@ class PerfectCmsImageDataExtension extends DataExtension
     }
 
     /**
-     * @var string name of Image Field template
+     * @param string name of Image Field template
      *
      * @return string (link)
      */
@@ -180,7 +170,7 @@ class PerfectCmsImageDataExtension extends DataExtension
     }
 
     /**
-     * @var string name of Image Field template
+     * @param string name of Image Field template
      *
      * @return string (link)
      */
@@ -190,7 +180,7 @@ class PerfectCmsImageDataExtension extends DataExtension
     }
 
     /**
-     * @var string name of Image Field template
+     * @param string name of Image Field template
      *
      * @return string (link)
      */
@@ -200,7 +190,7 @@ class PerfectCmsImageDataExtension extends DataExtension
     }
 
     /**
-     * @var string name of Image Field template
+     * @param string name of Image Field template
      *
      * @return string (link)
      */
@@ -212,17 +202,22 @@ class PerfectCmsImageDataExtension extends DataExtension
     /**
      * returns image link (if any).
      */
-    public function PerfectCMSImageLink(string $name, ?bool $useRetina = false, ?bool $isWebP = false, ?bool $forMobile = false): string
+    private function PerfectCMSImageLink(string $name, ?bool $useRetina = false, ?bool $isWebP = false, ?bool $forMobile = false): string
     {
         /** @var null|Image $image */
         $image = $this->owner;
+        $allOk = true;
         if ($image && $image->exists() && $image instanceof Image) {
+            $allOk = true;
             //we are all good ...
         } else {
             $image = ImageManipulations::get_backup_image($name);
+            if ($image && $image->exists() && $image instanceof Image) {
+                $allOk = true;
+            }
         }
 
-        if ($image && $image->exists() && $image instanceof Image) {
+        if ($allOk) {
             // $backEndString = Image::get_backend();
             // $backend = Injector::inst()->get($backEndString);
             $link = ImageManipulations::get_image_link($image, $name, $useRetina, $forMobile);
@@ -231,13 +226,13 @@ class PerfectCmsImageDataExtension extends DataExtension
                 $link = ImageManipulations::web_p_link($link);
             }
 
-            return '' !== $link ? ImageManipulations::add_fake_parts($image, $link) : '';
+            return $link ? ImageManipulations::add_fake_parts($image, $link) : '';
+        } else {
+            // no image -> provide placeholder if in DEV MODE only!!!
+            if (Director::isDev()) {
+                return ImageManipulations::get_placeholder_image_tag($name);
+            }
         }
-        // no image -> provide placeholder if in DEV MODE only!!!
-        if (Director::isDev()) {
-            return ImageManipulations::get_placeholder_image_tag($name);
-        }
-
         return '';
     }
 }
