@@ -44,6 +44,7 @@ class PerfectCmsImageValidator extends Upload_Validator
                 }
             }
         }
+
         $parentResult = parent::validate();
         if ($hasError) {
             return false;
@@ -70,6 +71,7 @@ class PerfectCmsImageValidator extends Upload_Validator
         if (isset($this->tmpFile['tmp_name'])) {
             $imageSize = getimagesize($this->tmpFile['tmp_name']);
         }
+
         // $imagefile = $this->getFullPath();
         // if($this->exists() && file_exists($imageFile)) {
         //     $imageSize = getimagesize($imagefile);
@@ -78,6 +80,7 @@ class PerfectCmsImageValidator extends Upload_Validator
         if (false === $imageSize) {
             return false;
         }
+
         if ($isWidth) {
             return $imageSize[0];
         }

@@ -2,12 +2,14 @@
 
 namespace Sunnysideup\PerfectCmsImages\Model\File;
 
+use SilverStripe\Assets\Folder;
 use SilverStripe\Assets\Image;
 use SilverStripe\Control\Director;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Core\Convert;
 use SilverStripe\ORM\DataExtension;
 use SilverStripe\ORM\FieldType\DBField;
+use SilverStripe\ORM\FieldType\DBHTMLText;
 use SilverStripe\View\ArrayData;
 use Sunnysideup\PerfectCmsImages\Api\ImageManipulations;
 use Sunnysideup\PerfectCmsImages\Api\PerfectCMSImages;
@@ -18,13 +20,51 @@ use Sunnysideup\PerfectCmsImages\Api\PerfectCMSImages;
  */
 class PerfectCmsImageDataExtension extends DataExtension
 {
-    private static $perfect_cms_images_background_padding_color = '#ffffff';
+    /**
+     * background image for padded images...
+     *
+     * @var string
+     */
+    private static $perfect_cms_images_background_padding_color = '#cccccc';
 
+    /*
+     * details of the images
+     *     - width: 3200
+     *     - height: 3200
+     *     - folder: "myfolder"
+     *     - filetype: "try jpg"
+     *     - enforce_size: false
+     *     - folder: my-image-folder-a
+     *     - filetype: "jpg or a png with a transparant background"
+     *     - use_retina: true
+     *     - padding_bg_colour: '#dddddd'
+     *     - crop: true
+     *     - move_to_right_folder: true
+     *     - loading_style: 'eager'
+     *     - used_by:
+     *       - MyClass.MyHasOne
+     *       - MyOtherClass.MyHasManyMethod
+     *       - MyOtherClass.MyManyManyRel
+     * @var array
+     */
     private static $perfect_cms_images_image_definitions = [];
 
     private static $casting = [
         'PerfectCMSImageTag' => 'HTMLText',
     ];
+
+    /**
+     * @param string $name       PerfectCMSImages name
+     * @param bool   $inline     for use within existing image tag - optional
+     * @param string $alt        alt tag for image -optional
+     * @param string $attributes additional attributes
+     *
+     * @return string (HTML)
+     */
+    public function getPerfectCMSImageTag(string $name, $inline = false, ?string $alt = '', ?string $attributes = '')
+    {
+        return $this->PerfectCMSImageTag($name, $inline, $alt, $attributes);
+    }
 
     /**
      * @param string $name       PerfectCMSImages name
@@ -34,7 +74,7 @@ class PerfectCmsImageDataExtension extends DataExtension
      *
      * @return string (HTML)
      */
-    public function getPerfectCMSImageTag(string $name, $inline = false, ?string $alt = '', ?string $attributes = '')
+    public function PerfectCMSImageTag(string $name, $inline = false, ?string $alt = '', ?string $attributes = '')
     {
         $arrayData = $this->getPerfectCMSImageTagArrayData($name, $inline, $alt, $attributes);
         $template = 'Includes/PerfectCMSImageTag';
@@ -53,8 +93,23 @@ class PerfectCmsImageDataExtension extends DataExtension
      *
      * @return ArrayData
      */
+    public function PerfectCMSImageTagArrayData(string $name, $inline = false, ?string $alt = '', ?string $attributes = '')
+    {
+        return $this->getPerfectCMSImageTagArrayData($name, $inline, $alt, $attributes);
+    }
+
+    /**
+     * @param string $name       PerfectCMSImages name
+     * @param bool   $inline     for use within existing image tag - optional. can be TRUE, "TRUE" or 1 also...
+     * @param string $alt        alt tag for image -optional
+     * @param string $attributes additional attributes
+     *
+     * @return ArrayData
+     */
     public function getPerfectCMSImageTagArrayData(string $name, $inline = false, ?string $alt = '', ?string $attributes = '')
     {
+        $retinaLink = $this->PerfectCMSImageLinkRetina($name);
+        $nonRetinaLink = $this->PerfectCMSImageLinkNonRetina($name);
 
         $width = PerfectCMSImages::get_width($name, true);
         $height = PerfectCMSImages::get_height($name, true);
@@ -84,7 +139,7 @@ class PerfectCmsImageDataExtension extends DataExtension
             $mobileMediaWidth = PerfectCMSImages::get_mobile_media_width($name);
         }
 
-        if (!$alt) {
+        if (! $alt) {
             $alt = $this->getOwner()->Title;
         }
 
@@ -110,7 +165,7 @@ class PerfectCmsImageDataExtension extends DataExtension
     }
 
     /**
-     * @param string name of Image Field template
+     * @param string $name of Image Field template
      *
      * @return string (link)
      */
@@ -120,7 +175,7 @@ class PerfectCmsImageDataExtension extends DataExtension
     }
 
     /**
-     * @param string name of Image Field template
+     * @param string $name of Image Field template
      *
      * @return string (link)
      */
@@ -130,7 +185,7 @@ class PerfectCmsImageDataExtension extends DataExtension
     }
 
     /**
-     * @param string name of Image Field template
+     * @param string $name of Image Field template
      *
      * @return string (link)
      */
@@ -140,7 +195,7 @@ class PerfectCmsImageDataExtension extends DataExtension
     }
 
     /**
-     * @param string name of Image Field template
+     * @param string $name of Image Field template
      *
      * @return string (link)
      */
@@ -150,7 +205,7 @@ class PerfectCmsImageDataExtension extends DataExtension
     }
 
     /**
-     * @param string name of Image Field template
+     * @param string $name of Image Field template
      *
      * @return string (link)
      */
@@ -160,7 +215,7 @@ class PerfectCmsImageDataExtension extends DataExtension
     }
 
     /**
-     * @param string name of Image Field template
+     * @param string $name of Image Field template
      *
      * @return string (link)
      */
@@ -170,7 +225,7 @@ class PerfectCmsImageDataExtension extends DataExtension
     }
 
     /**
-     * @param string name of Image Field template
+     * @param string $name of Image Field template
      *
      * @return string (link)
      */
@@ -180,7 +235,7 @@ class PerfectCmsImageDataExtension extends DataExtension
     }
 
     /**
-     * @param string name of Image Field template
+     * @param string $name of Image Field template
      *
      * @return string (link)
      */
@@ -190,8 +245,6 @@ class PerfectCmsImageDataExtension extends DataExtension
     }
 
     /**
-     * @param string name of Image Field template
-     *
      * @return string (link)
      */
     public function getPerfectCMSImageAbsoluteLink(string $link): string
@@ -202,11 +255,11 @@ class PerfectCmsImageDataExtension extends DataExtension
     /**
      * returns image link (if any).
      */
-    private function PerfectCMSImageLink(string $name, ?bool $useRetina = false, ?bool $isWebP = false, ?bool $forMobile = false): string
+    public function PerfectCMSImageLink(string $name, ?bool $useRetina = false, ?bool $isWebP = false, ?bool $forMobile = false): string
     {
         /** @var null|Image $image */
         $image = $this->owner;
-        $allOk = true;
+        $allOk = false;
         if ($image && $image->exists() && $image instanceof Image) {
             $allOk = true;
             //we are all good ...
@@ -233,6 +286,66 @@ class PerfectCmsImageDataExtension extends DataExtension
                 return ImageManipulations::get_placeholder_image_tag($name);
             }
         }
+
+        // no image -> provide placeholder if in DEV MODE only!!!
+        if (Director::isDev()) {
+            return ImageManipulations::get_placeholder_image_tag($name);
+        }
+
         return '';
+    }
+
+    public function PerfectCMSImageFixFolder($name, ?string $folderName = ''): ?Folder
+    {
+        $folder = null;
+        if (PerfectCMSImages::move_to_right_folder($name) || $folderName) {
+            $image = $this->getOwner();
+            if ($image) {
+                if (! $folderName) {
+                    $folderName = PerfectCMSImages::get_folder($name);
+                }
+                $folder = Folder::find_or_make($folderName);
+                if (! $folder->ID) {
+                    $folder->write();
+                }
+                if ($image->ParentID !== $folder->ID) {
+                    $wasPublished = $image->isPublished() && ! $image->isModifiedOnDraft();
+                    $image->ParentID = $folder->ID;
+                    $image->write();
+                    if ($wasPublished) {
+                        $image->publishRecursive();
+                    }
+                }
+            }
+            // user_error('could not find image');
+        }
+
+        return $folder;
+    }
+
+    public function getThumbnail()
+    {
+        if ($this->owner->ID) {
+            if ('svg' === $this->owner->getExtension()) {
+                $obj = DBHTMLText::create();
+                $obj->setValue(file_get_contents(BASE_PATH . $this->owner->Link()));
+
+                return $obj;
+            }
+
+            return $this->owner->CMSThumbnail();
+        }
+
+        return $this->owner->CMSThumbnail();
+    }
+
+    public function updatePreviewLink(&$link, $action)
+    {
+        $owner = $this->getOwner();
+        if ('svg' === $this->owner->getExtension()) {
+            return $owner->Link();
+        }
+
+        return $link;
     }
 }

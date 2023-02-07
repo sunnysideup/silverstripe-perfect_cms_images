@@ -6,13 +6,16 @@ use SilverStripe\Assets\Image;
 use SilverStripe\Control\Controller;
 use SilverStripe\Control\Director;
 use SilverStripe\Core\Config\Config;
+use SilverStripe\Core\Config\Configurable;
 use SilverStripe\Core\Convert;
-use SilverStripe\ORM\DataObject;
+use SilverStripe\Core\Injector\Injectable;
 use SilverStripe\SiteConfig\SiteConfig;
-use Sunnysideup\PerfectCmsImages\Model\PerfectCMSImageCache;
 
 class ImageManipulations
 {
+    use Configurable;
+    use Injectable;
+
     private static $webp_enabled = true;
 
     private static $webp_quality = 77;
@@ -53,10 +56,12 @@ class ImageManipulations
             if ($item) {
                 return $item->Link;
             }
+            $link = '';
             //work out perfect width and height
             if (null === $useRetina) {
                 $useRetina = PerfectCMSImages::use_retina($name);
             }
+
             $crop = PerfectCMSImages::is_crop($name);
 
             $multiplier = PerfectCMSImages::get_multiplier($useRetina);
@@ -74,53 +79,56 @@ class ImageManipulations
             //get current width and height
             $myWidth = $image->getWidth();
             $myHeight = $image->getHeight();
-
-            //if we are trying to resize to a width that is smaller than the perfect width
+            //if we are trying to resize to a width that is small than the perfect width
             //and the resize width is small than the current width, then lets resize...
             if (0 !== (int) $resizeToWidth) {
                 if ($resizeToWidth < $perfectWidth && $resizeToWidth < $myWidth) {
                     $perfectWidth = $resizeToWidth;
                 }
             }
+
+            $tmpImage = null;
             if ($perfectWidth && $perfectHeight) {
+                //if the height or the width are already perfect then we can not do anything about it.
                 if ($myWidth === $perfectWidth && $myHeight === $perfectHeight) {
-                    // perfect already?
-                    $link = $image->Link();
+                    $tmpImage = $image;
                 } elseif ($myWidth < $perfectWidth || $myHeight < $perfectHeight) {
-                    // too small? adding padding.
-                    $link = $image->Pad(
+                    $tmpImage = $image->Pad(
                         $perfectWidth,
                         $perfectHeight,
                         PerfectCMSImages::get_padding_bg_colour($name)
-                    )->Link();
+                    );
                 } elseif ($crop) {
-                    // first of two situations where we make it smaller.
-                    $link = $image->Fill($perfectWidth, $perfectHeight)->Link();
+                    $tmpImage = $image->Fill($perfectWidth, $perfectHeight);
                 } else {
-                    // second of two situations where we make it smaller.
-                    $link = $image->FitMax($perfectWidth, $perfectHeight)->Link();
+                    $tmpImage = $image->FitMax($perfectWidth, $perfectHeight);
                 }
             } elseif ($perfectWidth) {
                 if ($myWidth === $perfectWidth) {
-                    // perfect already?
-                    $link = $image->Link();
+                    $tmpImage = $image;
                 } elseif ($crop) {
-                    $link = $image->Fill($perfectWidth, $myHeight)->Link();
+                    $tmpImage = $image->Fill($perfectWidth, $myHeight);
                 } else {
-                    $link = $image->ScaleWidth($perfectWidth)->Link();
+                    $tmpImage = $image->ScaleWidth($perfectWidth);
                 }
             } elseif ($perfectHeight) {
                 if ($myHeight === $perfectHeight) {
-                    $link = $image->Link();
+                    $tmpImage = $image;
                 } elseif ($crop) {
-                    $link = $image->Fill($myWidth, $perfectHeight)->Link();
+                    $tmpImage = $image->Fill($myWidth, $perfectHeight);
                 } else {
-                    $link = $image->ScaleHeight($perfectHeight)->Link();
+                    $tmpImage = $image->ScaleHeight($perfectHeight);
                 }
             } elseif ($forMobile) {
-                $link = '';
+                // todo: expplain this!
+                // basically, it is for mobile and there is not perfect height nor width
+                $tmpImage = null;
             } else {
-                $link = $image->Link();
+                $tmpImage = $image;
+            }
+            $link = '';
+            if($tmpImage) {
+                $link = (string) $tmpImage->getUrl();
             }
             self::$imageLinkCache[$cacheKey] = $link;
             PerfectCMSImageCache::add_one($cacheKey, $link);
@@ -163,6 +171,7 @@ class ImageManipulations
             } elseif ($perfectHeight === 0) {
                 $perfectHeight = $perfectWidth;
             }
+
             $text = "{$perfectWidth} x {$perfectHeight} /2 = " . round($perfectWidth / 2) . ' x ' . round($perfectHeight / 2) . '';
 
             return 'https://placehold.it/' . $perfectWidth . 'x' . $perfectHeight . '?text=' . urlencode($text);
@@ -184,6 +193,7 @@ class ImageManipulations
                 if (isset($_GET['flush']) && file_exists($webPFileNameWithBaseFolder)) {
                     unlink($webPFileNameWithBaseFolder);
                 }
+
                 if (file_exists($webPFileNameWithBaseFolder)) {
                     //todo: check that image is the same ...
                 } else {
@@ -196,6 +206,7 @@ class ImageManipulations
                             $img = imagecreatefrompng($fileNameWithBaseFolder);
                             imagesavealpha($img, true);
                         }
+
                         if (null !== $img) {
                             $quality = Config::inst()->get(ImageManipulations::class, 'webp_quality');
                             imagewebp($img, $webPFileNameWithBaseFolder, $quality);
@@ -212,6 +223,15 @@ class ImageManipulations
 
     public static function add_fake_parts($image, string $link): string
     {
+        // first get the timestamp
+        $time1 = strtotime((string) $image->LastEdited);
+        $time2 = 0;
+        $path = Controller::join_links(Director::baseFolder(), PUBLIC_DIR, $link);
+        if (file_exists($path)) {
+            $time2 = filemtime($path);
+        }
+
+        // first convert to hash extension
         if (class_exists('HashPathExtension')) {
             /** @var null|Controller $curr */
             $curr = Controller::curr();
@@ -221,10 +241,15 @@ class ImageManipulations
                 }
             }
         }
+
+        // now you can add the time
+        $link .= '?time=' . max($time1, $time2);
+
+        // finally add the title
         if ($image->Title) {
             $imageClasses = Config::inst()->get(PerfectCMSImages::class, 'perfect_cms_images_append_title_to_image_links_classes');
             if (in_array($image->ClassName, $imageClasses, true)) {
-                $link .= '?title=' . urlencode(Convert::raw2att($image->Title));
+                $link .= '&title=' . urlencode(Convert::raw2att($image->Title));
             }
         }
 

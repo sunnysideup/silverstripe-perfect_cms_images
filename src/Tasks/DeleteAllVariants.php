@@ -47,9 +47,11 @@ class DeleteAllVariants extends BuildTask
             exec($find);
             exec($find, $output, $retval);
         }
+
         foreach ($output as $key) {
             DB::alteration_message($key);
         }
+
         echo "Returned with status {$retval}";
     }
 }

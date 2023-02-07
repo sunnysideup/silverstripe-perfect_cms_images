@@ -22,6 +22,7 @@ What it does
  * Ensures the image is valid and not too large in file size
  * Provides a backup image
  * Adds a placeholder image when there is no backup
+ * Allows for SVGs and for WebP Images
 
 
 

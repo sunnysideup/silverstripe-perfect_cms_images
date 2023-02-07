@@ -4,12 +4,10 @@ namespace Sunnysideup\PerfectCmsImages\Api;
 
 use Psr\Log\LoggerInterface;
 use SilverStripe\Assets\Filesystem;
-use SilverStripe\Assets\Folder;
 use SilverStripe\Assets\Image;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Core\Flushable;
 use SilverStripe\Core\Injector\Injector;
-use SilverStripe\ORM\DB;
 use Sunnysideup\PerfectCmsImages\Forms\PerfectCmsImagesUploadField;
 use Sunnysideup\PerfectCmsImages\Model\File\PerfectCmsImageDataExtension;
 
@@ -32,12 +30,7 @@ class PerfectCMSImages implements Flushable
 
 EOT;
 
-    /**
-     * background image for padded images...
-     *
-     * @var string
-     */
-    private static $perfect_cms_images_background_padding_color = '#cccccc';
+    private static $unused_images_folder_name = 'unusedimages';
 
     /**
      * used to set the max width of the media value for mobile images,
@@ -46,23 +39,6 @@ EOT;
      * @var string
      */
     private static $mobile_media_max_width = '600px';
-
-    /*
-     * details of the images
-     *     - width: 3200
-     *     - height: 3200
-     *     - folder: "myfolder"
-     *     - filetype: "try jpg"
-     *     - enforce_size: false
-     *     - folder: my-image-folder-a
-     *     - filetype: "jpg or a png with a transparant background"
-     *     - use_retina: true
-     *     - padding_bg_colour: '#dddddd'
-     *     - crop: true
-     *
-     * @var array
-     */
-    private static $perfect_cms_images_image_definitions = [];
 
     /*
      * Images Titles will be appended to the links only
@@ -85,12 +61,14 @@ EOT;
         if (!Config::inst()->get(Image::class, 'force_resample')) {
             Config::modify()->merge(Image::class, 'force_resample', true);
         }
+
         if (class_exists('HashPathExtension')) {
-            if (!file_exists(ASSETS_PATH)) {
+            if (! file_exists(ASSETS_PATH)) {
                 Filesystem::makeFolder(ASSETS_PATH);
             }
+
             $fileName = ASSETS_PATH . '/.htaccess';
-            if (!file_exists($fileName)) {
+            if (! file_exists($fileName)) {
                 $string = Config::inst()->get(PerfectCMSImages::class, 'htaccess_content');
                 file_put_contents($fileName, $string);
             }
@@ -107,6 +85,7 @@ EOT;
         if ('' === $recommendedFileType) {
             $recommendedFileType = 'jpg';
         }
+
         if (0 !== (int) $widthRecommendation) {
             //cater for retina
             $widthRecommendation *= $multiplier;
@@ -115,6 +94,7 @@ EOT;
             $actualWidthDescription = $widthRecommendation;
             $actualWidthDescription = 'flexible';
         }
+
         if (0 !== (int) $heightRecommendation) {
             //cater for retina
             $heightRecommendation *= $multiplier;
@@ -146,6 +126,7 @@ EOT;
             $rightTitle .= 'Maximum file size: ' . round($maxSizeInKilobytes / 1024, 2) . ' megabyte.';
             $rightTitle .= '<br />';
         }
+
         if ('' !== $recommendedFileType) {
             if (strlen($recommendedFileType) < 5) {
                 $rightTitle .= 'The recommend file type (file extension) is <strong>' . $recommendedFileType . '</strong>.';
@@ -168,7 +149,8 @@ EOT;
         if ($useRetina) {
             $multiplier = Config::inst()->get(PerfectCMSImages::class, 'retina_multiplier');
         }
-        if (!$multiplier) {
+
+        if (! $multiplier) {
             $multiplier = 1;
         }
 
@@ -213,7 +195,6 @@ EOT;
     }
 
     /**
-     *
      * @return int?string
      */
     public static function get_mobile_width(string $name, bool $forceInteger = false)
@@ -244,10 +225,20 @@ EOT;
         return self::get_one_value_for_image($name, 'folder', 'other-images');
     }
 
+    public static function move_to_right_folder(string $name): bool
+    {
+        return self::get_one_value_for_image($name, 'move_to_right_folder', true);
+    }
+
+    public static function loading_style(string $name): string
+    {
+        return self::get_one_value_for_image($name, 'loading_style', 'lazy');
+    }
+
     public static function max_size_in_kilobytes(string $name): int
     {
         $maxSizeInKilobytes = self::get_one_value_for_image($name, 'max_size_in_kilobytes', 0);
-        if (!$maxSizeInKilobytes) {
+        if (! $maxSizeInKilobytes) {
             $maxSizeInKilobytes = Config::inst()->get(PerfectCmsImagesUploadField::class, 'max_size_in_kilobytes');
         }
 
@@ -292,27 +283,26 @@ EOT;
         return isset($sizes[$name]);
     }
 
-    /**
-     * @param string $default
-     *
-     * @return mixed
-     */
-    protected static function get_one_value_for_image(string $name, string $key, ?string $default = '')
-    {
-        $sizes = self::get_all_values_for_images();
-        if (isset($sizes[$name], $sizes[$name][$key])) {
-            return $sizes[$name][$key];
-        }
-        Injector::inst()->get(LoggerInterface::class)->info('no information for image with the name: ' . $name . '.' . $key);
-
-        return $default;
-    }
-
-    protected static function get_all_values_for_images(): array
+    public static function get_all_values_for_images(): array
     {
         return Config::inst()->get(
             PerfectCmsImageDataExtension::class,
             'perfect_cms_images_image_definitions'
         ) ?: [];
+    }
+
+    /**
+     * @param string $name
+     * @param string $key
+     * @param mixed $default - optional
+     *
+     * @return mixed
+     */
+    protected static function get_one_value_for_image(string $name, string $key, $default = '')
+    {
+        $sizes = self::get_all_values_for_images();
+
+        return $sizes[$name][$key] ?? $default;
+        // Injector::inst()->get(LoggerInterface::class)->info('no information for image with the name: ' . $name . '.' . $key);
     }
 }

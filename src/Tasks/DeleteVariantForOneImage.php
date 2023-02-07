@@ -43,6 +43,7 @@ class DeleteGeneratedImagesTask extends BuildTask
 
             return;
         }
+
         $image = DataObject::get_by_id(Image::class, $Id);
 
         if (! $image) {
@@ -50,14 +51,17 @@ class DeleteGeneratedImagesTask extends BuildTask
 
             return;
         }
+
         $asetValues = $image->File->getValue();
         $store = Injector::inst()->get(AssetStore::class);
 
         // warning - super hacky as accessing private methods
         $getID = new ReflectionMethod(FlysystemAssetStore::class, 'getFileID');
         $getID->setAccessible(true);
+
         $flyID = $getID->invoke($store, $asetValues['Filename'], $asetValues['Hash']);
         $getFileSystem = new ReflectionMethod(FlysystemAssetStore::class, 'getFilesystemFor');
+
         $getFileSystem->setAccessible(true);
         /** @var Filesystem $system */
         $system = $getFileSystem->invoke($store, $flyID);
@@ -69,8 +73,10 @@ class DeleteGeneratedImagesTask extends BuildTask
             if (! $isGenerated) {
                 continue;
             }
+
             $system->delete($variant);
         }
+
         echo "Deleted generated images for {$image->Name}";
     }
 }

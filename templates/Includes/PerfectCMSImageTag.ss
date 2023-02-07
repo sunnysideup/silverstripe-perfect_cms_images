@@ -10,6 +10,7 @@
         alt="$Alt"
         <% if $Width %>width="$Width"<% end_if %>
         <% if $Height %>height="$Height"<% end_if %>
+        loading="$LoadingStyle"
         $Attributes
     >
 </picture>
