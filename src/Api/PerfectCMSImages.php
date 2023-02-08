@@ -8,6 +8,7 @@ use SilverStripe\Assets\Image;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Core\Flushable;
 use SilverStripe\Core\Injector\Injector;
+use SilverStripe\ORM\DB;
 use Sunnysideup\PerfectCmsImages\Forms\PerfectCmsImagesUploadField;
 use Sunnysideup\PerfectCmsImages\Model\File\PerfectCmsImageDataExtension;
 
@@ -57,18 +58,21 @@ EOT;
      */
     public static function flush()
     {
-        DB::query('DELETE FROM PerfectCMSImageCache;');
+        $tables = DB::table_list();
+        if (array_key_exists(strtolower('PerfectCMSImageCache'), $tables)) {
+            DB::query('DELETE FROM PerfectCMSImageCache;');
+        }
         if (!Config::inst()->get(Image::class, 'force_resample')) {
             Config::modify()->merge(Image::class, 'force_resample', true);
         }
 
         if (class_exists('HashPathExtension')) {
-            if (! file_exists(ASSETS_PATH)) {
+            if (!file_exists(ASSETS_PATH)) {
                 Filesystem::makeFolder(ASSETS_PATH);
             }
 
             $fileName = ASSETS_PATH . '/.htaccess';
-            if (! file_exists($fileName)) {
+            if (!file_exists($fileName)) {
                 $string = Config::inst()->get(PerfectCMSImages::class, 'htaccess_content');
                 file_put_contents($fileName, $string);
             }
@@ -150,7 +154,7 @@ EOT;
             $multiplier = Config::inst()->get(PerfectCMSImages::class, 'retina_multiplier');
         }
 
-        if (! $multiplier) {
+        if (!$multiplier) {
             $multiplier = 1;
         }
 
@@ -191,7 +195,7 @@ EOT;
 
     public static function has_mobile($name): bool
     {
-        return (bool) (self::get_mobile_width($name, true) || self::get_mobile_height($name, true);
+        return (bool) (self::get_mobile_width($name, true) || self::get_mobile_height($name, true));
     }
 
     /**
@@ -238,7 +242,7 @@ EOT;
     public static function max_size_in_kilobytes(string $name): int
     {
         $maxSizeInKilobytes = self::get_one_value_for_image($name, 'max_size_in_kilobytes', 0);
-        if (! $maxSizeInKilobytes) {
+        if (!$maxSizeInKilobytes) {
             $maxSizeInKilobytes = Config::inst()->get(PerfectCmsImagesUploadField::class, 'max_size_in_kilobytes');
         }
 
