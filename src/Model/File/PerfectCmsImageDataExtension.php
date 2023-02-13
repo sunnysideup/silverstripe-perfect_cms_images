@@ -16,7 +16,6 @@ use SilverStripe\ORM\FieldType\DBHTMLText;
 use SilverStripe\View\ArrayData;
 use Sunnysideup\PerfectCmsImages\Api\ImageManipulations;
 use Sunnysideup\PerfectCmsImages\Api\PerfectCMSImages;
-use Sunnysideup\PerfectCmsImages\Model\PerfectCMSImageCache;
 
 /**
  * defines the image sizes
@@ -55,14 +54,6 @@ class PerfectCmsImageDataExtension extends DataExtension
 
     private static $casting = [
         'PerfectCMSImageTag' => 'HTMLText',
-    ];
-
-    private static $has_many = [
-        'CachedImges' => PerfectCMSImageCache::class,
-    ];
-
-    private static $cascade_deletes = [
-        'CachedImges',
     ];
 
     /**
@@ -146,6 +137,8 @@ class PerfectCmsImageDataExtension extends DataExtension
     {
         $retinaLink = $this->PerfectCMSImageLinkRetina($name);
         $nonRetinaLink = $this->PerfectCMSImageLinkNonRetina($name);
+        $retinaLinkWebP = '';
+        $nonRetinaLinkWebP = '';
 
         $width = PerfectCMSImages::get_width($name, true);
         $height = PerfectCMSImages::get_height($name, true);
@@ -156,6 +149,8 @@ class PerfectCmsImageDataExtension extends DataExtension
         // mobile links
         $mobileRetinaLink = '';
         $mobileNonRetinaLink = '';
+        $mobileRetinaLinkWebP = '';
+        $mobileNonRetinaLinkWebP = '';
 
         // mobile media query
         $mobileMediaWidth = '';
@@ -180,25 +175,39 @@ class PerfectCmsImageDataExtension extends DataExtension
         if (!$alt) {
             $alt = $this->getOwner()->Title;
         }
-
-        return ArrayData::create(
-            [
+        $myArray = [
+            'MobileMediaWidth' => $mobileMediaWidth,
+            'Width' => $width,
+            'Height' => $height,
+            'Alt' => Convert::raw2att($alt),
+            'RetinaLink' => $retinaLink,
+            'NonRetinaLink' => $nonRetinaLink,
+            'Type' => $this->owner->getMimeType(),
+            'HasWebP' => $hasWebP,
+            'Attributes' => DBField::create_field('HTMLText', $attributes),
+        ];
+        if ($hasMobile) {
+            $myArray = $myArray + [
                 'MobileMediaWidth' => $mobileMediaWidth,
-                'Width' => $width,
-                'Height' => $height,
-                'Alt' => Convert::raw2att($alt),
                 'MobileRetinaLink' => $mobileRetinaLink,
                 'MobileNonRetinaLink' => $mobileNonRetinaLink,
-                'RetinaLink' => $retinaLink,
-                'NonRetinaLink' => $nonRetinaLink,
-                'MobileRetinaLinkWebP' => $mobileRetinaLinkWebP,
-                'MobileNonRetinaLinkWebP' => $mobileNonRetinaLinkWebP,
+
+            ];
+        }
+        if ($hasWebP) {
+            $myArray = $myArray + [
                 'RetinaLinkWebP' => $retinaLinkWebP,
                 'NonRetinaLinkWebP' => $nonRetinaLinkWebP,
-                'Type' => $this->owner->getMimeType(),
-                'HasWebP' => $hasWebP,
-                'Attributes' => DBField::create_field('HTMLText', $attributes),
-            ]
+            ];
+        }
+        if ($hasWebP && $hasMobile) {
+            $myArray = $myArray + [
+                'MobileRetinaLinkWebP' => $mobileRetinaLinkWebP,
+                'MobileNonRetinaLinkWebP' => $mobileNonRetinaLinkWebP,
+            ];
+        }
+        return ArrayData::create(
+            $myArray
         );
     }
 
@@ -385,10 +394,5 @@ class PerfectCmsImageDataExtension extends DataExtension
         }
 
         return $link;
-    }
-
-    public function onBeforeUnpublish()
-    {
-        DB::query('DELETE FROM "PerfectCMSImageCache" WHERE "ImageID" = ' . $this->getOwner()->ID);
     }
 }

@@ -11,7 +11,6 @@ use SilverStripe\Core\Convert;
 use SilverStripe\Core\Injector\Injectable;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\SiteConfig\SiteConfig;
-use Sunnysideup\PerfectCmsImages\Model\PerfectCMSImageCache;
 
 class ImageManipulations
 {
@@ -54,10 +53,6 @@ class ImageManipulations
                 )
             );
         if (empty(self::$imageLinkCache[$cacheKey])) {
-            $item = DataObject::get_one(PerfectCMSImageCache::class, ['Code' => $cacheKey, 'ImageID' => $image->ID]);
-            if ($item) {
-                return $item->Link;
-            }
             $link = '';
             //work out perfect width and height
             if (null === $useRetina) {

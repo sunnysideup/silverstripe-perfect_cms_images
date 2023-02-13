@@ -58,10 +58,6 @@ EOT;
      */
     public static function flush()
     {
-        $tables = DB::table_list();
-        if (array_key_exists(strtolower('PerfectCMSImageCache'), $tables)) {
-            DB::query('DELETE FROM PerfectCMSImageCache;');
-        }
         if (!Config::inst()->get(Image::class, 'force_resample')) {
             Config::modify()->merge(Image::class, 'force_resample', true);
         }
