@@ -146,30 +146,19 @@ class PerfectCmsImageDataExtension extends DataExtension
         $hasWebP = (bool) Config::inst()->get(ImageManipulations::class, 'webp_enabled');
         $hasMobile = PerfectCMSImages::has_mobile($name);
 
-        // mobile links
-        $mobileRetinaLink = '';
-        $mobileNonRetinaLink = '';
-        $mobileRetinaLinkWebP = '';
-        $mobileNonRetinaLinkWebP = '';
-
-        // mobile media query
-        $mobileMediaWidth = '';
-
         if ($hasMobile) {
             $mobileRetinaLink = $this->PerfectCMSImageLinkRetinaForMobile($name);
             $mobileNonRetinaLink = $this->PerfectCMSImageLinkNonRetinaForMobile($name);
+            $mobileMediaWidth = PerfectCMSImages::get_mobile_media_width($name);
         }
         if ($hasWebP) {
             $retinaLinkWebP = $this->PerfectCMSImageLinkRetinaWebP($name);
             $nonRetinaLinkWebP = $this->PerfectCMSImageLinkNonRetinaWebP($name);
-            if ($hasMobile) {
-                $mobileRetinaLinkWebP = $this->PerfectCMSImageLinkRetinaWebPForMobile($name);
-                $mobileNonRetinaLinkWebP = $this->PerfectCMSImageLinkNonRetinaWebPForMobile($name);
-            }
         }
 
-        if ($hasMobile) {
-            $mobileMediaWidth = PerfectCMSImages::get_mobile_media_width($name);
+        if ($hasMobile && $hasWebP) {
+            $mobileRetinaLinkWebP = $this->PerfectCMSImageLinkRetinaWebPForMobile($name);
+            $mobileNonRetinaLinkWebP = $this->PerfectCMSImageLinkNonRetinaWebPForMobile($name);
         }
 
         if (!$alt) {
