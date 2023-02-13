@@ -56,22 +56,23 @@ class ImageManipulations
                     ]
                 )
             );
-        if (empty(self::$imageLinkCache[$cacheKey])) {
+        if (!isset(self::$imageLinkCache[$cacheKey])) {
             $link = '';
-            $crop = PerfectCMSImages::is_crop($name);
-
-            $multiplier = PerfectCMSImages::get_multiplier($useRetina);
-            $perfectWidth = (int) PerfectCMSImages::get_width($name, true);
-            $perfectHeight = (int) PerfectCMSImages::get_height($name, true);
-
             if ($forMobile) {
                 $perfectWidth = (int) PerfectCMSImages::get_mobile_width($name, true);
                 $perfectHeight = (int) PerfectCMSImages::get_mobile_height($name, true);
                 if (!$perfectHeight && !$perfectWidth) {
-                    return '';
+                    self::$imageLinkCache[$cacheKey] = '';
+                    return self::$imageLinkCache[$cacheKey];
                 }
+            } else {
+                $perfectWidth = (int) PerfectCMSImages::get_width($name, true);
+                $perfectHeight = (int) PerfectCMSImages::get_height($name, true);
             }
 
+            $crop = PerfectCMSImages::is_crop($name);
+
+            $multiplier = PerfectCMSImages::get_multiplier($useRetina);
             $perfectWidth *= $multiplier;
             $perfectHeight *= $multiplier;
 
