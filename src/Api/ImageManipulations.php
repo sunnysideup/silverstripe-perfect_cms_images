@@ -39,6 +39,10 @@ class ImageManipulations
      */
     public static function get_image_link($image, string $name, ?bool $useRetina = null, ?bool $forMobile = null, ?int $resizeToWidth = 0): string
     {
+        // if specified to use retina, then check if it is needed at all.
+        if ($useRetina) {
+            $useRetina = PerfectCMSImages::use_retina($name);
+        }
         $cacheKey =
             implode(
                 '_',
@@ -54,11 +58,6 @@ class ImageManipulations
             );
         if (empty(self::$imageLinkCache[$cacheKey])) {
             $link = '';
-            //work out perfect width and height
-            if (null === $useRetina) {
-                $useRetina = PerfectCMSImages::use_retina($name);
-            }
-
             $crop = PerfectCMSImages::is_crop($name);
 
             $multiplier = PerfectCMSImages::get_multiplier($useRetina);
@@ -68,6 +67,9 @@ class ImageManipulations
             if ($forMobile) {
                 $perfectWidth = (int) PerfectCMSImages::get_mobile_width($name, true);
                 $perfectHeight = (int) PerfectCMSImages::get_mobile_height($name, true);
+                if (!$perfectHeight && !$perfectWidth) {
+                    return '';
+                }
             }
 
             $perfectWidth *= $multiplier;
@@ -139,9 +141,6 @@ class ImageManipulations
                         $perfectHeight
                     );
                 }
-            } elseif ($forMobile) {
-                // basically, it is for mobile and there is not perfect height nor perfect width
-                $link = '';
             } else {
                 // not for mobile, we definitely want to have some sort of link!
                 $link = $image->getUrl();
