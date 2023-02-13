@@ -103,7 +103,7 @@ class PerfectCmsImageDataExtension extends DataExtension
      */
     public function PerfectCMSImageTag(string $name, $inline = false, ?string $alt = '', ?string $attributes = '')
     {
-        $arrayData = $this->getPerfectCMSImageTagArrayData($name, $inline, $alt, $attributes);
+        $arrayData = $this->getPerfectCMSImageTagArrayData($name, $alt, $attributes);
         $template = 'Includes/PerfectCMSImageTag';
         if (true === $inline || 1 === (int) $inline || 'true' === strtolower($inline)) {
             $template .= 'Inline';
@@ -114,26 +114,24 @@ class PerfectCmsImageDataExtension extends DataExtension
 
     /**
      * @param string $name       PerfectCMSImages name
-     * @param bool   $inline     for use within existing image tag - optional. can be TRUE, "TRUE" or 1 also...
      * @param string $alt        alt tag for image -optional
      * @param string $attributes additional attributes
      *
      * @return ArrayData
      */
-    public function PerfectCMSImageTagArrayData(string $name, $inline = false, ?string $alt = '', ?string $attributes = '')
+    private function PerfectCMSImageTagArrayData(string $name, ?string $alt = '', ?string $attributes = '')
     {
-        return $this->getPerfectCMSImageTagArrayData($name, $inline, $alt, $attributes);
+        return $this->getPerfectCMSImageTagArrayData($name, $alt, $attributes);
     }
 
     /**
      * @param string $name       PerfectCMSImages name
-     * @param bool   $inline     for use within existing image tag - optional. can be TRUE, "TRUE" or 1 also...
      * @param string $alt        alt tag for image -optional
      * @param string $attributes additional attributes
      *
      * @return ArrayData
      */
-    public function getPerfectCMSImageTagArrayData(string $name, $inline = false, ?string $alt = '', ?string $attributes = '')
+    private function getPerfectCMSImageTagArrayData(string $name, ?string $alt = '', ?string $attributes = '')
     {
         $retinaLink = $this->PerfectCMSImageLinkRetina($name);
         $nonRetinaLink = $this->PerfectCMSImageLinkNonRetina($name);
