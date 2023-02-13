@@ -89,51 +89,69 @@ class ImageManipulations
                 }
             }
 
-            $tmpImage = null;
+            $link = null;
             if ($perfectWidth && $perfectHeight) {
                 //if the height or the width are already perfect then we can not do anything about it.
                 if ($myWidth === $perfectWidth && $myHeight === $perfectHeight) {
-                    $tmpImage = $image;
+                    $link = $image->getURL();
                 } elseif ($myWidth < $perfectWidth || $myHeight < $perfectHeight) {
-                    $tmpImage = $image->Pad(
+                    $link = $image->getImageLinkCachedIfExists(
+                        'Pad',
                         $perfectWidth,
                         $perfectHeight,
                         PerfectCMSImages::get_padding_bg_colour($name)
                     );
                 } elseif ($crop) {
-                    $tmpImage = $image->Fill($perfectWidth, $perfectHeight);
+                    $link = $image->getImageLinkCachedIfExists(
+                        'Fill',
+                        $perfectWidth,
+                        $perfectHeight
+                    );
                 } else {
-                    $tmpImage = $image->FitMax($perfectWidth, $perfectHeight);
+                    $link = $image->getImageLinkCachedIfExists(
+                        'FitMax',
+                        $perfectWidth,
+                        $perfectHeight
+                    );
                 }
             } elseif ($perfectWidth) {
                 if ($myWidth === $perfectWidth) {
-                    $tmpImage = $image;
+                    $link = $image->getURL();
                 } elseif ($crop) {
-                    $tmpImage = $image->Fill($perfectWidth, $myHeight);
+                    $link = $image->getImageLinkCachedIfExists(
+                        'Fill',
+                        $perfectWidth,
+                        $myHeight
+                    );
                 } else {
-                    $tmpImage = $image->ScaleWidth($perfectWidth);
+                    $link = $image->getImageLinkCachedIfExists(
+                        'ScaleWidth',
+                        $perfectWidth
+                    );
                 }
             } elseif ($perfectHeight) {
                 if ($myHeight === $perfectHeight) {
-                    $tmpImage = $image;
+                    $link = $image->getUrl();
                 } elseif ($crop) {
-                    $tmpImage = $image->Fill($myWidth, $perfectHeight);
+                    $link = $image->getImageLinkCachedIfExists(
+                        'Fill',
+                        $myWidth,
+                        $perfectHeight
+                    );
                 } else {
-                    $tmpImage = $image->ScaleHeight($perfectHeight);
+                    $link = $image->getImageLinkCachedIfExists(
+                        'ScaleHeight',
+                        $perfectHeight
+                    );
                 }
             } elseif ($forMobile) {
-                // todo: expplain this!
-                // basically, it is for mobile and there is not perfect height nor width
-                $tmpImage = null;
+                // basically, it is for mobile and there is not perfect height nor perfect width
+                $link = '';
             } else {
-                $tmpImage = $image;
+                // not for mobile, we definitely want to have some sort of link!
+                $link = $image->getUrl();
             }
-            $link = '';
-            if ($tmpImage) {
-                $link = (string) $tmpImage->getUrl();
-                PerfectCMSImageCache::add_one($cacheKey, $link, $image);
-            }
-            self::$imageLinkCache[$cacheKey] = $link;
+            self::$imageLinkCache[$cacheKey] = (string) $link;
         }
 
         return self::$imageLinkCache[$cacheKey];

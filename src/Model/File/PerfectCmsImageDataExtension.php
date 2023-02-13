@@ -4,9 +4,11 @@ namespace Sunnysideup\PerfectCmsImages\Model\File;
 
 use SilverStripe\Assets\Folder;
 use SilverStripe\Assets\Image;
+use SilverStripe\Assets\Storage\AssetStore;
 use SilverStripe\Control\Director;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Core\Convert;
+use SilverStripe\Core\Injector\Injector;
 use SilverStripe\ORM\DataExtension;
 use SilverStripe\ORM\DB;
 use SilverStripe\ORM\FieldType\DBField;
@@ -63,6 +65,30 @@ class PerfectCmsImageDataExtension extends DataExtension
         'CachedImges',
     ];
 
+    /**
+     * you can provide as many arguments as needed here
+     *
+     * @param string $method
+     * @param [mixed] $args- zero to many arguments
+     * @return void
+     */
+    public function getImageLinkCachedIfExists($method, $args = null): string
+    {
+        $args = func_get_args();
+        //remove the method argument
+        array_shift($args);
+
+        $image = $this->owner;
+        $variant = $image->variantName($method, ...$args);
+        $store = Injector::inst()->get(AssetStore::class);
+        if ($store->exists($image->getFilename(), $image->getHash(), $variant)) {
+            return $store->getAsURL($image->getFilename(), $image->getHash(), $variant);
+        } else {
+            return $image->$method(
+                ...$args
+            )->Link();
+        }
+    }
     /**
      * @param string $name       PerfectCMSImages name
      * @param bool   $inline     for use within existing image tag - optional
