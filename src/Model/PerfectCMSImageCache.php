@@ -2,6 +2,7 @@
 
 namespace Sunnysideup\PerfectCmsImages\Model;
 
+use SilverStripe\Assets\Image;
 use SilverStripe\ORM\DataObject;
 
 /**
@@ -13,6 +14,7 @@ class PerfectCMSImageCache extends DataObject
 
 
     private static $table_name = 'PerfectCMSImageCache';
+
     private static $db = [
         'Code' => 'Varchar(128)',
         'Link' => 'Text',

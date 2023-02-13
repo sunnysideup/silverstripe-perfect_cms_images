@@ -8,11 +8,13 @@ use SilverStripe\Control\Director;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Core\Convert;
 use SilverStripe\ORM\DataExtension;
+use SilverStripe\ORM\DB;
 use SilverStripe\ORM\FieldType\DBField;
 use SilverStripe\ORM\FieldType\DBHTMLText;
 use SilverStripe\View\ArrayData;
 use Sunnysideup\PerfectCmsImages\Api\ImageManipulations;
 use Sunnysideup\PerfectCmsImages\Api\PerfectCMSImages;
+use Sunnysideup\PerfectCmsImages\Model\PerfectCMSImageCache;
 
 /**
  * defines the image sizes
@@ -51,6 +53,14 @@ class PerfectCmsImageDataExtension extends DataExtension
 
     private static $casting = [
         'PerfectCMSImageTag' => 'HTMLText',
+    ];
+
+    private static $has_many = [
+        'CachedImges' => PerfectCMSImageCache::class,
+    ];
+
+    private static $cascade_deletes = [
+        'CachedImges',
     ];
 
     /**
@@ -116,12 +126,14 @@ class PerfectCmsImageDataExtension extends DataExtension
 
         $hasWebP = (bool) Config::inst()->get(ImageManipulations::class, 'webp_enabled');
         $hasMobile = PerfectCMSImages::has_mobile($name);
+
+        // mobile links
         $mobileRetinaLink = '';
         $mobileNonRetinaLink = '';
+
+        // mobile media query
         $mobileMediaWidth = '';
 
-        $retinaLink = $this->PerfectCMSImageLinkRetina($name);
-        $nonRetinaLink = $this->PerfectCMSImageLinkNonRetina($name);
         if ($hasMobile) {
             $mobileRetinaLink = $this->PerfectCMSImageLinkRetinaForMobile($name);
             $mobileNonRetinaLink = $this->PerfectCMSImageLinkNonRetinaForMobile($name);
@@ -139,7 +151,7 @@ class PerfectCmsImageDataExtension extends DataExtension
             $mobileMediaWidth = PerfectCMSImages::get_mobile_media_width($name);
         }
 
-        if (! $alt) {
+        if (!$alt) {
             $alt = $this->getOwner()->Title;
         }
 
@@ -301,15 +313,15 @@ class PerfectCmsImageDataExtension extends DataExtension
         if (PerfectCMSImages::move_to_right_folder($name) || $folderName) {
             $image = $this->getOwner();
             if ($image) {
-                if (! $folderName) {
+                if (!$folderName) {
                     $folderName = PerfectCMSImages::get_folder($name);
                 }
                 $folder = Folder::find_or_make($folderName);
-                if (! $folder->ID) {
+                if (!$folder->ID) {
                     $folder->write();
                 }
                 if ($image->ParentID !== $folder->ID) {
-                    $wasPublished = $image->isPublished() && ! $image->isModifiedOnDraft();
+                    $wasPublished = $image->isPublished() && !$image->isModifiedOnDraft();
                     $image->ParentID = $folder->ID;
                     $image->write();
                     if ($wasPublished) {
@@ -323,7 +335,7 @@ class PerfectCmsImageDataExtension extends DataExtension
         return $folder;
     }
 
-    public function getThumbnail()
+    public function getCMSThumbnail()
     {
         if ($this->owner->ID) {
             if ('svg' === $this->owner->getExtension()) {
@@ -347,5 +359,10 @@ class PerfectCmsImageDataExtension extends DataExtension
         }
 
         return $link;
+    }
+
+    public function onBeforeUnpublish()
+    {
+        DB::query('DELETE FROM "PerfectCMSImageCache" WHERE "ImageID" = ' . $this->getOwner()->ID);
     }
 }
