@@ -128,7 +128,7 @@ EOT;
         }
 
         if ('' !== $recommendedFileType) {
-            if (strlen($recommendedFileType) < 5) {
+            if (strlen( (string) $recommendedFileType) < 5) {
                 $rightTitle .= 'The recommend file type (file extension) is <strong>' . $recommendedFileType . '</strong>.';
             } else {
                 $rightTitle .= '<strong>' . $recommendedFileType . '</strong>';
