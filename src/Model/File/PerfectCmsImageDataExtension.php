@@ -20,6 +20,8 @@ use Sunnysideup\PerfectCmsImages\Api\PerfectCMSImages;
 /**
  * defines the image sizes
  * and default upload folder.
+ *
+ * @property Image|PerfectCmsImageDataExtension $owner
  */
 class PerfectCmsImageDataExtension extends DataExtension
 {
