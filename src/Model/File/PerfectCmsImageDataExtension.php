@@ -21,7 +21,7 @@ use Sunnysideup\PerfectCmsImages\Api\PerfectCMSImages;
  * defines the image sizes
  * and default upload folder.
  *
- * @property Image|PerfectCmsImageDataExtension $owner
+ * @property \SilverStripe\Assets\Image|\Sunnysideup\PerfectCmsImages\Model\File\PerfectCmsImageDataExtension $owner
  */
 class PerfectCmsImageDataExtension extends DataExtension
 {
