@@ -59,7 +59,7 @@ EOT;
     public static function flush()
     {
         if (!Config::inst()->get(Image::class, 'force_resample')) {
-            Config::modify()->merge(Image::class, 'force_resample', true);
+            Config::modify()->set(Image::class, 'force_resample', true);
         }
 
         if (class_exists('HashPathExtension')) {
@@ -128,7 +128,7 @@ EOT;
         }
 
         if ('' !== $recommendedFileType) {
-            if (strlen( (string) $recommendedFileType) < 5) {
+            if (strlen((string) $recommendedFileType) < 5) {
                 $rightTitle .= 'The recommend file type (file extension) is <strong>' . $recommendedFileType . '</strong>.';
             } else {
                 $rightTitle .= '<strong>' . $recommendedFileType . '</strong>';
