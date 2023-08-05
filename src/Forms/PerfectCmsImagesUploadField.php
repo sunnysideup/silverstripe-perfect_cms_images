@@ -89,10 +89,13 @@ class PerfectCmsImagesUploadField extends UploadField
         $this->setAllowedExtensions($alreadyAllowed + ['svg']);
         //keep the size reasonable
         $maxSizeInKilobytes = PerfectCMSImages::max_size_in_kilobytes($name);
-        $this->getValidator()->setAllowedMaxFileSize(1 * 1024 * $maxSizeInKilobytes);
+
+        /** @var PerfectCmsImageValidator $validator */
+        $validator = $this->getValidator();
+        $validator->setAllowedMaxFileSize(1 * 1024 * $maxSizeInKilobytes);
 
         //make sure the validator knows about the name.
-        $this->getValidator()->setFieldName($name);
+        $validator->setFieldName($name);
 
         return $this;
     }
