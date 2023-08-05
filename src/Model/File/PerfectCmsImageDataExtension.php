@@ -336,6 +336,9 @@ class PerfectCmsImageDataExtension extends DataExtension
 
     public function PerfectCMSImageFixFolder($name, ?string $folderName = ''): ?Folder
     {
+        if(! $name) {
+            $name = 'Uploads';
+        }
         $folder = null;
         if (PerfectCMSImages::move_to_right_folder($name) || $folderName) {
             $image = $this->getOwner();

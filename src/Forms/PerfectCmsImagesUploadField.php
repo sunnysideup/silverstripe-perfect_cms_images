@@ -138,6 +138,9 @@ class PerfectCmsImagesUploadField extends UploadField
             '/',
             array_filter([$folderPrefix, $folderName])
         );
+        if(! $folderName) {
+            $folderName = 'Uploads';
+        }
         Folder::find_or_make($folderName);
         //set folder
         $this->setFolderName($folderName);

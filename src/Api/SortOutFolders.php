@@ -76,6 +76,9 @@ class SortOutFolders
      */
     public function runAdvanced(string $unusedFolderName, array $data)
     {
+        if(!$unusedFolderName) {
+            $unusedFolderName = 'unused-images';
+        }
         $this->unusedImagesFolder = Folder::find_or_make($unusedFolderName);
 
         $folderArray = $this->getFolderArray($data);
