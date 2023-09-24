@@ -74,12 +74,12 @@ class PerfectCmsImageDataExtension extends DataExtension
         $image = $this->owner;
         $variant = $image->variantName($method, ...$args);
         $store = Injector::inst()->get(AssetStore::class);
-        if($this->isMemoryUsageHigh()) {
-            return $image->Link();
-        }
         if ($store->exists($image->getFilename(), $image->getHash(), $variant)) {
             return $store->getAsURL($image->getFilename(), $image->getHash(), $variant);
         } else {
+            if($this->isMemoryUsageHigh()) {
+                return $image->Link();
+            }
             return $image->$method(
                 ...$args
             )->Link();
