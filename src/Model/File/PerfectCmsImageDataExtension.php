@@ -74,6 +74,9 @@ class PerfectCmsImageDataExtension extends DataExtension
         $image = $this->owner;
         $variant = $image->variantName($method, ...$args);
         $store = Injector::inst()->get(AssetStore::class);
+        if($this->isMemoryUsageHigh()) {
+            return $image->Link();
+        }
         if ($store->exists($image->getFilename(), $image->getHash(), $variant)) {
             return $store->getAsURL($image->getFilename(), $image->getHash(), $variant);
         } else {
@@ -83,6 +86,34 @@ class PerfectCmsImageDataExtension extends DataExtension
         }
     }
 
+    private function isMemoryUsageHigh(float $threshold = 0.9): bool
+    {
+        $currentUsage = memory_get_usage();
+        $memoryLimit = ini_get('memory_limit');
+        $memoryLimitBytes = $this->convertToBytes($memoryLimit);
+
+        return ($currentUsage / $memoryLimitBytes) > $threshold;
+    }
+
+    private function convertToBytes(string $memoryLimit): int
+    {
+        $last = strtolower($memoryLimit[-1]);
+        $value = (int) $memoryLimit;
+
+        switch($last) {
+            case 'g':
+                $value *= 1024 * 1024 * 1024;
+                break;
+            case 'm':
+                $value *= 1024 * 1024;
+                break;
+            case 'k':
+                $value *= 1024;
+                break;
+        }
+
+        return $value;
+    }
 
     /**
      * @param string $name       PerfectCMSImages name
