@@ -74,10 +74,6 @@ class PerfectCmsImageDataExtension extends DataExtension
         $image = $this->owner;
         $variant = $image->variantName($method, ...$args);
         $store = Injector::inst()->get(AssetStore::class);
-        $closeToOutOfMemory = (memory_get_peak_usage(false) / memory_get_usage(true)) > 0.8;
-        if ($closeToOutOfMemory) {
-            return $image->Link();
-        }
         if ($store->exists($image->getFilename(), $image->getHash(), $variant)) {
             return $store->getAsURL($image->getFilename(), $image->getHash(), $variant);
         } else {
@@ -86,6 +82,8 @@ class PerfectCmsImageDataExtension extends DataExtension
             )->Link();
         }
     }
+
+
     /**
      * @param string $name       PerfectCMSImages name
      * @param bool   $inline     for use within existing image tag - optional
