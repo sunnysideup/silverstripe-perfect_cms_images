@@ -10,9 +10,6 @@ SilverStripe\Assets\File:
   file_types:
     svg: 'SVG Image'
     webp: 'Webp Image'
-  class_for_file_extension:
-    svg:  SilverStripe\Assets\Image
-    webp:  SilverStripe\Assets\Image
   allowed_extensions:
     - svg
     - webp
@@ -23,7 +20,15 @@ SilverStripe\Assets\File:
     image/supported:
       - svg
       - webp
+  class_for_file_extension:
+    svg:  SilverStripe\Assets\Image
+    webp:  SilverStripe\Assets\Image
 
+SilverStripe\Assets\Storage\DBFile:
+  supported_images:
+    - image/svg
+    - image/svg+xml
+    - image/webp
 
 SilverStripe\MimeValidator\MimeUploadValidator:
   MimeTypes:
