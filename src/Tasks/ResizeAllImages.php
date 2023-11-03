@@ -45,8 +45,9 @@ class ResizeAllImages extends BuildTask
         echo "---" . PHP_EOL;
 
         $directory = ASSETS_PATH;
-        $maxWidth = Config::inst()->get(ScaledUploads::class, 'max_width');
-        $maxHeight = Config::inst()->get(ScaledUploads::class, 'max_height');
+        $maxWidth = Config::inst()->get(ScaledUploads::class, 'max_width') ?: 2800;
+        $maxHeight = Config::inst()->get(ScaledUploads::class, 'max_height') ?: 1867;
+        $maxSize = Config::inst()->get(ScaledUploads::class, 'max_size_in_mb') ?: 2;
         $dryRun = isset($argv[1]) && $argv[1] === "--dry-run"; // Pass --dry-run as an argument to perform a dry run
         echo "--- DO-IT: " . ($dryRun ? 'YES' : 'NO') . ' ... To do anything at all, please add --do-it=1 to command string ' . PHP_EOL;
         echo "--- DIRECTORY: " . $directory . PHP_EOL;
