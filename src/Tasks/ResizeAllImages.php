@@ -32,6 +32,8 @@ class ResizeAllImages extends BuildTask
         return 'Resize all images to a maximum as set for Axllent\ScaledUploads\ScaledUploads';
     }
 
+    private static $segment = 'resize-all-images';
+
     /**
      * Create test jobs for the purposes of testing.
      *
