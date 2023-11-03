@@ -86,6 +86,7 @@ class PerfectCmsImageDataExtension extends DataExtension
             )->Link();
         }
     }
+
     /**
      * @param string $name       PerfectCMSImages name
      * @param bool   $inline     for use within existing image tag - optional

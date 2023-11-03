@@ -1,7 +1,6 @@
 ---
 Name: perfect_cms_images
 ---
-
 SilverStripe\Assets\Image:
   extensions:
     - Sunnysideup\PerfectCmsImages\Model\File\PerfectCmsImageDataExtension
@@ -11,8 +10,8 @@ SilverStripe\Assets\File:
     svg: 'SVG Image'
     webp: 'Webp Image'
   class_for_file_extension:
-    svg:  SilverStripe\Assets\Image
-    webp:  SilverStripe\Assets\Image
+    svg: SilverStripe\Assets\Image
+    webp: SilverStripe\Assets\Image
   allowed_extensions:
     - svg
     - webp
@@ -24,7 +23,6 @@ SilverStripe\Assets\File:
       - svg
       - webp
 
-
 SilverStripe\MimeValidator\MimeUploadValidator:
   MimeTypes:
     svg:
@@ -32,3 +30,10 @@ SilverStripe\MimeValidator\MimeUploadValidator:
       - 'image/svg'
     webp:
       - 'image/webp'
+
+Axllent\ScaledUploads\ScaledUploads:
+  max_width: 2800 # Maximum width - default 960
+  max_height: 1867 # Maximum height - default 800
+  auto_rotate: true # Automatically rotate images that rely on exif information for rotation - default true
+  bypass: false # Bypass (skip) this plugin when uploading - default false
+  force_resampling: true # Force re-saving the image even if it is smaller - default false
