@@ -1,7 +1,6 @@
 ---
 Name: perfect_cms_images
 ---
-
 SilverStripe\Assets\Image:
   extensions:
     - Sunnysideup\PerfectCmsImages\Model\File\PerfectCmsImageDataExtension
@@ -10,9 +9,6 @@ SilverStripe\Assets\File:
   file_types:
     svg: 'SVG Image'
     webp: 'Webp Image'
-  class_for_file_extension:
-    svg:  SilverStripe\Assets\Image
-    webp:  SilverStripe\Assets\Image
   allowed_extensions:
     - svg
     - webp
@@ -24,8 +20,8 @@ SilverStripe\Assets\File:
       - svg
       - webp
   class_for_file_extension:
-    svg:  SilverStripe\Assets\Image
-    webp:  SilverStripe\Assets\Image
+    svg: SilverStripe\Assets\Image
+    webp: SilverStripe\Assets\Image
 
 SilverStripe\Assets\Storage\DBFile:
   supported_images:
