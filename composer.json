@@ -28,7 +28,7 @@
   ],
   "require": {
     "silverstripe/recipe-cms": "^4.0 || ^5.0",
-    "axllent/silverstripe-scaled-uploads": "^2"
+    "sunnysideup/resize-all-assets": "dev-main"
   },
   "suggests": {
     "heyday/silverstripe-hashpath": "not sure if this is still useful."
