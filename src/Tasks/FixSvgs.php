@@ -42,10 +42,10 @@ class FixSvgs extends BuildTask
             foreach ($files as $file) {
                 if ('svg' === $file->getExtension()) {
                     DB::alteration_message('Fixing ' . $file->Link());
-                    $wasPublished = $file->isPublished() && ! $file->isModifiedOnDraft();
+                    $isPublished = $file->isPublished() && !$file->isModifiedOnDraft();
                     $file->ClassName = Image::class;
                     $file->write();
-                    if ($wasPublished) {
+                    if ($isPublished) {
                         $file->publishSingle();
                     }
                 }
