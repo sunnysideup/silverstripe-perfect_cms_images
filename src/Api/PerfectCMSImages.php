@@ -58,7 +58,7 @@ EOT;
      */
     public static function flush()
     {
-        if (!Config::inst()->get(Image::class, 'force_resample')) {
+        if (isset($_GET['forceresample'])) {
             Config::modify()->set(Image::class, 'force_resample', true);
         }
 
