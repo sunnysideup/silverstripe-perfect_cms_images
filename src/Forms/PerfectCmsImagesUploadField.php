@@ -134,7 +134,7 @@ class PerfectCmsImagesUploadField extends UploadField
     {
         $folderPrefix = $this->Config()->get('folder_prefix');
 
-        $folderName = (string) trim($this->folderName);
+        $folderName =  trim((string) $this->folderName);
         //folder related stuff ...
         $folderName = (string) PerfectCMSImages::get_folder($name);
         $folderName = implode(
