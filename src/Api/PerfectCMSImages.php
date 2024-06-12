@@ -8,7 +8,6 @@ use SilverStripe\Assets\Image;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Core\Flushable;
 use SilverStripe\Core\Injector\Injector;
-use SilverStripe\ORM\DB;
 use Sunnysideup\PerfectCmsImages\Forms\PerfectCmsImagesUploadField;
 use Sunnysideup\PerfectCmsImages\Model\File\PerfectCmsImageDataExtension;
 
@@ -63,12 +62,12 @@ EOT;
         }
 
         if (class_exists('HashPathExtension')) {
-            if (!file_exists(ASSETS_PATH)) {
+            if (! file_exists(ASSETS_PATH)) {
                 Filesystem::makeFolder(ASSETS_PATH);
             }
 
             $fileName = ASSETS_PATH . '/.htaccess';
-            if (!file_exists($fileName)) {
+            if (! file_exists($fileName)) {
                 $string = Config::inst()->get(PerfectCMSImages::class, 'htaccess_content');
                 file_put_contents($fileName, $string);
             }
@@ -86,7 +85,7 @@ EOT;
             $recommendedFileType = 'jpg';
         }
 
-        if (0 !== (int) $widthRecommendation) {
+        if (0 !== $widthRecommendation) {
             //cater for retina
             $widthRecommendation *= $multiplier;
             $actualWidthDescription = $widthRecommendation . 'px';
@@ -95,7 +94,7 @@ EOT;
             $actualWidthDescription = 'flexible';
         }
 
-        if (0 !== (int) $heightRecommendation) {
+        if (0 !== $heightRecommendation) {
             //cater for retina
             $heightRecommendation *= $multiplier;
             $actualHeightDescription = $heightRecommendation . 'px';
@@ -127,12 +126,10 @@ EOT;
             $rightTitle .= '<br />';
         }
 
-        if ('' !== $recommendedFileType) {
-            if (strlen((string) $recommendedFileType) < 5) {
-                $rightTitle .= 'The recommend file type (file extension) is <strong>' . $recommendedFileType . '</strong>.';
-            } else {
-                $rightTitle .= '<strong>' . $recommendedFileType . '</strong>';
-            }
+        if (strlen($recommendedFileType) < 5) {
+            $rightTitle .= 'The recommend file type (file extension) is <strong>' . $recommendedFileType . '</strong>.';
+        } else {
+            $rightTitle .= '<strong>' . $recommendedFileType . '</strong>';
         }
 
         return $rightTitle . '</span>';
@@ -150,7 +147,7 @@ EOT;
             $multiplier = Config::inst()->get(PerfectCMSImages::class, 'retina_multiplier');
         }
 
-        if (!$multiplier) {
+        if (! $multiplier) {
             $multiplier = 1;
         }
 
@@ -169,7 +166,7 @@ EOT;
     {
         $v = self::get_one_value_for_image($name, 'width', 0);
         if ($forceInteger) {
-            $v = (int) $v - 0;
+            $v = (int) $v;
         }
 
         return $v;
@@ -182,16 +179,15 @@ EOT;
     {
         $v = self::get_one_value_for_image($name, 'height', 0);
         if ($forceInteger) {
-            $v = (int) $v - 0;
+            $v = (int) $v;
         }
 
         return $v;
     }
 
-
     public static function has_mobile($name): bool
     {
-        return (bool) (self::get_mobile_width($name, true) || self::get_mobile_height($name, true));
+        return self::get_mobile_width($name, true) || self::get_mobile_height($name, true);
     }
 
     /**
@@ -201,7 +197,7 @@ EOT;
     {
         $v = self::get_one_value_for_image($name, 'mobile_width', 0);
         if ($forceInteger) {
-            $v = (int) $v - 0;
+            $v = (int) $v;
         }
 
         return $v;
@@ -214,7 +210,7 @@ EOT;
     {
         $v = self::get_one_value_for_image($name, 'mobile_height', 0);
         if ($forceInteger) {
-            $v = (int) $v - 0;
+            $v = (int) $v;
         }
 
         return $v;
@@ -238,11 +234,11 @@ EOT;
     public static function max_size_in_kilobytes(string $name): int
     {
         $maxSizeInKilobytes = self::get_one_value_for_image($name, 'max_size_in_kilobytes', 0);
-        if (!$maxSizeInKilobytes) {
+        if (! $maxSizeInKilobytes) {
             $maxSizeInKilobytes = Config::inst()->get(PerfectCmsImagesUploadField::class, 'max_size_in_kilobytes');
         }
 
-        return (int) $maxSizeInKilobytes - 0;
+        return (int) $maxSizeInKilobytes;
     }
 
     public static function get_file_type(string $name): string
@@ -292,8 +288,6 @@ EOT;
     }
 
     /**
-     * @param string $name
-     * @param string $key
      * @param mixed $default - optional
      *
      * @return mixed

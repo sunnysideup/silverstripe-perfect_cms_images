@@ -76,7 +76,7 @@ class SortOutFolders
      */
     public function runAdvanced(string $unusedFolderName, array $data)
     {
-        if(!$unusedFolderName) {
+        if ($unusedFolderName === '' || $unusedFolderName === '0') {
             $unusedFolderName = 'unused-images';
         }
         $this->unusedImagesFolder = Folder::find_or_make($unusedFolderName);
@@ -142,7 +142,7 @@ class SortOutFolders
             }
         }
         $test = [];
-        foreach ($folderArray as $folderName => $folderData) {
+        foreach ($folderArray as $folderData) {
             $classAndMethodList = $folderData['classesAndMethods'];
             foreach ($classAndMethodList as $classAndMethod) {
                 if (! isset($test[$classAndMethod])) {
@@ -168,7 +168,7 @@ class SortOutFolders
                 $dataClassName = '';
                 list($className, $method) = explode('.', $classAndMethod);
                 $fieldDetails = $this->getFieldDetails($className, $method);
-                if (empty($fieldDetails)) {
+                if ($fieldDetails === []) {
                     user_error('Could not find relation: ' . $className . '.' . $method);
                 }
                 if ('has_one' === $fieldDetails['dataType']) {
@@ -190,7 +190,7 @@ class SortOutFolders
                     )
                 );
             }
-            if (count($listOfIds)) {
+            if ($listOfIds !== []) {
                 $listOfImageIds[$folderName] = $listOfIds;
             }
         }
@@ -305,7 +305,7 @@ class SortOutFolders
                 $obj = Injector::inst()->get($className);
                 foreach ($types as $type) {
                     $rels = Config::inst()->get($className, $type, Config::UNINHERITED);
-                    if (is_array($rels) && ! empty($rels)) {
+                    if (is_array($rels) && $rels !== []) {
                         foreach ($rels as $relName => $relType) {
                             if (Image::class === $relType && $relName === $originMethod) {
                                 self::$my_field_cache[$key] = [
@@ -357,7 +357,6 @@ class SortOutFolders
 
         return $fileOrFolder;
     }
-
 
     protected function moveToNewFolder($image, Folder $newFolder, string $newName)
     {

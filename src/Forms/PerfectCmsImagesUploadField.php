@@ -92,7 +92,7 @@ class PerfectCmsImagesUploadField extends UploadField
 
         /** @var PerfectCmsImageValidator $validator */
         $validator = $this->getValidator();
-        $validator->setAllowedMaxFileSize(1 * 1024 * $maxSizeInKilobytes);
+        $validator->setAllowedMaxFileSize(1024 * $maxSizeInKilobytes);
 
         //make sure the validator knows about the name.
         $validator->setFieldName($name);
@@ -133,15 +133,13 @@ class PerfectCmsImagesUploadField extends UploadField
     protected function setPerfectFolderName(string $name)
     {
         $folderPrefix = $this->Config()->get('folder_prefix');
-
-        $folderName =  trim((string) $this->folderName);
         //folder related stuff ...
-        $folderName = (string) PerfectCMSImages::get_folder($name);
+        $folderName = PerfectCMSImages::get_folder($name);
         $folderName = implode(
             '/',
             array_filter([$folderPrefix, $folderName])
         );
-        if(! $folderName) {
+        if ($folderName === '' || $folderName === '0') {
             $folderName = 'Uploads';
         }
         Folder::find_or_make($folderName);

@@ -36,7 +36,7 @@ class DeleteAllVariants extends BuildTask
      */
     public function run($request) // phpcs:ignore
     {
-        $base = Director::baseFolder();
+        Director::baseFolder();
         $go = $request->getVar('go');
         $rm = '-exec rm {} \;';
         $find = 'find . -regextype posix-extended -regex \'.*__(Fit|Fill|ResizedImage|Scale|Resampled).*\.(jpg|png|JPG|jpeg)\' ';

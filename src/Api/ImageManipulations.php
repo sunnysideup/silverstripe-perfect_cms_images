@@ -9,7 +9,6 @@ use SilverStripe\Core\Config\Config;
 use SilverStripe\Core\Config\Configurable;
 use SilverStripe\Core\Convert;
 use SilverStripe\Core\Injector\Injectable;
-use SilverStripe\ORM\DataObject;
 use SilverStripe\SiteConfig\SiteConfig;
 
 class ImageManipulations
@@ -52,16 +51,16 @@ class ImageManipulations
                         $name,
                         ($useRetina ? 'Y' : 'N'),
                         ($forMobile ? 'MY' : 'MN'),
-                        $resizeToWidth
+                        $resizeToWidth,
                     ]
                 )
             );
-        if (!isset(self::$imageLinkCache[$cacheKey])) {
+        if (! isset(self::$imageLinkCache[$cacheKey])) {
             $link = '';
             if ($forMobile) {
                 $perfectWidth = (int) PerfectCMSImages::get_mobile_width($name, true);
                 $perfectHeight = (int) PerfectCMSImages::get_mobile_height($name, true);
-                if (!$perfectHeight && !$perfectWidth) {
+                if (! $perfectHeight && ! $perfectWidth) {
                     self::$imageLinkCache[$cacheKey] = '';
                     return self::$imageLinkCache[$cacheKey];
                 }
@@ -81,10 +80,8 @@ class ImageManipulations
             $myHeight = $image->getHeight();
             //if we are trying to resize to a width that is small than the perfect width
             //and the resize width is small than the current width, then lets resize...
-            if (0 !== (int) $resizeToWidth) {
-                if ($resizeToWidth < $perfectWidth && $resizeToWidth < $myWidth) {
-                    $perfectWidth = $resizeToWidth;
-                }
+            if (0 !== (int) $resizeToWidth && ($resizeToWidth < $perfectWidth && $resizeToWidth < $myWidth)) {
+                $perfectWidth = $resizeToWidth;
             }
 
             $link = null;
@@ -127,7 +124,7 @@ class ImageManipulations
                         $perfectWidth
                     );
                 }
-            } elseif ($perfectHeight) {
+            } elseif ($perfectHeight !== 0) {
                 if ($myHeight === $perfectHeight) {
                     $link = $image->getUrl();
                 } elseif ($crop) {
@@ -173,7 +170,7 @@ class ImageManipulations
      */
     public static function get_placeholder_image_tag(string $name): string
     {
-        $multiplier = (int) PerfectCMSImages::get_multiplier(true);
+        $multiplier = PerfectCMSImages::get_multiplier(true);
         $perfectWidth = (int) PerfectCMSImages::get_width($name, true);
         $perfectHeight = (int) PerfectCMSImages::get_height($name, true);
         $perfectWidth *= $multiplier;
@@ -250,10 +247,8 @@ class ImageManipulations
         if (class_exists('HashPathExtension')) {
             /** @var null|Controller $curr */
             $curr = Controller::curr();
-            if ($curr) {
-                if ($curr->hasMethod('HashPath')) {
-                    $link = $curr->HashPath($link, false);
-                }
+            if ($curr && $curr->hasMethod('HashPath')) {
+                $link = $curr->HashPath($link, false);
             }
         }
 
@@ -273,16 +268,6 @@ class ImageManipulations
 
     public static function web_p_enabled(): bool
     {
-        if (Config::inst()->get(ImageManipulations::class, 'webp_enabled')) {
-            if (function_exists('imagewebp')) {
-                if (function_exists('imagecreatefromjpeg')) {
-                    if (function_exists('imagecreatefrompng')) {
-                        return true;
-                    }
-                }
-            }
-        }
-
-        return false;
+        return Config::inst()->get(ImageManipulations::class, 'webp_enabled') && function_exists('imagewebp') && (function_exists('imagecreatefromjpeg') && function_exists('imagecreatefrompng'));
     }
 }

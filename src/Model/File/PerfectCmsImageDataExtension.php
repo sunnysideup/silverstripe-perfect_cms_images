@@ -10,7 +10,6 @@ use SilverStripe\Core\Config\Config;
 use SilverStripe\Core\Convert;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\ORM\DataExtension;
-use SilverStripe\ORM\DB;
 use SilverStripe\ORM\FieldType\DBField;
 use SilverStripe\ORM\FieldType\DBHTMLText;
 use SilverStripe\View\ArrayData;
@@ -63,7 +62,6 @@ class PerfectCmsImageDataExtension extends DataExtension
      *
      * @param string $method
      * @param [mixed] $args- zero to many arguments
-     * @return void
      */
     public function getImageLinkCachedIfExists($method, $args = null): string
     {
@@ -81,7 +79,7 @@ class PerfectCmsImageDataExtension extends DataExtension
         if ($store->exists($image->getFilename(), $image->getHash(), $variant)) {
             return $store->getAsURL($image->getFilename(), $image->getHash(), $variant);
         } else {
-            if($this->isMemoryUsageHigh()) {
+            if ($this->isMemoryUsageHigh()) {
                 return $image->Link();
             }
             return $image->$method(
@@ -104,7 +102,7 @@ class PerfectCmsImageDataExtension extends DataExtension
         $last = strtolower($memoryLimit[-1]);
         $value = (int) $memoryLimit;
 
-        switch($last) {
+        switch ($last) {
             case 'g':
                 $value *= 1024 * 1024 * 1024;
                 break;
@@ -158,18 +156,6 @@ class PerfectCmsImageDataExtension extends DataExtension
      *
      * @return ArrayData
      */
-    private function PerfectCMSImageTagArrayData(string $name, ?string $alt = '', ?string $attributes = '')
-    {
-        return $this->getPerfectCMSImageTagArrayData($name, $alt, $attributes);
-    }
-
-    /**
-     * @param string $name       PerfectCMSImages name
-     * @param string $alt        alt tag for image -optional
-     * @param string $attributes additional attributes
-     *
-     * @return ArrayData
-     */
     private function getPerfectCMSImageTagArrayData(string $name, ?string $alt = '', ?string $attributes = '')
     {
         $retinaLink = $this->PerfectCMSImageLinkRetina($name);
@@ -198,7 +184,7 @@ class PerfectCmsImageDataExtension extends DataExtension
             $mobileNonRetinaLinkWebP = $this->PerfectCMSImageLinkNonRetinaWebPForMobile($name);
         }
 
-        if (!$alt) {
+        if (! $alt) {
             $alt = $this->getOwner()->Title;
         }
         $myArray = [
@@ -212,7 +198,7 @@ class PerfectCmsImageDataExtension extends DataExtension
             'Attributes' => DBField::create_field('HTMLText', $attributes),
         ];
         if ($hasMobile) {
-            $myArray = $myArray + [
+            $myArray += [
                 'MobileMediaWidth' => $mobileMediaWidth,
                 'MobileRetinaLink' => $mobileRetinaLink,
                 'MobileNonRetinaLink' => $mobileNonRetinaLink,
@@ -220,13 +206,13 @@ class PerfectCmsImageDataExtension extends DataExtension
             ];
         }
         if ($hasWebP) {
-            $myArray = $myArray + [
+            $myArray += [
                 'RetinaLinkWebP' => $retinaLinkWebP,
                 'NonRetinaLinkWebP' => $nonRetinaLinkWebP,
             ];
         }
         if ($hasWebP && $hasMobile) {
-            $myArray = $myArray + [
+            $myArray += [
                 'MobileRetinaLinkWebP' => $mobileRetinaLinkWebP,
                 'MobileNonRetinaLinkWebP' => $mobileNonRetinaLinkWebP,
             ];
@@ -346,17 +332,13 @@ class PerfectCmsImageDataExtension extends DataExtension
             // $backEndString = Image::get_backend();
             // $backend = Injector::inst()->get($backEndString);
             $link = ImageManipulations::get_image_link($image, $name, $useRetina, $forMobile);
-
             if ($isWebP) {
                 $link = ImageManipulations::web_p_link($link);
             }
-
-            return $link ? ImageManipulations::add_fake_parts($image, $link) : '';
-        } else {
+            return $link !== '' && $link !== '0' ? ImageManipulations::add_fake_parts($image, $link) : '';
+        } elseif (Director::isDev()) {
             // no image -> provide placeholder if in DEV MODE only!!!
-            if (Director::isDev()) {
-                return ImageManipulations::get_placeholder_image_tag($name);
-            }
+            return ImageManipulations::get_placeholder_image_tag($name);
         }
 
         // no image -> provide placeholder if in DEV MODE only!!!
@@ -369,22 +351,22 @@ class PerfectCmsImageDataExtension extends DataExtension
 
     public function PerfectCMSImageFixFolder($name, ?string $folderName = ''): ?Folder
     {
-        if(! $name) {
+        if (! $name) {
             $name = 'Uploads';
         }
         $folder = null;
         if (PerfectCMSImages::move_to_right_folder($name) || $folderName) {
             $image = $this->getOwner();
             if ($image) {
-                if (!$folderName) {
+                if (! $folderName) {
                     $folderName = PerfectCMSImages::get_folder($name);
                 }
                 $folder = Folder::find_or_make($folderName);
-                if (!$folder->ID) {
+                if (! $folder->ID) {
                     $folder->write();
                 }
                 if ($image->ParentID !== $folder->ID) {
-                    $wasPublished = $image->isPublished() && !$image->isModifiedOnDraft();
+                    $wasPublished = $image->isPublished() && ! $image->isModifiedOnDraft();
                     $image->ParentID = $folder->ID;
                     $image->write();
                     if ($wasPublished) {
