@@ -49,7 +49,7 @@ class PerfectCmsImagesBuildTaskCheckImages extends BuildTask
                                     }
                                 }
 
-                                if (count($array) > 0) {
+                                if ($array !== []) {
                                     $this->outputToScreen('ERRORS WITH: ' . $obj->getTitle() . ' --- ' . implode('; ', $array), 'deleted');
                                 } else {
                                     $this->outputToScreen('PERFECT PASS FOR: ' . $obj->getTitle());

@@ -31,19 +31,15 @@ class PerfectCmsImageValidator extends Upload_Validator
             $useRetina = PerfectCMSImages::use_retina($name);
             $multiplier = PerfectCMSImages::get_multiplier($useRetina);
             $widthRecommendation = ((int) PerfectCMSImages::get_width($name, true)) * $multiplier;
-            $heightRecommendation = ((int)PerfectCMSImages::get_height($name, true)) * $multiplier;
-            if (0 !== $widthRecommendation) {
-                if (!$this->isImageCorrectWidth(true, $widthRecommendation)) {
-                    $this->errors[] = 'Expected width: ' . $widthRecommendation . 'px;';
-                    $hasError = true;
-                }
+            $heightRecommendation = ((int) PerfectCMSImages::get_height($name, true)) * $multiplier;
+            if (0 !== $widthRecommendation && ! $this->isImageCorrectWidth(true, $widthRecommendation)) {
+                $this->errors[] = 'Expected width: ' . $widthRecommendation . 'px;';
+                $hasError = true;
             }
 
-            if ($heightRecommendation) {
-                if (!$this->isImageCorrectWidth(false, $heightRecommendation)) {
-                    $this->errors[] = 'Expected height: ' . $heightRecommendation . 'px;';
-                    $hasError = true;
-                }
+            if ($heightRecommendation !== 0 && ! $this->isImageCorrectWidth(false, $heightRecommendation)) {
+                $this->errors[] = 'Expected height: ' . $heightRecommendation . 'px;';
+                $hasError = true;
             }
         }
 
@@ -58,10 +54,8 @@ class PerfectCmsImageValidator extends Upload_Validator
     protected function isImageCorrectWidth($isWidth, $recommendedWidthOrHeight)
     {
         $actualWidthOrHeight = $this->getWidthOrHeight($isWidth);
-        if ($actualWidthOrHeight) {
-            if ($actualWidthOrHeight !== $recommendedWidthOrHeight) {
-                return false;
-            }
+        if ($actualWidthOrHeight && $actualWidthOrHeight !== $recommendedWidthOrHeight) {
+            return false;
         }
 
         return true;
