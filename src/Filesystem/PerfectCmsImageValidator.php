@@ -9,6 +9,8 @@ class PerfectCmsImageValidator extends Upload_Validator
 {
     protected $fieldName = '';
 
+    public $allowedExtensions = ['png', 'jpg', 'jpeg', 'gif'];
+
     public function setFieldName($fieldName)
     {
         $this->fieldName = $fieldName;
