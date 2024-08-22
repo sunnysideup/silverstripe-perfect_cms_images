@@ -96,7 +96,7 @@ class SortOutFolders
             if ($this->verbose) {
                 DB::alteration_message('<br /><br /><br />==== Checking for images to remove from <u>' . $folderName . '</u>; there are ' . count($listOfIds) . ' images to keep');
             }
-            $imagesLeft[$folderName] = $this->removeUnusedFiles($folderName, $listOfIds);
+            $this->removeUnusedFiles($folderName, $listOfIds);
         }
 
         DB::alteration_message('==========================================');
