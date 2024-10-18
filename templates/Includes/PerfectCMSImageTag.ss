@@ -6,6 +6,7 @@
     <source srcset="$NonRetinaLink 1x, $RetinaLink 2x" type="$Type">
     <% if $HasWebP %><source srcset="$NonRetinaLinkWebP 1x, $RetinaLinkWebP 2x" type="image/webp"><% end_if %>
     <img
+        loading="lazy"
         src="$NonRetinaLink"
         alt="$Alt"
         <% if $Width %>width="$Width"<% end_if %>
