@@ -384,8 +384,8 @@ class PerfectCmsImageDataExtension extends DataExtension
     {
         if ($this->owner->ID) {
             if ('svg' === $this->owner->getExtension()) {
-                $obj = DBHTMLText::create_field();
-                $obj->setValue(file_get_contents(BASE_PATH . $this->owner->Link()));
+                $data = file_get_contents(BASE_PATH . $this->owner->Link());
+                $obj = DBHTMLText::create_field('HTMLText', $data);
 
                 return $obj;
             }
