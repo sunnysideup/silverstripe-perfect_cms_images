@@ -9,7 +9,7 @@ class PerfectCmsImageValidator extends Upload_Validator
 {
     protected $fieldName = '';
 
-    public $allowedExtensions = ['png', 'jpg', 'jpeg', 'gif'];
+    public $allowedExtensions = ['png', 'jpg', 'jpeg', 'gif', 'webp', ];
 
     public function setFieldName($fieldName)
     {
