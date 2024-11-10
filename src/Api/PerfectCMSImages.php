@@ -131,6 +131,8 @@ EOT;
         } else {
             $rightTitle .= '<strong>' . $recommendedFileType . '</strong>';
         }
+        $rightTitle .= '<br />If your image is not too complex (busy), we recommend using the webp format.';
+        $rightTitle .= '<br />You can also use a service like <a href="https://tinypng.com/" target="_blank">TinyPNG</a> to reduce the file size.';
 
         return $rightTitle . '</span>';
     }
