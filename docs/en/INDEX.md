@@ -1,52 +1,36 @@
-Perfect CMS Images
-================
+# Perfect CMS Images
 
-Features
---------
+## Features
+
 - Provide content editor with information on image size and type
 - Automatically generate & provide _retina ready_ images
 
+## Prerequisites
 
-
-Prerequisites
--------------
 Designed for use with images that are always the same size.
 
+## What it does
 
+    * Provides clear instructions accompanying upload field in the CMS
+    * Generates higher resolution (double size) images for retina displays
+    * Saves the image in a specific folder
+    * Ensures the image is valid and not too large in file size
+    * Provides a backup image
+    * Adds a placeholder image when there is no backup
+    * Allows for SVGs and for WebP Images
 
-What it does
--------------
- * Provides clear instructions accompanying upload field in the CMS
- * Generates higher resolution (double size) images for retina displays
- * Saves the image in a specific folder
- * Ensures the image is valid and not too large in file size
- * Provides a backup image
- * Adds a placeholder image when there is no backup
- * Allows for SVGs and for WebP Images
+## Instructions
 
-
-
-Instructions
-------------
 [CHILDREN Folder=01_Instructions]
 
+### Nota Bene
 
-# Nota Bene
-
- * use a unique image name for each image field you add to the site
+- use a unique image name for each image field you add to the site
    e.g. call an image AccountsBanner instead of Banner
- * dont double the image sizes
- * you can choose to only set the standard height or the width
+- dont double the image sizes
+- you can choose to only set the standard height or the width
 
-
-# using web p / webp images
-
-You must turn set `SS_ENABLE_WEBP=true` in your `.env` file.
-To turn it off, you have to remove `SS_ENABLE_WEBP` altogether.
-
-
-# Important Note for those using Hash Path module
-
+## Important Note for those using Hash Path module
 
 Note that you can use `perfect_cms_images_append_title_to_image_links_classes`
 to add titles to images so that you get better SEO results.
@@ -63,8 +47,6 @@ If you are using the Hash Path module then a hash path will be added to all link
 </IfModule>
 ```
 
-
-Credits
-------------
+## Credits
 
 Special thank you to Klemen Novak for help with this module.

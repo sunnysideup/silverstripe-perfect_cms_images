@@ -25,7 +25,7 @@ class PerfectCMSImages implements Flushable
 
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteRule ^(.+)\.(v[A-Za-z0-9]+)\.(js|css|png|jpg|gif|svg|webp)$ $1.$3 [L]
+    RewriteRule ^(.+)\.(v[A-Za-z0-9]+)\.(png|jpg|gif|svg|webp)$ $1.$3 [L]
 </IfModule>
 
 EOT;
@@ -131,8 +131,8 @@ EOT;
         } else {
             $rightTitle .= '<strong>' . $recommendedFileType . '</strong>';
         }
-        $rightTitle .= '<br />If your image is not too complex (busy), we recommend using the webp format.';
-        $rightTitle .= '<br />You can also use a service like <a href="https://tinypng.com/" target="_blank">TinyPNG</a> to reduce the file size.';
+        $rightTitle .= '<br />If your image does not have a lot of detail to it then we recommend using the webp format.';
+        $rightTitle .= '<br />You can also use a service like <a href="https://tinypng.com/" target="_blank">TinyPNG</a> to reduce the file size and convert it.';
 
         return $rightTitle . '</span>';
     }
@@ -289,6 +289,40 @@ EOT;
         ) ?: [];
     }
 
+    public static function get_resizer_conversion(string $name): array
+    {
+        // if(class_exists('\\Axllent\\ScaledUploads\\Api\\Resizer')) {
+        //     if(self::get_auto_resize($name))
+        //     $array = [
+        //         'maxWidth' => self::get_width()
+        //         'maxHeight' =>
+        //         'maxSizeInMb' =>
+        //         'maxSizeInMb' =>
+        //     ]
+        // }
+        // $sizes = self::get_all_values_for_images();
+        // *     - width: 3200
+        // *     - height: 3200
+        // *     - max_mb: 0.4
+        // *     - folder: "myfolder"
+        // *     - filetype: "try jpg"
+        // *     - enforce_size: false
+        // *     - skip_auto_resize: false
+        // *     - skip_auto_convert: false
+        // *     - folder: my-image-folder-a
+        // *     - filetype: "jpg or a png with a transparant background"
+        // *     - use_retina: true
+        // *     - padding_bg_colour: '#dddddd'
+        // *     - crop: true
+        // *     - move_to_right_folder: true
+        // *     - loading_style: 'eager'
+        // *     - used_by:
+        // *       - MyClass.MyHasOne
+        // *       - MyOtherClass.MyHasManyMethod
+        // *       - MyOtherClass.MyManyManyRel
+        return [];
+    }
+
     /**
      * @param mixed $default - optional
      *
@@ -301,4 +335,5 @@ EOT;
         return $sizes[$name][$key] ?? $default;
         // Injector::inst()->get(LoggerInterface::class)->info('no information for image with the name: ' . $name . '.' . $key);
     }
+
 }

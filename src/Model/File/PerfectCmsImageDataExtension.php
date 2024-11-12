@@ -35,9 +35,11 @@ class PerfectCmsImageDataExtension extends DataExtension
      * details of the images
      *     - width: 3200
      *     - height: 3200
+     *     - max_mb: 0.4
      *     - folder: "myfolder"
      *     - filetype: "try jpg"
      *     - enforce_size: false
+     *     - auto_resize
      *     - folder: my-image-folder-a
      *     - filetype: "jpg or a png with a transparant background"
      *     - use_retina: true
@@ -160,13 +162,9 @@ class PerfectCmsImageDataExtension extends DataExtension
     {
         $retinaLink = $this->PerfectCMSImageLinkRetina($name);
         $nonRetinaLink = $this->PerfectCMSImageLinkNonRetina($name);
-        $retinaLinkWebP = '';
-        $nonRetinaLinkWebP = '';
 
         $width = PerfectCMSImages::get_width($name, true);
         $height = PerfectCMSImages::get_height($name, true);
-
-        $hasWebP = (bool) Config::inst()->get(ImageManipulations::class, 'webp_enabled');
         $hasMobile = PerfectCMSImages::has_mobile($name);
 
         if ($hasMobile) {
@@ -174,15 +172,7 @@ class PerfectCmsImageDataExtension extends DataExtension
             $mobileNonRetinaLink = $this->PerfectCMSImageLinkNonRetinaForMobile($name);
             $mobileMediaWidth = PerfectCMSImages::get_mobile_media_width($name);
         }
-        if ($hasWebP) {
-            $retinaLinkWebP = $this->PerfectCMSImageLinkRetinaWebP($name);
-            $nonRetinaLinkWebP = $this->PerfectCMSImageLinkNonRetinaWebP($name);
-        }
 
-        if ($hasMobile && $hasWebP) {
-            $mobileRetinaLinkWebP = $this->PerfectCMSImageLinkRetinaWebPForMobile($name);
-            $mobileNonRetinaLinkWebP = $this->PerfectCMSImageLinkNonRetinaWebPForMobile($name);
-        }
 
         if (! $alt) {
             $alt = $this->getOwner()->Title;
@@ -194,7 +184,6 @@ class PerfectCmsImageDataExtension extends DataExtension
             'RetinaLink' => $retinaLink,
             'NonRetinaLink' => $nonRetinaLink,
             'Type' => $this->owner->getMimeType(),
-            'HasWebP' => $hasWebP,
             'Attributes' => DBField::create_field('HTMLText', $attributes),
         ];
         if ($hasMobile) {
@@ -205,18 +194,7 @@ class PerfectCmsImageDataExtension extends DataExtension
 
             ];
         }
-        if ($hasWebP) {
-            $myArray += [
-                'RetinaLinkWebP' => $retinaLinkWebP,
-                'NonRetinaLinkWebP' => $nonRetinaLinkWebP,
-            ];
-        }
-        if ($hasWebP && $hasMobile) {
-            $myArray += [
-                'MobileRetinaLinkWebP' => $mobileRetinaLinkWebP,
-                'MobileNonRetinaLinkWebP' => $mobileNonRetinaLinkWebP,
-            ];
-        }
+
         return ArrayData::create(
             $myArray
         );
@@ -242,25 +220,6 @@ class PerfectCmsImageDataExtension extends DataExtension
         return $this->PerfectCMSImageLink($name, true);
     }
 
-    /**
-     * @param string $name of Image Field template
-     *
-     * @return string (link)
-     */
-    public function PerfectCMSImageLinkNonRetinaWebP(string $name): string
-    {
-        return $this->PerfectCMSImageLink($name, false, true);
-    }
-
-    /**
-     * @param string $name of Image Field template
-     *
-     * @return string (link)
-     */
-    public function PerfectCMSImageLinkRetinaWebP(string $name): string
-    {
-        return $this->PerfectCMSImageLink($name, true, true);
-    }
 
     /**
      * @param string $name of Image Field template
@@ -332,9 +291,7 @@ class PerfectCmsImageDataExtension extends DataExtension
             // $backEndString = Image::get_backend();
             // $backend = Injector::inst()->get($backEndString);
             $link = ImageManipulations::get_image_link($image, $name, $useRetina, $forMobile);
-            if ($isWebP) {
-                $link = ImageManipulations::web_p_link($link);
-            }
+
             return $link !== '' && $link !== '0' ? ImageManipulations::add_fake_parts($image, $link) : '';
         } elseif (Director::isDev()) {
             // no image -> provide placeholder if in DEV MODE only!!!

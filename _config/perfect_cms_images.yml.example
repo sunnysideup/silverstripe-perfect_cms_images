@@ -5,10 +5,6 @@ Sunnysideup\PerfectCmsImages\Api\PerfectCMSImages:
   perfect_cms_images_append_title_to_image_links_classes:
     - SilverStripe\Assets\Image
 
-Sunnysideup\PerfectCmsImages\Api\ImageManipulations:
-    webp_enabled: true
-    webp_quality: 77
-
 Sunnysideup\PerfectCmsImages\Model\File\PerfectCmsImageDataExtension:
   perfect_cms_images_background_padding_color: "#ffffff"
   perfect_cms_images_image_definitions:
