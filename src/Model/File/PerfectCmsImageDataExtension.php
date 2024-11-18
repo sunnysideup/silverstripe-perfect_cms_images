@@ -6,10 +6,9 @@ use SilverStripe\Assets\Folder;
 use SilverStripe\Assets\Image;
 use SilverStripe\Assets\Storage\AssetStore;
 use SilverStripe\Control\Director;
-use SilverStripe\Core\Config\Config;
 use SilverStripe\Core\Convert;
+use SilverStripe\Core\Extension;
 use SilverStripe\Core\Injector\Injector;
-use SilverStripe\ORM\DataExtension;
 use SilverStripe\ORM\FieldType\DBField;
 use SilverStripe\ORM\FieldType\DBHTMLText;
 use SilverStripe\View\ArrayData;
@@ -22,39 +21,8 @@ use Sunnysideup\PerfectCmsImages\Api\PerfectCMSImages;
  *
  * @property Image|PerfectCmsImageDataExtension $owner
  */
-class PerfectCmsImageDataExtension extends DataExtension
+class PerfectCmsImageDataExtension extends Extension
 {
-    /**
-     * background image for padded images...
-     *
-     * @var string
-     */
-    private static $perfect_cms_images_background_padding_color = '#cccccc';
-
-    /*
-     * details of the images
-     *     - width: 3200
-     *     - height: 3200
-     *     - max_mb: 0.4
-     *     - folder: "myfolder"
-     *     - filetype: "try jpg"
-     *     - enforce_size: false
-     *     - auto_resize
-     *     - folder: my-image-folder-a
-     *     - filetype: "jpg or a png with a transparant background"
-     *     - use_retina: true
-     *     - padding_bg_colour: '#dddddd'
-     *     - crop: true
-     *     - move_to_right_folder: true
-     *     - loading_style: 'eager'
-     *     - used_by:
-     *       - MyClass.MyHasOne
-     *       - MyOtherClass.MyHasManyMethod
-     *       - MyOtherClass.MyManyManyRel
-     * @var array
-     */
-    private static $perfect_cms_images_image_definitions = [];
-
     private static $casting = [
         'PerfectCMSImageTag' => 'HTMLText',
     ];

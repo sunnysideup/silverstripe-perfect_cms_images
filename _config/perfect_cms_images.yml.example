@@ -2,10 +2,10 @@
 Name: perfect_cms_images_custom
 ---
 Sunnysideup\PerfectCmsImages\Api\PerfectCMSImages:
+
+Sunnysideup\PerfectCmsImages\Api\PerfectCMSImages:
   perfect_cms_images_append_title_to_image_links_classes:
     - SilverStripe\Assets\Image
-
-Sunnysideup\PerfectCmsImages\Model\File\PerfectCmsImageDataExtension:
   perfect_cms_images_background_padding_color: "#ffffff"
   perfect_cms_images_image_definitions:
     nameBAR:
@@ -51,8 +51,7 @@ Sunnysideup\PerfectCmsImages\Model\File\PerfectCmsImageDataExtension:
       force_third_party_resize: true
 
 # FULL LIST:
-Sunnysideup\PerfectCmsImages\Model\File\PerfectCmsImageDataExtension:
-  perfect_cms_images_background_padding_color: "#ffffff"
+Sunnysideup\PerfectCmsImages\Api\PerfectCMSImages:
   perfect_cms_images_image_definitions:
     nameFOOBAR:
       width: 3200
