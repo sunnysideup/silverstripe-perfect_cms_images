@@ -313,7 +313,7 @@ EOT;
 
     public static function get_resizer_conversion(string $name): array
     {
-        // if(class_exists('\\Axllent\\ScaledUploads\\Api\\Resizer')) {
+        // if(class_exists('\\Sunnysideup\\ScaledUploads\\Api\\Resizer')) {
         //     if(self::get_auto_resize($name))
         //     $array = [
         //         'maxWidth' => self::get_width()
