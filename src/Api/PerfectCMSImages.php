@@ -13,6 +13,9 @@ use Sunnysideup\PerfectCmsImages\Model\File\PerfectCmsImageDataExtension;
 
 class PerfectCMSImages implements Flushable
 {
+    public const MULTI_USE_CODE = 'multiuse';
+    public const UNUSED_CODE = 'unused';
+
     /**
      *.htaccess content for assets ...
      *
@@ -31,6 +34,8 @@ class PerfectCMSImages implements Flushable
 EOT;
 
     private static $unused_images_folder_name = 'unusedimages';
+
+    private static $multiuse_images_folder_name = 'multiuseimages';
 
     /**
      * used to set the max width of the media value for mobile images,
@@ -135,6 +140,59 @@ EOT;
         $rightTitle .= '<br />You can also use a service like <a href="https://tinypng.com/" target="_blank">TinyPNG</a> to reduce the file size and convert it.';
 
         return $rightTitle . '</span>';
+    }
+
+    public function get_name_based_on_image(Image $image): string
+    {
+        $list = $image->findAllRelatedData();
+        $count = $list->count();
+        if ($count > 1) {
+            return self::MULTI_USE_CODE;
+        } else {
+            $item = $list->first();
+            $classes = self::get_classes_with_images();
+            foreach ($classes as $details) {
+                $class = $details['Class'] ?? 'ERROR';
+                if ($item instanceof $class) {
+                    return $details['Name'];
+                }
+            }
+        }
+        return self::UNUSED_CODE;
+    }
+
+    protected static $classes_with_images;
+
+    public static function get_classes_with_images(): array
+    {
+        if (!isset(self::$classes_with_images)) {
+            self::$classes_with_images = [];
+            $all = self::get_all_values_for_images();
+            foreach ($all as $name => $array) {
+                $usedBy = $array['used_by'] ?? [];
+                foreach ($usedBy as $usedByItem) {
+                    $usedByClass = explode('.', $usedByItem)[0];
+                    if (isset(self::$classes_with_images[$usedByItem])) {
+                        user_error('You have two images with the same name: ' . $usedByItem);
+                    } else {
+                        self::$classes_with_images[$usedByItem] = [
+                            'Class' => $usedByClass,
+                            'Name' => $name,
+                        ];
+                    }
+                }
+            }
+            if (empty(self::$classes_with_images)) {
+                self::$classes_with_images = [
+                    'ERROR' => [
+                        'Class' => 'ERROR',
+                        'Name' => 'ERROR',
+                    ]
+                ];
+            }
+        }
+
+        return self::$classes_with_images;
     }
 
     public static function use_retina(string $name): bool
