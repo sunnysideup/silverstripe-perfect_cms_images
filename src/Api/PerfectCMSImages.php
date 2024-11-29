@@ -266,7 +266,7 @@ EOT;
 
     public static function get_file_type(string $name): string
     {
-        return self::get_one_value_for_image($name, 'filetype', 'jpg');
+        return self::get_one_value_for_image($name, 'filetype', 'webp');
     }
 
     public static function get_enforce_size(string $name): bool
