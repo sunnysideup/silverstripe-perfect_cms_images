@@ -302,12 +302,29 @@ EOT;
         return isset($sizes[$name]);
     }
 
+    protected static $_cache_image_info = [];
+
     public static function get_all_values_for_images(): array
     {
-        return Config::inst()->get(
-            PerfectCMSImages::class,
+        if (empty(self::$_cache_image_info)) {
+            self::$_cache_image_info = Config::inst()->get(
+                PerfectCMSImages::class,
+                'perfect_cms_images_image_definitions'
+            ) ?: [];
+        }
+        return self::$_cache_image_info;
+    }
+
+    public static function legacy_check(): void
+    {
+        $test = Config::inst()->get(
+            PerfectCmsImageDataExtension::class,
             'perfect_cms_images_image_definitions'
         ) ?: [];
+        if (! empty($test)) {
+            Injector::inst()->get(LoggerInterface::class)->info('PerfectCmsImageDataExtension is deprecated. Please use PerfectCMSImages instead.');
+            user_error('PerfectCmsImageDataExtension is deprecated. Please use PerfectCMSImages instead.', E_USER_ERROR);
+        }
     }
 
     public static function get_resizer_conversion(string $name): array

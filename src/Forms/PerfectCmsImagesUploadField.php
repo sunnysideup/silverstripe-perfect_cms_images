@@ -54,6 +54,7 @@ class PerfectCmsImagesUploadField extends UploadField
             $title,
             $items
         );
+        PerfectCMSImages::legacy_check();
         $perfectCMSImageValidator = new PerfectCmsImageValidator();
         $this->setValidator($perfectCMSImageValidator);
         $finalName = $name;
