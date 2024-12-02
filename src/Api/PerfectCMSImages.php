@@ -136,9 +136,9 @@ EOT;
         $rightTitle .= ' and ';
 
         if ('flexible' === $actualHeightDescription) {
-            $rightTitle .= 'height is flexible';
+            $rightTitle .= 'height is flexible.';
         } else {
-            $rightTitle .= " <strong>{$actualHeightDescription}</strong> tall";
+            $rightTitle .= " <strong>{$actualHeightDescription}</strong> tall.";
         }
 
         $rightTitle .= '<br />';
@@ -151,7 +151,7 @@ EOT;
         if (strlen($recommendedFileType) < 5) {
             $rightTitle .= 'The recommend file type (file extension) is <strong>' . $recommendedFileType . '</strong>.';
         } else {
-            $rightTitle .= '<strong>' . $recommendedFileType . '</strong>';
+            $rightTitle .= '<strong>' . $recommendedFileType . '</strong>.';
         }
         $rightTitle .= '<br />Not sure how to proceed? Use a service <a href="https://tinypng.com/" target="_blank" rel="noreferrer">TinyPNG</a> to reduce the file size and convert it.';
 
