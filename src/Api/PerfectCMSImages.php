@@ -153,7 +153,7 @@ EOT;
         } else {
             $rightTitle .= '<strong>' . $recommendedFileType . '</strong>';
         }
-        $rightTitle .= '<br />You can also use a service like <a href="https://tinypng.com/" target="_blank" rel="noreferrer">TinyPNG</a> to reduce the file size and convert it.';
+        $rightTitle .= '<br />Not sure how to proceed? Use a service <a href="https://tinypng.com/" target="_blank" rel="noreferrer">TinyPNG</a> to reduce the file size and convert it.';
 
         return $rightTitle . '</span>';
     }
