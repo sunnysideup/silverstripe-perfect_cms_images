@@ -39,7 +39,7 @@ class PerfectCmsImageDataExtension extends Extension
         //remove the method argument
         array_shift($args);
 
-        $image = $this->owner;
+        $image = $this->getOwner();
         $variant = $image->variantName($method, ...$args);
         $store = Injector::inst()->get(AssetStore::class);
         $closeToOutOfMemory = (memory_get_peak_usage(false) / memory_get_usage(true)) > 0.8;
@@ -52,10 +52,14 @@ class PerfectCmsImageDataExtension extends Extension
             if ($this->isMemoryUsageHigh()) {
                 return $image->Link();
             }
-            return $image->$method(
+            $resizeImage = $image->$method(
                 ...$args
-            )->Link();
+            );
+            if ($resizeImage) {
+                return $resizeImage->Link();
+            }
         }
+        return '';
     }
 
     private function isMemoryUsageHigh(float $threshold = 0.9): bool
