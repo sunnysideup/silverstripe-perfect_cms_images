@@ -76,6 +76,11 @@ class PerfectCmsImagesUploadField extends UploadField
     /**
      * @param string $name Formatting Standard
      */
+    public function setFormattingStandard(string $name): self
+    {
+        return $this->selectFormattingStandard($name);
+    }
+
     public function selectFormattingStandard(string $name): self
     {
         //folder
