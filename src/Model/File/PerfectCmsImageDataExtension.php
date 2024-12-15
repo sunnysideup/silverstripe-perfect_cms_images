@@ -2,6 +2,7 @@
 
 namespace Sunnysideup\PerfectCmsImages\Model\File;
 
+use Psr\SimpleCache\CacheInterface;
 use SilverStripe\Assets\Folder;
 use SilverStripe\Assets\Image;
 use SilverStripe\Assets\Storage\AssetStore;
@@ -114,13 +115,34 @@ class PerfectCmsImageDataExtension extends Extension
      */
     public function PerfectCMSImageTag(string $name, $inline = false, ?string $alt = '', ?string $attributes = '')
     {
+        $cacheKey = $this->getPerfectCMSImagesTagCacheKey($name . (string) $inline . (string) $alt . (string) $attributes);
+        $cache = $this->getPerfectCMSImagesTagCache();
+        if ($cacheKey && $cache->has($cacheKey)) {
+            return $cache->get($cacheKey);
+        }
         $arrayData = $this->getPerfectCMSImageTagArrayData($name, $alt, $attributes);
         $template = 'Includes/PerfectCMSImageTag';
         if (true === $inline || 1 === (int) $inline || 'true' === strtolower($inline)) {
             $template .= 'Inline';
         }
+        $string = DBField::create_field('HTMLText', $arrayData->renderWith($template));
+        if ($cacheKey && $cache) {
+            $cache->set($cacheKey, $string);
+        }
+        return $string;
+    }
 
-        return DBField::create_field('HTMLText', $arrayData->renderWith($template));
+    protected function getPerfectCMSImagesTagCacheKey($toAdd)
+    {
+        if (! $this->owner->isPublished()) {
+            return null;
+        }
+        return 'PCI' . $this->owner->ID . '_' . strtotime($this->owner->LastEdited) . $toAdd;
+    }
+
+    protected function getPerfectCMSImagesTagCache()
+    {
+        return Injector::inst()->get(CacheInterface::class . '.perfectcmsimages');
     }
 
     /**
