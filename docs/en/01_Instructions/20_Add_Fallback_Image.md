@@ -11,7 +11,7 @@ A fallback (or backup) image can be assigned to the SiteConfig and used when the
 An example DataExtension to decorate SiteConfig;
 
 ```php
-class MySiteConfigExtension extends DataExtension
+class MySiteConfigExtension extends Extension
 {
     private $has_one = [
         "MyImage" => Image::class
