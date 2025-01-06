@@ -16,7 +16,9 @@
     "CMS Editing",
     "Upload Field",
     "Upload",
-    "Form Field"
+    "Form Field",
+    "assets",
+    "files"
   ],
   "license": "BSD-3-Clause",
   "authors": [
