@@ -82,7 +82,7 @@ EOT;
         $recommendedFileType = PerfectCMSImages::get_file_type($name);
         $multiplier = PerfectCMSImages::get_multiplier($useRetina);
         if ('' === $recommendedFileType) {
-            $recommendedFileType = 'jpg';
+            $recommendedFileType = 'webp';
         }
 
         if (0 !== $widthRecommendation) {
