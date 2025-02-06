@@ -2,14 +2,14 @@
 
 namespace Sunnysideup\PerfectCmsImages\Model\File;
 
+use Psr\SimpleCache\CacheInterface;
 use SilverStripe\Assets\Folder;
 use SilverStripe\Assets\Image;
 use SilverStripe\Assets\Storage\AssetStore;
 use SilverStripe\Control\Director;
-use SilverStripe\Core\Config\Config;
 use SilverStripe\Core\Convert;
+use SilverStripe\Core\Extension;
 use SilverStripe\Core\Injector\Injector;
-use SilverStripe\ORM\DataExtension;
 use SilverStripe\ORM\FieldType\DBField;
 use SilverStripe\ORM\FieldType\DBHTMLText;
 use SilverStripe\View\ArrayData;
@@ -22,37 +22,8 @@ use Sunnysideup\PerfectCmsImages\Api\PerfectCMSImages;
  *
  * @property Image|PerfectCmsImageDataExtension $owner
  */
-class PerfectCmsImageDataExtension extends DataExtension
+class PerfectCmsImageDataExtension extends Extension
 {
-    /**
-     * background image for padded images...
-     *
-     * @var string
-     */
-    private static $perfect_cms_images_background_padding_color = '#cccccc';
-
-    /*
-     * details of the images
-     *     - width: 3200
-     *     - height: 3200
-     *     - folder: "myfolder"
-     *     - filetype: "try jpg"
-     *     - enforce_size: false
-     *     - folder: my-image-folder-a
-     *     - filetype: "jpg or a png with a transparant background"
-     *     - use_retina: true
-     *     - padding_bg_colour: '#dddddd'
-     *     - crop: true
-     *     - move_to_right_folder: true
-     *     - loading_style: 'eager'
-     *     - used_by:
-     *       - MyClass.MyHasOne
-     *       - MyOtherClass.MyHasManyMethod
-     *       - MyOtherClass.MyManyManyRel
-     * @var array
-     */
-    private static $perfect_cms_images_image_definitions = [];
-
     private static $casting = [
         'PerfectCMSImageTag' => 'HTMLText',
     ];
@@ -69,7 +40,7 @@ class PerfectCmsImageDataExtension extends DataExtension
         //remove the method argument
         array_shift($args);
 
-        $image = $this->owner;
+        $image = $this->getOwner();
         $variant = $image->variantName($method, ...$args);
         $store = Injector::inst()->get(AssetStore::class);
         $closeToOutOfMemory = (memory_get_peak_usage(false) / memory_get_usage(true)) > 0.8;
@@ -82,10 +53,14 @@ class PerfectCmsImageDataExtension extends DataExtension
             if ($this->isMemoryUsageHigh()) {
                 return $image->Link();
             }
-            return $image->$method(
+            $resizeImage = $image->$method(
                 ...$args
-            )->Link();
+            );
+            if ($resizeImage) {
+                return $resizeImage->Link();
+            }
         }
+        return '';
     }
 
     private function isMemoryUsageHigh(float $threshold = 0.9): bool
@@ -140,13 +115,34 @@ class PerfectCmsImageDataExtension extends DataExtension
      */
     public function PerfectCMSImageTag(string $name, $inline = false, ?string $alt = '', ?string $attributes = '')
     {
+        $cacheKey = $this->getPerfectCMSImagesTagCacheKey($name . (string) $inline . (string) $alt . (string) $attributes);
+        $cache = $this->getPerfectCMSImagesTagCache();
+        if ($cacheKey && $cache->has($cacheKey)) {
+            return $cache->get($cacheKey);
+        }
         $arrayData = $this->getPerfectCMSImageTagArrayData($name, $alt, $attributes);
         $template = 'Includes/PerfectCMSImageTag';
         if (true === $inline || 1 === (int) $inline || 'true' === strtolower($inline)) {
             $template .= 'Inline';
         }
+        $string = DBField::create_field('HTMLText', $arrayData->renderWith($template));
+        if ($cacheKey && $cache) {
+            $cache->set($cacheKey, $string);
+        }
+        return $string;
+    }
 
-        return DBField::create_field('HTMLText', $arrayData->renderWith($template));
+    protected function getPerfectCMSImagesTagCacheKey($toAdd)
+    {
+        if (! $this->owner->isPublished()) {
+            return null;
+        }
+        return 'PCI' . $this->owner->ID . '_' . strtotime($this->owner->LastEdited) . $toAdd;
+    }
+
+    protected function getPerfectCMSImagesTagCache()
+    {
+        return Injector::inst()->get(CacheInterface::class . '.perfectcmsimages');
     }
 
     /**
@@ -160,13 +156,9 @@ class PerfectCmsImageDataExtension extends DataExtension
     {
         $retinaLink = $this->PerfectCMSImageLinkRetina($name);
         $nonRetinaLink = $this->PerfectCMSImageLinkNonRetina($name);
-        $retinaLinkWebP = '';
-        $nonRetinaLinkWebP = '';
 
         $width = PerfectCMSImages::get_width($name, true);
         $height = PerfectCMSImages::get_height($name, true);
-
-        $hasWebP = (bool) Config::inst()->get(ImageManipulations::class, 'webp_enabled');
         $hasMobile = PerfectCMSImages::has_mobile($name);
 
         if ($hasMobile) {
@@ -174,15 +166,7 @@ class PerfectCmsImageDataExtension extends DataExtension
             $mobileNonRetinaLink = $this->PerfectCMSImageLinkNonRetinaForMobile($name);
             $mobileMediaWidth = PerfectCMSImages::get_mobile_media_width($name);
         }
-        if ($hasWebP) {
-            $retinaLinkWebP = $this->PerfectCMSImageLinkRetinaWebP($name);
-            $nonRetinaLinkWebP = $this->PerfectCMSImageLinkNonRetinaWebP($name);
-        }
 
-        if ($hasMobile && $hasWebP) {
-            $mobileRetinaLinkWebP = $this->PerfectCMSImageLinkRetinaWebPForMobile($name);
-            $mobileNonRetinaLinkWebP = $this->PerfectCMSImageLinkNonRetinaWebPForMobile($name);
-        }
 
         if (! $alt) {
             $alt = $this->getOwner()->Title;
@@ -194,7 +178,6 @@ class PerfectCmsImageDataExtension extends DataExtension
             'RetinaLink' => $retinaLink,
             'NonRetinaLink' => $nonRetinaLink,
             'Type' => $this->owner->getMimeType(),
-            'HasWebP' => $hasWebP,
             'Attributes' => DBField::create_field('HTMLText', $attributes),
         ];
         if ($hasMobile) {
@@ -205,18 +188,7 @@ class PerfectCmsImageDataExtension extends DataExtension
 
             ];
         }
-        if ($hasWebP) {
-            $myArray += [
-                'RetinaLinkWebP' => $retinaLinkWebP,
-                'NonRetinaLinkWebP' => $nonRetinaLinkWebP,
-            ];
-        }
-        if ($hasWebP && $hasMobile) {
-            $myArray += [
-                'MobileRetinaLinkWebP' => $mobileRetinaLinkWebP,
-                'MobileNonRetinaLinkWebP' => $mobileNonRetinaLinkWebP,
-            ];
-        }
+
         return ArrayData::create(
             $myArray
         );
@@ -242,25 +214,6 @@ class PerfectCmsImageDataExtension extends DataExtension
         return $this->PerfectCMSImageLink($name, true);
     }
 
-    /**
-     * @param string $name of Image Field template
-     *
-     * @return string (link)
-     */
-    public function PerfectCMSImageLinkNonRetinaWebP(string $name): string
-    {
-        return $this->PerfectCMSImageLink($name, false, true);
-    }
-
-    /**
-     * @param string $name of Image Field template
-     *
-     * @return string (link)
-     */
-    public function PerfectCMSImageLinkRetinaWebP(string $name): string
-    {
-        return $this->PerfectCMSImageLink($name, true, true);
-    }
 
     /**
      * @param string $name of Image Field template
@@ -332,9 +285,7 @@ class PerfectCmsImageDataExtension extends DataExtension
             // $backEndString = Image::get_backend();
             // $backend = Injector::inst()->get($backEndString);
             $link = ImageManipulations::get_image_link($image, $name, $useRetina, $forMobile);
-            if ($isWebP) {
-                $link = ImageManipulations::web_p_link($link);
-            }
+
             return $link !== '' && $link !== '0' ? ImageManipulations::add_fake_parts($image, $link) : '';
         } elseif (Director::isDev()) {
             // no image -> provide placeholder if in DEV MODE only!!!

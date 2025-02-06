@@ -9,6 +9,7 @@ use SilverStripe\Control\Controller;
 use SilverStripe\Core\ClassInfo;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Core\Config\Configurable;
+use SilverStripe\Core\Injector\Injectable;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\ORM\DB;
 use SilverStripe\Versioned\Versioned;
@@ -19,44 +20,47 @@ use SilverStripe\Versioned\Versioned;
  */
 class SortOutFolders
 {
-    use Configurable;
+    use Injectable;
 
     /**
      * the folder where we move images that are not in use.
      *
      * @var Folder
      */
-    protected $unusedImagesFolder;
+    protected Folder $unusedImagesFolder;
 
     /**
      * if set to true then dont do it for real!
      *
      * @var bool
      */
-    protected $dryRun = false;
+    protected bool $dryRun = false;
 
     /**
      * @var bool
      */
-    protected $verbose = true;
+    protected bool $verbose = true;
 
-    protected static $my_field_cache = [];
+    protected array $fieldCache = [];
 
-    public function setVerbose(?bool $b = true)
+    protected $folderArray = [];
+    protected $listOfImageIds = [];
+
+    public function setVerbose(?bool $b = true): static
     {
         $this->verbose = $b;
 
         return $this;
     }
 
-    public function setDryRun(?bool $b = true)
+    public function setDryRun(?bool $b = true): static
     {
         $this->dryRun = $b;
 
         return $this;
     }
 
-    public function runStandard()
+    public function runStandard(): void
     {
         $this->runAdvanced(
             Config::inst()->get(PerfectCMSImages::class, 'unused_images_folder_name'),
@@ -65,6 +69,7 @@ class SortOutFolders
     }
 
     /**
+     * @param string $unusedFolderName
      * @param array $data
      *                    Create test jobs for the purposes of testing.
      *                    The array must contains arrays with
@@ -74,44 +79,44 @@ class SortOutFolders
      *                    (has_one / has_many / many_many relations)
      *                    e.g. Page.Image, MyDataObject.MyImages
      */
-    public function runAdvanced(string $unusedFolderName, array $data)
+    public function runAdvanced(string $unusedFolderName, array $data): void
     {
         if ($unusedFolderName === '' || $unusedFolderName === '0') {
             $unusedFolderName = 'unused-images';
         }
         $this->unusedImagesFolder = Folder::find_or_make($unusedFolderName);
 
-        $folderArray = $this->getFolderArray($data);
+        $this->setFolderArray($data);
         if ($this->verbose) {
             DB::alteration_message('==== List of folders ====');
-            echo '<pre>' . print_r($folderArray, 1) . '</pre>';
+            echo '<pre>' . print_r($this->folderArray, 1) . '</pre>';
         }
 
         DB::alteration_message('==========================================');
 
-        $listOfImageIds = $this->getListOfImages($folderArray);
+        $this->setListOfImages();
 
         // remove
-        foreach ($listOfImageIds as $folderName => $listOfIds) {
+        foreach ($this->listOfImageIds as $folderName => $listOfIds) {
             if ($this->verbose) {
                 DB::alteration_message('<br /><br /><br />==== Checking for images to remove from <u>' . $folderName . '</u>; there are ' . count($listOfIds) . ' images to keep');
             }
-            $this->removeUnusedFiles($folderName, $listOfIds);
+            $this->removeUnusedFiles($folderName);
         }
 
         DB::alteration_message('==========================================');
         // move to right folder
-        foreach ($listOfImageIds as $folderName => $listOfIds) {
+        foreach ($this->listOfImageIds as $folderName => $listOfIds) {
             if ($this->verbose) {
                 DB::alteration_message('<br /><br /><br />==== Checking for images to move to <u>' . $folderName . '</u>');
             }
-            $this->moveUsedFilesIntoFolder($folderName, $listOfIds);
+            $this->moveUsedFilesIntoFolder($folderName);
         }
 
         DB::alteration_message('==========================================');
 
         // check for rogue files
-        foreach (array_keys($listOfImageIds) as $folderName) {
+        foreach (array_keys($this->listOfImageIds) as $folderName) {
             if ($this->verbose) {
                 DB::alteration_message('<br /><br /><br />==== Checking for rogue FILES in <u>' . $folderName . '</u>');
             }
@@ -119,21 +124,28 @@ class SortOutFolders
         }
     }
 
-    public function getFolderArray(array $data): array
+    /**
+     *
+     * uses the standard perfect_cms_images configuration to create a list of folders
+     * and the associated Model.Method pairs that should be in the folder.
+     * @param array $data
+     * @return array
+     */
+    protected function setFolderArray(array $data): void
     {
         // check folders
-        $folderArray = [];
+        $this->folderArray = [];
         foreach ($data as $dataInner) {
             $folderName = $dataInner['folder'] ?? '';
             if ($folderName) {
-                $folderArray[$folderName] = [];
-                $folderArray[$folderName]['classesAndMethods'] = [];
-                // $folderArray[$folderName]['resize'] = isset($dataInner['force_resize']) && $dataInner['force_resize'] === true  ? true : false;
+                $this->folderArray[$folderName] = [];
+                $this->folderArray[$folderName]['classesAndMethods'] = [];
+                // $this->folderArray[$folderName]['resize'] = isset($dataInner['force_resize']) && $dataInner['force_resize'] === true  ? true : false;
                 $classes = $dataInner['used_by'] ?? [];
                 if (! empty($classes)) {
                     if (is_array($classes)) {
                         foreach ($classes as $classAndMethod) {
-                            $folderArray[$folderName]['classesAndMethods'][$classAndMethod] = $classAndMethod;
+                            $this->folderArray[$folderName]['classesAndMethods'][$classAndMethod] = $classAndMethod;
                         }
                     } else {
                         user_error('Bad definition for: ' . print_r($dataInner, 1));
@@ -142,7 +154,7 @@ class SortOutFolders
             }
         }
         $test = [];
-        foreach ($folderArray as $folderData) {
+        foreach ($this->folderArray as $folderData) {
             $classAndMethodList = $folderData['classesAndMethods'];
             foreach ($classAndMethodList as $classAndMethod) {
                 if (! isset($test[$classAndMethod])) {
@@ -153,19 +165,24 @@ class SortOutFolders
             }
         }
 
-        return $folderArray;
     }
 
-    public function getListOfImages(array $folderArray): array
+
+    /**
+     * get a list of image IDs that should be in the folder.
+     *
+     * @param array $this->folderArray
+     * @return array
+     */
+    protected function setListOfImages(): void
     {
-        $listOfImageIds = [];
-        foreach ($folderArray as $folderName => $folderData) {
+        $this->listOfImageIds = [];
+        foreach ($this->folderArray as $folderName => $folderData) {
             $classAndMethodList = $folderData['classesAndMethods'];
 
             // find all images that should be there...
             $listOfIds = [];
             foreach ($classAndMethodList as $classAndMethod) {
-                $dataClassName = '';
                 list($className, $method) = explode('.', $classAndMethod);
                 $fieldDetails = $this->getFieldDetails($className, $method);
                 if ($fieldDetails === []) {
@@ -174,7 +191,6 @@ class SortOutFolders
                 if ('has_one' === $fieldDetails['dataType']) {
                     $list = $className::get()->columnUnique($method . 'ID');
                 } else {
-                    $dataClassName = $fieldDetails['dataClassName'];
                     $outerList = $className::get();
                     $list = [];
                     foreach ($outerList as $obj) {
@@ -191,75 +207,85 @@ class SortOutFolders
                 );
             }
             if ($listOfIds !== []) {
-                $listOfImageIds[$folderName] = $listOfIds;
+                $this->listOfImageIds[$folderName] = $listOfIds;
             }
         }
-
-        return $listOfImageIds;
     }
 
     /**
      * returns the images in the ID list that were not found in the folder.
      *
      * @param string $folderName     Folder moving to
-     * @param array  $listOfImageIds Images that should be in the folder
+     * @param array  $this->listOfImageIds Images that should be in the folder
      */
-    public function removeUnusedFiles(string $folderName, array $listOfImageIds)
+    public function removeUnusedFiles(string $folderName)
     {
         $unusedFolderName = $this->unusedImagesFolder->Name;
         $folder = Folder::find_or_make($folderName);
-        $listAsString = implode(',', $listOfImageIds);
+        $listAsString = implode(',', $this->listOfImageIds);
         $where = ' ParentID = ' . $folder->ID . ' AND File.ID NOT IN(' . $listAsString . ')';
         $unused = Image::get()->where($where);
         if ($unused->exists()) {
             foreach ($unused as $file) {
                 echo '.';
-                $oldName = $file->getFilename();
+                $oldNameFromAssetRoot = $file->getFilename();
                 if ($this->verbose) {
                     DB::alteration_message('moving ' . $file->getFilename() . ' to ' . $unusedFolderName);
                 }
                 if (false === $this->dryRun) {
-                    $newName = Controller::join_links($this->unusedImagesFolder->getFileName(), $file->Name);
-                    $file = $this->moveToNewFolder($file, $this->unusedImagesFolder, $newName);
-                    if ($newName !== $file->getFilename()) {
-                        DB::alteration_message('ERROR: file names do not match. Compare: ' . $newName . ' with ' . $file->getFilename(), 'deleted');
+                    $newNameFromAssetRoot = Controller::join_links($this->unusedImagesFolder->getFileName(), $file->Name);
+                    $file = $this->moveToNewFolder($file, $this->unusedImagesFolder, $newNameFromAssetRoot);
+                    if ($newNameFromAssetRoot !== $file->getFilename()) {
+                        DB::alteration_message('ERROR: file names do not match. Compare: ' . $newNameFromAssetRoot . ' with ' . $file->getFilename(), 'deleted');
                     } else {
-                        $this->physicallyMovingImage($oldName, $newName);
+                        $this->physicallyMovingImage($oldNameFromAssetRoot, $newNameFromAssetRoot);
                     }
                 }
             }
         }
     }
 
-    public function moveUsedFilesIntoFolder(string $folderName, array $listOfImageIds)
+    /**
+     * find any images and move them into the specified folder.
+     *
+     * @param string $folderName
+     * @return void
+     */
+    public function moveUsedFilesIntoFolder(string $folderName)
     {
         $folder = Folder::find_or_make($folderName);
-        $listAsString = implode(',', $listOfImageIds);
+        $listAsString = implode(',', $this->listOfImageIds);
         $where = ' ParentID <> ' . $folder->ID . ' AND File.ID IN(' . $listAsString . ')';
         $used = Image::get()->where($where);
         if ($used->exists()) {
             foreach ($used as $file) {
-                $oldName = $file->getFilename();
+                $oldNameFromAssetRoot = $file->getFilename();
 
-                $oldFolderName = $file->Parent()->getFilename();
                 $newFolderName = $folder->getFilename();
 
                 if ($this->verbose) {
                     DB::alteration_message('moving ' . $file->getFilename() . ' to ' . $newFolderName, 'created');
                 }
                 if (false === $this->dryRun) {
-                    $newName = Controller::join_links($newFolderName, $file->Name);
-                    $file = $this->moveToNewFolder($file, $folder, $newName);
-                    if ($newName !== $file->getFilename()) {
-                        DB::alteration_message('ERROR: file names do not match. Compare: ' . $newName . ' with ' . $file->getFilename(), 'deleted');
+                    $newNameFromAssetRoot = Controller::join_links($newFolderName, $file->Name);
+                    $file = $this->moveToNewFolder($file, $folder, $newNameFromAssetRoot);
+                    if ($newNameFromAssetRoot !== $file->getFilename()) {
+                        DB::alteration_message('ERROR: file names do not match. Compare: ' . $newNameFromAssetRoot . ' with ' . $file->getFilename(), 'deleted');
                     } else {
-                        $this->physicallyMovingImage($oldName, $newName);
+                        $this->physicallyMovingImage($oldNameFromAssetRoot, $newNameFromAssetRoot);
                     }
                 }
             }
         }
     }
 
+    /**
+     *
+     * find any superfluous images in the folder, not listed in the database at all,
+     * and move them to the unused folder.
+     * @param string $folderName
+     * @return void
+     */
     public function findRoqueFilesInFolder(string $folderName)
     {
         $unusedFolderName = $this->unusedImagesFolder->Name;
@@ -274,13 +300,13 @@ class SortOutFolders
                     if (Image::class === $associatedClassName) {
                         $filePath = Controller::join_links($fullFolderPath, $fileName);
                         if (is_file($filePath)) {
-                            $oldName = $folderName . '/' . $fileName;
-                            $newName = $unusedFolderName . '/' . $fileName;
+                            $oldNameFromAssetRoot = $folderName . '/' . $fileName;
+                            $newNameFromAssetRoot = $unusedFolderName . '/' . $fileName;
                             if ($this->verbose) {
-                                DB::alteration_message('moving ' . $oldName . ' to ' . $unusedFolderName);
+                                DB::alteration_message('moving ' . $oldNameFromAssetRoot . ' to ' . $unusedFolderName);
                             }
                             if (false === $this->dryRun) {
-                                $this->physicallyMovingImage($oldName, $newName);
+                                $this->physicallyMovingImage($oldNameFromAssetRoot, $newNameFromAssetRoot);
                             }
                         } elseif ($this->verbose) {
                             DB::alteration_message('skippping ' . $fileName . ', because it is not a valid file.');
@@ -298,7 +324,7 @@ class SortOutFolders
     protected function getFieldDetails(string $originClassName, string $originMethod): array
     {
         $key = $originClassName . '_' . $originMethod;
-        if (! isset(self::$my_field_cache[$key])) {
+        if (! isset($this->fieldCache[$key])) {
             $types = ['has_one', 'has_many', 'many_many'];
             $classNames = ClassInfo::ancestry($originClassName, true);
             foreach ($classNames as $className) {
@@ -308,7 +334,7 @@ class SortOutFolders
                     if (is_array($rels) && $rels !== []) {
                         foreach ($rels as $relName => $relType) {
                             if (Image::class === $relType && $relName === $originMethod) {
-                                self::$my_field_cache[$key] = [
+                                $this->fieldCache[$key] = [
                                     'dataClassName' => $className,
                                     'dataType' => $type,
                                 ];
@@ -319,60 +345,65 @@ class SortOutFolders
             }
         }
 
-        return self::$my_field_cache[$key];
+        return $this->fieldCache[$key];
     }
 
-    protected function physicallyMovingImage(string $oldName, string $newName)
+    protected function physicallyMovingImage(string $oldNameFromAssetRoot, string $newNameFromAssetRoot)
     {
-        if ($oldName !== $newName) {
-            $oldNameFull = Controller::join_links(ASSETS_PATH, $oldName);
-            $newNameFull = Controller::join_links(ASSETS_PATH, $newName);
-            if (file_exists($oldNameFull)) {
-                if (file_exists($newNameFull)) {
-                    if ($this->verbose) {
-                        DB::alteration_message('... ... Deleting ' . $newName . ' to make place for a new file.', 'deleted');
-                    }
-                    if (false === $this->dryRun) {
-                        unlink($newNameFull);
-                    }
-                }
+        $oldNameFullPath = Controller::join_links(ASSETS_PATH, $oldNameFromAssetRoot);
+        if (file_exists($oldNameFullPath)) {
+            $newNameFromAssetRoot = $this->changeNameBasedOnExistingFiles($newNameFromAssetRoot);
+            $newNameFullPath = Controller::join_links(ASSETS_PATH, $newNameFromAssetRoot);
+            if ($oldNameFromAssetRoot !== $newNameFromAssetRoot) {
+
                 if ($this->verbose) {
-                    DB::alteration_message('... Moving ' . $oldNameFull . ' to ' . $newNameFull . ' (file only)', 'created');
+                    DB::alteration_message('... Moving ' . $oldNameFullPath . ' to ' . $newNameFullPath . ' (file only)', 'created');
                 }
                 if (false === $this->dryRun) {
-                    rename($oldNameFull, $newNameFull);
+                    rename($oldNameFullPath, $newNameFullPath);
                 }
-            } elseif ($this->verbose && ! file_exists($newNameFull)) {
-                DB::alteration_message('... Error: could not find:  ' . $oldNameFull . ' and it is also not here: ' . $newNameFull, 'created');
+            } elseif ($this->verbose && ! file_exists($newNameFullPath)) {
+                DB::alteration_message('... Error: could not find:  ' . $oldNameFullPath . ' and it is also not here: ' . $newNameFullPath, 'created');
             }
         } elseif ($this->verbose) {
-            DB::alteration_message('... ERROR: old and new file names are the same ' . $oldName, 'deleted');
+            DB::alteration_message('... ERROR: old and new file names are the same ' . $oldNameFromAssetRoot, 'deleted');
         }
     }
 
     protected function writeFileOrFolder($fileOrFolder)
     {
+        $isPublished = $fileOrFolder->isPublished() && ! $fileOrFolder->isModifiedOnDraft();
         $fileOrFolder->writeToStage(Versioned::DRAFT);
-        $fileOrFolder->publishSingle();
-
+        if ($isPublished) {
+            $fileOrFolder->publishSingle();
+        }
+        $fileOrFolder->flushCache();
         return $fileOrFolder;
     }
 
-    protected function moveToNewFolder($image, Folder $newFolder, string $newName)
+    protected function moveToNewFolder($image, Folder $newFolder, string $newNameFromAssetRoot)
     {
         $beforePath = (Controller::join_links(ASSETS_PATH, $image->getFilename()));
-        $afterPath = (Controller::join_links(ASSETS_PATH, $newFolder->getFileName(), $image->Name));
-        if (file_exists($afterPath)) {
-            unlink($afterPath);
-        }
+        $newNameFromAssetRoot = $this->changeNameBasedOnExistingFiles($newNameFromAssetRoot);
+        $afterPath = (Controller::join_links(ASSETS_PATH, $newNameFromAssetRoot));
         $image->ParentID = $newFolder->ID;
-        $image->setFilename($newName);
+        $image->setFilename($newNameFromAssetRoot);
         $image = $this->writeFileOrFolder($image);
-        $image->flushCache();
         if (file_exists($beforePath) && ! file_exists($afterPath)) {
             rename($beforePath, $afterPath);
         }
 
         return $image;
+    }
+
+    protected function changeNameBasedOnExistingFiles(string $newNameFromAssetRoot): string
+    {
+        $x = 1;
+        $pathInfo = pathinfo($newNameFromAssetRoot);
+        while (file_exists(Controller::join_links(ASSETS_PATH, $newNameFromAssetRoot)) && $x < 100) {
+            $x++;
+            $newNameFromAssetRoot = $pathInfo['dirname']  . '/' . $pathInfo['filename'] . '-v'. $x . '.' . $pathInfo['extension'];
+        }
+        return $newNameFromAssetRoot;
     }
 }

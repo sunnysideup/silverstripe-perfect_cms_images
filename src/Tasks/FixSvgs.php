@@ -11,10 +11,6 @@ use SilverStripe\ORM\DB;
 /**
  * Class DeleteGeneratedImagesTask.
  *
- * Hack to allow removing manipulated images
- * This is needed occasionally when manipulation functions change
- * It isn't directly possible with core so this is a workaround
- *
  * @see https://github.com/silverstripe/silverstripe-assets/issues/109
  * @codeCoverageIgnore
  */

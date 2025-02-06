@@ -16,9 +16,6 @@ class ImageManipulations
     use Configurable;
     use Injectable;
 
-    private static $webp_enabled = true;
-
-    private static $webp_quality = 77;
 
     private static $imageLinkCache = [];
 
@@ -124,7 +121,7 @@ class ImageManipulations
                         $perfectWidth
                     );
                 }
-            } elseif ($perfectHeight !== 0) {
+            } elseif ($perfectHeight) {
                 if ($myHeight === $perfectHeight) {
                     $link = $image->getUrl();
                 } elseif ($crop) {
@@ -192,46 +189,6 @@ class ImageManipulations
         return 'https://placehold.it/1500x1500?text=' . urlencode('no size set');
     }
 
-    public static function web_p_link(string $link): string
-    {
-        if (self::web_p_enabled() && $link) {
-            $fileNameWithBaseFolder = Director::baseFolder() . '/public' . $link;
-            $arrayOfLink = explode('.', $link);
-            $extension = array_pop($arrayOfLink);
-            $pathWithoutExtension = rtrim($link, '.' . $extension);
-            $webPFileName = $pathWithoutExtension . '_' . $extension . '.webp';
-            $webPFileNameWithBaseFolder = Director::baseFolder() . '/public' . $webPFileName;
-            if (file_exists($fileNameWithBaseFolder)) {
-                if (isset($_GET['flush']) && file_exists($webPFileNameWithBaseFolder)) {
-                    unlink($webPFileNameWithBaseFolder);
-                }
-
-                if (file_exists($webPFileNameWithBaseFolder)) {
-                    //todo: check that image is the same ...
-                } else {
-                    list($width, $height, $type) = getimagesize($fileNameWithBaseFolder);
-                    $img = null;
-                    if ($width && $height) {
-                        if (2 === $type) {
-                            $img = imagecreatefromjpeg($fileNameWithBaseFolder);
-                        } elseif (3 === $type) {
-                            $img = imagecreatefrompng($fileNameWithBaseFolder);
-                            imagesavealpha($img, true);
-                        }
-
-                        if (null !== $img) {
-                            $quality = Config::inst()->get(ImageManipulations::class, 'webp_quality');
-                            imagewebp($img, $webPFileNameWithBaseFolder, $quality);
-                        }
-                    }
-                }
-
-                return $webPFileName;
-            }
-        }
-
-        return $link;
-    }
 
     public static function add_fake_parts($image, string $link): string
     {
@@ -264,10 +221,5 @@ class ImageManipulations
         }
 
         return $link;
-    }
-
-    public static function web_p_enabled(): bool
-    {
-        return Config::inst()->get(ImageManipulations::class, 'webp_enabled') && function_exists('imagewebp') && (function_exists('imagecreatefromjpeg') && function_exists('imagecreatefrompng'));
     }
 }

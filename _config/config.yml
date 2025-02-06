@@ -36,3 +36,9 @@ SilverStripe\MimeValidator\MimeUploadValidator:
       - 'image/svg'
     webp:
       - 'image/webp'
+
+SilverStripe\Core\Injector\Injector:
+  Psr\SimpleCache\CacheInterface.perfectcmsimages:
+    factory: SilverStripe\Core\Cache\CacheFactory
+    constructor:
+      namespace: "perfectcmsimages"

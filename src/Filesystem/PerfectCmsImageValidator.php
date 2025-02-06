@@ -9,8 +9,6 @@ class PerfectCmsImageValidator extends Upload_Validator
 {
     protected $fieldName = '';
 
-    public $allowedExtensions = ['png', 'jpg', 'jpeg', 'gif', 'webp', ];
-
     public function setFieldName($fieldName)
     {
         $this->fieldName = $fieldName;
@@ -33,12 +31,12 @@ class PerfectCmsImageValidator extends Upload_Validator
             $widthRecommendation = ((int) PerfectCMSImages::get_width($name, true)) * $multiplier;
             $heightRecommendation = ((int) PerfectCMSImages::get_height($name, true)) * $multiplier;
             if (0 !== $widthRecommendation && ! $this->isImageCorrectWidth(true, $widthRecommendation)) {
-                $this->errors[] = 'Expected width: ' . $widthRecommendation . 'px;';
+                $this->errors[] = 'Expected width: ' . $widthRecommendation . 'pixels;';
                 $hasError = true;
             }
 
             if ($heightRecommendation !== 0 && ! $this->isImageCorrectWidth(false, $heightRecommendation)) {
-                $this->errors[] = 'Expected height: ' . $heightRecommendation . 'px;';
+                $this->errors[] = 'Expected height: ' . $heightRecommendation . 'pixels;';
                 $hasError = true;
             }
         }

@@ -6,12 +6,11 @@ title: Define image specification
 
 Copy `perfect_cms_images/_config/perfect_cms_images.yml.example` to `app/_config/perfect_cms_images.yml` and specify images ie:
 
-
 ```yml
 ---
 Name: perfect_cms_images_custom
 ---
-Sunnysideup\PerfectCmsImages\Model\File\PerfectCmsImageDataExtension:
+Sunnysideup\PerfectCmsImages\Api\PerfectCMSImages:
   perfect_cms_images_background_padding_color: "#cccccc"
   perfect_cms_images_image_definitions:
     "MyImage":
@@ -31,9 +30,7 @@ Sunnysideup\PerfectCmsImages\Model\File\PerfectCmsImageDataExtension:
       enforce_size: true
 ```
 
-
 ## Template Usage
-
 
 ```html
     $MyImage.PerfectCmsImageTag(MyImage)
@@ -47,5 +44,3 @@ OR
     <img src="$MyImage.PerfectCmsImageLinkNonRetina(MyOtherImage)" alt="$Title.ATT" />
     <img src="$MyImage.PerfectCmsImageLinkRetina(MyOtherImage)" alt="$Title.ATT" />
 ```
-
-

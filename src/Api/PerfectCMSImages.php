@@ -6,13 +6,33 @@ use Psr\Log\LoggerInterface;
 use SilverStripe\Assets\Filesystem;
 use SilverStripe\Assets\Image;
 use SilverStripe\Core\Config\Config;
+use SilverStripe\Core\Config\Configurable;
 use SilverStripe\Core\Flushable;
+use SilverStripe\Core\Injector\Injectable;
 use SilverStripe\Core\Injector\Injector;
 use Sunnysideup\PerfectCmsImages\Forms\PerfectCmsImagesUploadField;
 use Sunnysideup\PerfectCmsImages\Model\File\PerfectCmsImageDataExtension;
 
 class PerfectCMSImages implements Flushable
 {
+    use Configurable;
+    use Injectable;
+
+    /**
+     * background image for padded images...
+     *
+     * @var string
+     */
+    private static string $perfect_cms_images_background_padding_color = '#cccccc';
+
+    /**
+     * @var array
+     */
+    private static array $perfect_cms_images_image_definitions = [];
+
+    public const MULTI_USE_CODE = 'multiuse';
+    public const UNUSED_CODE = 'unused';
+
     /**
      *.htaccess content for assets ...
      *
@@ -25,12 +45,14 @@ class PerfectCMSImages implements Flushable
 
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteRule ^(.+)\.(v[A-Za-z0-9]+)\.(js|css|png|jpg|gif|svg|webp)$ $1.$3 [L]
+    RewriteRule ^(.+)\.(v[A-Za-z0-9]+)\.(png|jpg|gif|svg|webp)$ $1.$3 [L]
 </IfModule>
 
 EOT;
 
     private static $unused_images_folder_name = 'unusedimages';
+
+    private static $multiuse_images_folder_name = 'multiuseimages';
 
     /**
      * used to set the max width of the media value for mobile images,
@@ -114,9 +136,9 @@ EOT;
         $rightTitle .= ' and ';
 
         if ('flexible' === $actualHeightDescription) {
-            $rightTitle .= 'height is flexible';
+            $rightTitle .= 'height is flexible.';
         } else {
-            $rightTitle .= " <strong>{$actualHeightDescription}</strong> tall";
+            $rightTitle .= " <strong>{$actualHeightDescription}</strong> tall.";
         }
 
         $rightTitle .= '<br />';
@@ -129,10 +151,9 @@ EOT;
         if (strlen($recommendedFileType) < 5) {
             $rightTitle .= 'The recommend file type (file extension) is <strong>' . $recommendedFileType . '</strong>.';
         } else {
-            $rightTitle .= '<strong>' . $recommendedFileType . '</strong>';
+            $rightTitle .= '<strong>' . $recommendedFileType . '</strong>.';
         }
-        $rightTitle .= '<br />If your image is not too complex (busy), we recommend using the webp format.';
-        $rightTitle .= '<br />You can also use a service like <a href="https://tinypng.com/" target="_blank">TinyPNG</a> to reduce the file size.';
+        $rightTitle .= '<br />Not sure how to proceed? Use a service <a href="https://tinypng.com/" target="_blank" rel="noreferrer">TinyPNG</a> to reduce the file size and convert it.';
 
         return $rightTitle . '</span>';
     }
@@ -245,7 +266,7 @@ EOT;
 
     public static function get_file_type(string $name): string
     {
-        return self::get_one_value_for_image($name, 'filetype', 'jpg');
+        return self::get_one_value_for_image($name, 'filetype', 'webp');
     }
 
     public static function get_enforce_size(string $name): bool
@@ -270,7 +291,7 @@ EOT;
         return self::get_one_value_for_image(
             $name,
             'padding_bg_colour',
-            Config::inst()->get(PerfectCmsImageDataExtension::class, 'perfect_cms_images_background_padding_color')
+            Config::inst()->get(PerfectCMSImages::class, 'perfect_cms_images_background_padding_color')
         );
     }
 
@@ -281,12 +302,63 @@ EOT;
         return isset($sizes[$name]);
     }
 
+    protected static $_cache_image_info = [];
+
     public static function get_all_values_for_images(): array
     {
-        return Config::inst()->get(
+        if (empty(self::$_cache_image_info)) {
+            self::$_cache_image_info = Config::inst()->get(
+                PerfectCMSImages::class,
+                'perfect_cms_images_image_definitions'
+            ) ?: [];
+        }
+        return self::$_cache_image_info;
+    }
+
+    public static function legacy_check(): void
+    {
+        $test = Config::inst()->get(
             PerfectCmsImageDataExtension::class,
             'perfect_cms_images_image_definitions'
         ) ?: [];
+        if (! empty($test)) {
+            Injector::inst()->get(LoggerInterface::class)->info('PerfectCmsImageDataExtension is deprecated. Please use PerfectCMSImages instead.');
+            user_error('PerfectCmsImageDataExtension is deprecated. Please use PerfectCMSImages instead.', E_USER_ERROR);
+        }
+    }
+
+    public static function get_resizer_conversion(string $name): array
+    {
+        // if(class_exists('\\Sunnysideup\\ScaledUploads\\Api\\Resizer')) {
+        //     if(self::get_auto_resize($name))
+        //     $array = [
+        //         'maxWidth' => self::get_width()
+        //         'maxHeight' =>
+        //         'maxSizeInMb' =>
+        //         'maxSizeInMb' =>
+        //     ]
+        // }
+        // $sizes = self::get_all_values_for_images();
+        // *     - width: 3200
+        // *     - height: 3200
+        // *     - max_mb: 0.4
+        // *     - folder: "myfolder"
+        // *     - filetype: "try jpg"
+        // *     - enforce_size: false
+        // *     - skip_auto_resize: false
+        // *     - skip_auto_convert: false
+        // *     - folder: my-image-folder-a
+        // *     - filetype: "jpg or a png with a transparant background"
+        // *     - use_retina: true
+        // *     - padding_bg_colour: '#dddddd'
+        // *     - crop: true
+        // *     - move_to_right_folder: true
+        // *     - loading_style: 'eager'
+        // *     - used_by:
+        // *       - MyClass.MyHasOne
+        // *       - MyOtherClass.MyHasManyMethod
+        // *       - MyOtherClass.MyManyManyRel
+        return [];
     }
 
     /**
@@ -301,4 +373,5 @@ EOT;
         return $sizes[$name][$key] ?? $default;
         // Injector::inst()->get(LoggerInterface::class)->info('no information for image with the name: ' . $name . '.' . $key);
     }
+
 }

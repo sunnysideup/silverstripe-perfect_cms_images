@@ -6,6 +6,8 @@ use SilverStripe\AssetAdmin\Forms\UploadField;
 use SilverStripe\Assets\Folder;
 use SilverStripe\Control\HTTPRequest;
 use SilverStripe\Control\HTTPResponse;
+use SilverStripe\ORM\DataObject;
+use SilverStripe\ORM\DataObjectInterface;
 use SilverStripe\ORM\FieldType\DBField;
 use SilverStripe\ORM\SS_List;
 use Sunnysideup\PerfectCmsImages\Api\PerfectCMSImages;
@@ -22,8 +24,6 @@ use Sunnysideup\PerfectCmsImages\Filesystem\PerfectCmsImageValidator;
  */
 class PerfectCmsImagesUploadField extends UploadField
 {
-    private static $max_size_in_kilobytes = 2048;
-
     private static $folder_prefix = '';
 
     /**
@@ -54,12 +54,10 @@ class PerfectCmsImagesUploadField extends UploadField
             $title,
             $items
         );
+        PerfectCMSImages::legacy_check();
         $perfectCMSImageValidator = new PerfectCmsImageValidator();
         $this->setValidator($perfectCMSImageValidator);
-        $finalName = $name;
-        if (null !== $alternativeName) {
-            $finalName = $alternativeName;
-        }
+        $finalName = $alternativeName !== null ? $alternativeName : $name;
         $this->selectFormattingStandard($finalName);
     }
 
@@ -75,6 +73,11 @@ class PerfectCmsImagesUploadField extends UploadField
     /**
      * @param string $name Formatting Standard
      */
+    public function setFormattingStandard(string $name): self
+    {
+        return $this->selectFormattingStandard($name);
+    }
+
     public function selectFormattingStandard(string $name): self
     {
         //folder
@@ -102,7 +105,7 @@ class PerfectCmsImagesUploadField extends UploadField
 
     /**
      * Creates a single file based on a form-urlencoded upload.
-     * Allows for hooking AfterUpload.
+     * Allows for hooking afterUpload.
      *
      * @return HTTPResponse
      */
@@ -145,5 +148,12 @@ class PerfectCmsImagesUploadField extends UploadField
         Folder::find_or_make($folderName);
         //set folder
         $this->setFolderName($folderName);
+    }
+
+    public function saveInto(DataObject|DataObjectInterface $record): static
+    {
+        parent::saveInto($record);
+
+        return $this;
     }
 }
