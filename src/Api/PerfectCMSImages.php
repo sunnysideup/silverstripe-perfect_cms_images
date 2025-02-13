@@ -322,8 +322,16 @@ EOT;
             'perfect_cms_images_image_definitions'
         ) ?: [];
         if (! empty($test)) {
-            Injector::inst()->get(LoggerInterface::class)->info('PerfectCmsImageDataExtension is deprecated. Please use PerfectCMSImages instead.');
-            user_error('PerfectCmsImageDataExtension is deprecated. Please use PerfectCMSImages instead.', E_USER_ERROR);
+            Injector::inst()->get(LoggerInterface::class)->info('PerfectCmsImageDataExtension is deprecated. Please use PerfectCMSImages instead: ' . self::class);
+            user_error('PerfectCmsImageDataExtension is deprecated. Please use PerfectCMSImages instead: ' . self::class, E_USER_ERROR);
+        }
+        $test = Config::inst()->get(
+            PerfectCMSImages::class,
+            'perfect_cms_images_image_definitions'
+        ) ?: [];
+        if (empty($test)) {
+            Injector::inst()->get(LoggerInterface::class)->info('PerfectCMSImages is now used for image definitions, but it is empty!');
+            user_error('PerfectCMSImages is now used for image definitions, but it is empty!', E_USER_ERROR);
         }
     }
 
@@ -373,5 +381,4 @@ EOT;
         return $sizes[$name][$key] ?? $default;
         // Injector::inst()->get(LoggerInterface::class)->info('no information for image with the name: ' . $name . '.' . $key);
     }
-
 }
