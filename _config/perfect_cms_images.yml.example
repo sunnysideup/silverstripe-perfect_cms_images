@@ -1,7 +1,6 @@
 ---
 Name: perfect_cms_images_custom
 ---
-Sunnysideup\PerfectCmsImages\Api\PerfectCMSImages:
 
 Sunnysideup\PerfectCmsImages\Api\PerfectCMSImages:
   perfect_cms_images_append_title_to_image_links_classes:
