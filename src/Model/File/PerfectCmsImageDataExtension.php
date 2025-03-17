@@ -15,6 +15,7 @@ use SilverStripe\ORM\FieldType\DBHTMLText;
 use SilverStripe\View\ArrayData;
 use Sunnysideup\PerfectCmsImages\Api\ImageManipulations;
 use Sunnysideup\PerfectCmsImages\Api\PerfectCMSImages;
+use Exception;
 
 /**
  * defines the image sizes
@@ -36,28 +37,28 @@ class PerfectCmsImageDataExtension extends Extension
      */
     public function getImageLinkCachedIfExists($method, $args = null): string
     {
+        $image = $this->getOwner();
+        if (! $image->canView()) {
+            return '';
+        }
         $args = func_get_args();
         //remove the method argument
         array_shift($args);
 
-        $image = $this->getOwner();
         $variant = $image->variantName($method, ...$args);
         $store = Injector::inst()->get(AssetStore::class);
-        $closeToOutOfMemory = (memory_get_peak_usage(false) / memory_get_usage(true)) > 0.8;
-        if ($closeToOutOfMemory) {
-            return $image->Link();
-        }
         if ($store->exists($image->getFilename(), $image->getHash(), $variant)) {
-            return $store->getAsURL($image->getFilename(), $image->getHash(), $variant);
+            return $store->getAsURL($image->getFilename(), $image->getHash(), $variant, false);
         } else {
-            if ($this->isMemoryUsageHigh()) {
+            try {
+                $resizeImage = $image->$method(
+                    ...$args
+                );
+                if ($resizeImage) {
+                    return $resizeImage->Link();
+                }
+            } catch (Exception $e) {
                 return $image->Link();
-            }
-            $resizeImage = $image->$method(
-                ...$args
-            );
-            if ($resizeImage) {
-                return $resizeImage->Link();
             }
         }
         return '';
@@ -285,8 +286,10 @@ class PerfectCmsImageDataExtension extends Extension
             // $backEndString = Image::get_backend();
             // $backend = Injector::inst()->get($backEndString);
             $link = ImageManipulations::get_image_link($image, $name, $useRetina, $forMobile);
-
-            return $link !== '' && $link !== '0' ? ImageManipulations::add_fake_parts($image, $link) : '';
+            if (! $link || $link === '0' || $link === '') {
+                $link = $image->Link();
+            }
+            return ImageManipulations::add_fake_parts($image, $link);
         } elseif (Director::isDev()) {
             // no image -> provide placeholder if in DEV MODE only!!!
             return ImageManipulations::get_placeholder_image_tag($name);
