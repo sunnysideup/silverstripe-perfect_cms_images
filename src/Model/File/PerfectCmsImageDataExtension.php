@@ -223,7 +223,7 @@ class PerfectCmsImageDataExtension extends Extension
      */
     public function PerfectCMSImageLinkNonRetinaForMobile(string $name): string
     {
-        return $this->PerfectCMSImageLink($name, false, false, true);
+        return $this->PerfectCMSImageLink($name, false, true);
     }
 
     /**
@@ -233,28 +233,9 @@ class PerfectCmsImageDataExtension extends Extension
      */
     public function PerfectCMSImageLinkRetinaForMobile(string $name): string
     {
-        return $this->PerfectCMSImageLink($name, true, false, true);
+        return $this->PerfectCMSImageLink($name, true,  true);
     }
 
-    /**
-     * @param string $name of Image Field template
-     *
-     * @return string (link)
-     */
-    public function PerfectCMSImageLinkNonRetinaWebPForMobile(string $name): string
-    {
-        return $this->PerfectCMSImageLink($name, false, true, true);
-    }
-
-    /**
-     * @param string $name of Image Field template
-     *
-     * @return string (link)
-     */
-    public function PerfectCMSImageLinkRetinaWebPForMobile(string $name): string
-    {
-        return $this->PerfectCMSImageLink($name, true, true, true);
-    }
 
     /**
      * @return string (link)
@@ -267,8 +248,11 @@ class PerfectCmsImageDataExtension extends Extension
     /**
      * returns image link (if any).
      */
-    public function PerfectCMSImageLink(string $name, ?bool $useRetina = false, ?bool $isWebP = false, ?bool $forMobile = false): string
-    {
+    public function PerfectCMSImageLink(
+        string $name,
+        ?bool $useRetina = false,
+        ?bool $forMobile = false
+    ): string {
         /** @var null|Image $image */
         $image = $this->owner;
         $allOk = false;
