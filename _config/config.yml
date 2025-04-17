@@ -7,8 +7,8 @@ SilverStripe\Assets\Image:
 
 SilverStripe\Assets\File:
   file_types:
-    svg: 'SVG Image'
-    webp: 'Webp Image'
+    svg: "SVG Image"
+    webp: "Webp Image"
   allowed_extensions:
     - svg
     - webp
@@ -32,13 +32,16 @@ SilverStripe\Assets\Storage\DBFile:
 SilverStripe\MimeValidator\MimeUploadValidator:
   MimeTypes:
     svg:
-      - 'image/svg+xml'
-      - 'image/svg'
+      - "image/svg+xml"
+      - "image/svg"
     webp:
-      - 'image/webp'
+      - "image/webp"
 
 SilverStripe\Core\Injector\Injector:
   Psr\SimpleCache\CacheInterface.perfectcmsimages:
     factory: SilverStripe\Core\Cache\CacheFactory
     constructor:
       namespace: "perfectcmsimages"
+
+SilverStripe\Assets\InterventionBackend:
+  flush_enabled: false
