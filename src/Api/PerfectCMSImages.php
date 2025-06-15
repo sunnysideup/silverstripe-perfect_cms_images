@@ -96,6 +96,11 @@ EOT;
         }
     }
 
+    public static function is_valid_image_name(string $name): bool
+    {
+        $sizes = self::get_all_values_for_images();
+        return isset($sizes[$name]) && is_array($sizes[$name]);
+    }
     public static function get_description_for_cms(string $name): string
     {
         $widthRecommendation = (int) PerfectCMSImages::get_width($name);

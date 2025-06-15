@@ -57,8 +57,11 @@ class PerfectCmsImagesUploadField extends UploadField
         PerfectCMSImages::legacy_check();
         $perfectCMSImageValidator = new PerfectCmsImageValidator();
         $this->setValidator($perfectCMSImageValidator);
-        $finalName = $alternativeName !== null ? $alternativeName : $name;
-        $this->selectFormattingStandard($finalName);
+        $finalName = $alternativeName ?: $name;
+        if (PerfectCMSImages::is_valid_image_name($finalName)) {
+            //if the name is a valid formatting standard, then use it.
+            $this->setFormattingStandard($finalName);
+        }
     }
 
     public function setDescription($string): self
