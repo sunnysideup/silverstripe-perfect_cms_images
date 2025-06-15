@@ -66,7 +66,8 @@ class ImageManipulations
                 $perfectHeight = (int) PerfectCMSImages::get_height($name, true);
             }
 
-            $crop = PerfectCMSImages::is_crop($name);
+            $useCrop = PerfectCMSImages::is_crop($name);
+            $usePad = PerfectCMSImages::is_pad($name);
 
             $multiplier = PerfectCMSImages::get_multiplier($useRetina);
             $perfectWidth *= $multiplier;
@@ -86,14 +87,14 @@ class ImageManipulations
                 //if the height or the width are already perfect then we can not do anything about it.
                 if ($myWidth === $perfectWidth && $myHeight === $perfectHeight) {
                     $link = $image->getURL();
-                } elseif ($myWidth < $perfectWidth || $myHeight < $perfectHeight) {
+                } elseif ($usePad && ($myWidth < $perfectWidth || $myHeight < $perfectHeight)) {
                     $link = $image->getImageLinkCachedIfExists(
                         'Pad',
                         $perfectWidth,
                         $perfectHeight,
                         PerfectCMSImages::get_padding_bg_colour($name)
                     );
-                } elseif ($crop) {
+                } elseif ($useCrop) {
                     $link = $image->getImageLinkCachedIfExists(
                         'Fill',
                         $perfectWidth,
@@ -109,7 +110,7 @@ class ImageManipulations
             } elseif ($perfectWidth) {
                 if ($myWidth === $perfectWidth) {
                     $link = $image->getURL();
-                } elseif ($crop) {
+                } elseif ($useCrop) {
                     $link = $image->getImageLinkCachedIfExists(
                         'Fill',
                         $perfectWidth,
@@ -124,7 +125,7 @@ class ImageManipulations
             } elseif ($perfectHeight) {
                 if ($myHeight === $perfectHeight) {
                     $link = $image->getUrl();
-                } elseif ($crop) {
+                } elseif ($useCrop) {
                     $link = $image->getImageLinkCachedIfExists(
                         'Fill',
                         $myWidth,

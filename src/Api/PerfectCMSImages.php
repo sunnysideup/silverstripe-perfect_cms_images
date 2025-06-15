@@ -187,6 +187,11 @@ EOT;
         return self::get_one_value_for_image($name, 'crop', false);
     }
 
+    public static function is_pad(string $name): bool
+    {
+        return self::get_one_value_for_image($name, 'pad', false);
+    }
+
     /**
      * @return int|string
      */

@@ -8,16 +8,17 @@ Sunnysideup\PerfectCmsImages\Api\PerfectCMSImages:
   perfect_cms_images_background_padding_color: "#ffffff"
   perfect_cms_images_image_definitions:
     nameBAR:
-      width: 100
-      height: 100
-      enforce_size: false
-      folder: my-image-folder-a
-      filetype: "jpg or a png with a transparant background"
-      use_retina: true
+      width: 100 # recommended width
+      height: 100 # recommended height
+      enforce_size: false # allow user to upload a different picture
+      folder: my-image-folder-a # where to save the images
+      filetype: "jpg or a png with a transparant background" # the filetype you recommend
+      use_retina: true # double the size.
       padding_bg_colour: '#dddddd'
-      crop: true
+      crop: true # when the image is not to the right size, allow cropping
+      pad: false # when the image is not to the right size, allow padding
       move_to_right_folder: true
-      loading_style: 'eager'
+      loading_style: 'eager' # default is lazy
       force_third_party_resize: false
       used_by:
         - Page.Logo
