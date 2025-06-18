@@ -25,6 +25,9 @@ use SilverStripe\ORM\DataObject;
  */
 class DeleteGeneratedImagesTask extends BuildTask
 {
+    protected $title = 'Delete Generated Images';
+    protected $description = 'Delete all generated images for a specific asset';
+
     public function getDescription(): string
     {
         return 'Regenerate Images for an asset';
