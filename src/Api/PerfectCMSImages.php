@@ -389,7 +389,7 @@ EOT;
         $sizes = self::get_all_values_for_images();
         if (! isset($sizes[$name])) {
             user_error(
-                'No information for image with the name: ' . $name . '. Value required is ' . $key . '. Please check your config/perfect_cms_images.yml file.',
+                'No information for image with the name: ' . ($name ? $name : 'unknown') . '. Value required is ' . $key . '. Please check your config/perfect_cms_images.yml file.',
                 E_USER_WARNING
             );
         }
