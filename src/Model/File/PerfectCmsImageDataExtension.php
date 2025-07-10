@@ -250,7 +250,7 @@ class PerfectCmsImageDataExtension extends Extension
      */
     public function PerfectCMSImageLink(
         string $name,
-        ?bool $useRetina = false,
+        ?bool $useRetina = true,
         ?bool $forMobile = false
     ): string {
         /** @var null|Image $image */
