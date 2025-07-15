@@ -39,7 +39,7 @@ class DeleteAllVariants extends BuildTask
         Director::baseFolder();
         $go = $request->getVar('go');
         $rm = '-exec rm {} \;';
-        $find = 'find . -regextype posix-extended -regex \'.*__(Fit|Fill|ResizedImage|Scale|Resampled).*\.(jpg|png|JPG|jpeg)\' ';
+        $find = 'find . -regextype posix-extended -regex \'.*__(Fit|Fill|ResizedImage|Scale|Resampled).*\.(jpg|webp|png|JPG|jpeg)\' ';
         if ($go) {
             exec($find . ' ' . $rm);
             exec($find . ' ' . $rm, $output, $retval);
