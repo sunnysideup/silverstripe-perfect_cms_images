@@ -320,18 +320,38 @@ class PerfectCmsImageDataExtension extends Extension
 
     public function getCMSThumbnail()
     {
-        if ($this->owner->ID) {
-            if ('svg' === $this->owner->getExtension()) {
-                $data = file_get_contents(BASE_PATH . $this->owner->Link());
-                $obj = DBHTMLText::create_field('HTMLText', $data);
-
-                return $obj;
-            }
-
-            return $this->owner->CMSThumbnail();
+        $owner = $this->getOwner();
+        if ($owner->ID) {
+            return $this->getImageAsSVG() ?? $owner->CMSThumbnail();
         }
 
-        return $this->owner->CMSThumbnail();
+        return $owner->CMSThumbnail();
+    }
+
+    public function IsSVG(): bool
+    {
+        return 'svg' === $this->owner->getExtension();
+    }
+
+    public function getSVGFormat()
+    {
+        $owner = $this->getOwner();
+        if ($owner->ID) {
+            return $this->getImageAsSVG() ?? $owner->forTemplate();
+        }
+
+        return $owner->forTemplate();
+    }
+
+    public function getImageAsSVG(): DBHTMLText|null
+    {
+        $owner = $this->getOwner();
+        if ($this->IsSVG()) {
+            $data = file_get_contents(PUBLIC_PATH . $owner->Link());
+            $obj = DBHTMLText::create_field('HTMLText', $data);
+            return $obj;
+        }
+        return null;
     }
 
     public function updatePreviewLink(&$link, $action)
