@@ -1,7 +1,47 @@
 ---
 Name: perfect_cms_images
 ---
-
 SilverStripe\Assets\Image:
   extensions:
     - Sunnysideup\PerfectCmsImages\Model\File\PerfectCmsImageDataExtension
+
+SilverStripe\Assets\File:
+  file_types:
+    svg: "SVG Image"
+    webp: "Webp Image"
+  allowed_extensions:
+    - svg
+    - webp
+  app_categories:
+    image:
+      - svg
+      - webp
+    image/supported:
+      - svg
+      - webp
+  class_for_file_extension:
+    svg: SilverStripe\Assets\Image
+    webp: SilverStripe\Assets\Image
+
+SilverStripe\Assets\Storage\DBFile:
+  supported_images:
+    - image/svg
+    - image/svg+xml
+    - image/webp
+
+SilverStripe\MimeValidator\MimeUploadValidator:
+  MimeTypes:
+    svg:
+      - "image/svg+xml"
+      - "image/svg"
+    webp:
+      - "image/webp"
+
+SilverStripe\Core\Injector\Injector:
+  Psr\SimpleCache\CacheInterface.perfectcmsimages:
+    factory: SilverStripe\Core\Cache\CacheFactory
+    constructor:
+      namespace: "perfectcmsimages"
+
+SilverStripe\Assets\InterventionBackend:
+  flush_enabled: false
