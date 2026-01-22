@@ -1,0 +1,7 @@
+---
+Name: perfectcmsimagesroutes
+After: framework/routes#coreroutes
+---
+SilverStripe\Control\Director:
+  rules:
+    "placeholderimagecreator//$Action/$ID/$OtherID": Sunnysideup\PerfectCmsImages\Control\PlaceHolderImageCreator

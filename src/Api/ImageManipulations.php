@@ -9,7 +9,9 @@ use SilverStripe\Core\Config\Config;
 use SilverStripe\Core\Config\Configurable;
 use SilverStripe\Core\Convert;
 use SilverStripe\Core\Injector\Injectable;
+use SilverStripe\Core\Injector\Injector;
 use SilverStripe\SiteConfig\SiteConfig;
+use Sunnysideup\PerfectCmsImages\Control\PlaceHolderImageCreator;
 
 class ImageManipulations
 {
@@ -183,11 +185,9 @@ class ImageManipulations
             }
 
             $text = "{$perfectWidth} x {$perfectHeight} /2 = " . round($perfectWidth / 2) . ' x ' . round($perfectHeight / 2) . '';
-
-            return 'https://placehold.it/' . $perfectWidth . 'x' . $perfectHeight . '?text=' . urlencode($text);
+            return PlaceHolderImageCreator::get_link($perfectWidth, $perfectHeight, $text);
         }
-
-        return 'https://placehold.it/1500x1500?text=' . urlencode('no size set');
+        return PlaceHolderImageCreator::get_link(1500, 1500, 'no size set');
     }
 
 
