@@ -39,14 +39,12 @@ class PerfectCMSImages implements Flushable
      * @var string
      */
     private static $htaccess_content = <<<'EOT'
-<IfModule mod_rewrite.c>
-    RewriteEngine On
-    RewriteBase /
+RewriteEngine On
+RewriteBase /
 
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteRule ^(.+)\.(v[A-Za-z0-9]+)\.(png|jpg|gif|svg|webp)$ $1.$3 [L]
-</IfModule>
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.+)\.(v[A-Za-z0-9]+)\.(png|jpg|gif|svg|webp)$ $1.$3 [L]
 
 EOT;
 
