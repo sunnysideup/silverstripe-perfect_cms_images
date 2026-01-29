@@ -10,6 +10,10 @@ use SilverStripe\Core\Convert;
 use SilverStripe\Core\Injector\Injectable;
 
 
+/**
+ * Class \Sunnysideup\PerfectCmsImages\Control\PlaceHolderImageCreator
+ *
+ */
 class PlaceHolderImageCreator extends Controller
 {
 
