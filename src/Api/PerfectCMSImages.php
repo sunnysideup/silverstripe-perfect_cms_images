@@ -20,14 +20,9 @@ class PerfectCMSImages implements Flushable
 
     /**
      * background image for padded images...
-     *
-     * @var string
      */
     private static string $perfect_cms_images_background_padding_color = '#cccccc';
 
-    /**
-     * @var array
-     */
     private static array $perfect_cms_images_image_definitions = [];
 
     public const MULTI_USE_CODE = 'multiuse';
@@ -115,7 +110,6 @@ EOT;
             $widthRecommendation *= $multiplier;
             $actualWidthDescription = $widthRecommendation . 'px';
         } else {
-            $actualWidthDescription = $widthRecommendation;
             $actualWidthDescription = 'flexible';
         }
 
@@ -124,7 +118,6 @@ EOT;
             $heightRecommendation *= $multiplier;
             $actualHeightDescription = $heightRecommendation . 'px';
         } else {
-            $actualHeightDescription = $heightRecommendation;
             $actualHeightDescription = 'flexible';
         }
 
@@ -387,7 +380,7 @@ EOT;
         $sizes = self::get_all_values_for_images();
         if (! isset($sizes[$name])) {
             user_error(
-                'No information for image with the name: ' . ($name ? $name : 'unknown') . '. Value required is ' . $key . '. Please check your config/perfect_cms_images.yml file.',
+                'No information for image with the name: ' . ($name !== '' && $name !== '0' ? $name : 'unknown') . '. Value required is ' . $key . '. Please check your config/perfect_cms_images.yml file.',
                 E_USER_WARNING
             );
         }

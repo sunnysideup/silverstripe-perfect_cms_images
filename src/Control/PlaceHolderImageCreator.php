@@ -83,11 +83,7 @@ class PlaceHolderImageCreator extends Controller
         imagefilledrectangle($img, 0, 0, $width - 1, $height - 1, $bg);
 
         // Label
-        if ($text) {
-            $label = $text;
-        } else {
-            $label = $width . 'x' . $height;
-        }
+        $label = $text ? $text : $width . 'x' . $height;
 
         // Choose a readable text colour based on brightness
         $brightness = (int) (0.299 * $bgR + 0.587 * $bgG + 0.114 * $bgB);
@@ -114,8 +110,5 @@ class PlaceHolderImageCreator extends Controller
         $response = $this->getResponse();
         $response->addHeader('Content-Type', 'image/png');
         imagepng($img);
-
-        // IMPORTANT: don't let SS render templates
-        return;
     }
 }

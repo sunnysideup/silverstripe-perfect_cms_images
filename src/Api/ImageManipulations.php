@@ -124,7 +124,7 @@ class ImageManipulations
                         $perfectWidth
                     );
                 }
-            } elseif ($perfectHeight) {
+            } elseif ($perfectHeight !== 0) {
                 if ($myHeight === $perfectHeight) {
                     $link = $image->getUrl();
                 } elseif ($useCrop) {

@@ -24,21 +24,14 @@ class SortOutFolders
 
     /**
      * the folder where we move images that are not in use.
-     *
-     * @var Folder
      */
     protected Folder $unusedImagesFolder;
 
     /**
      * if set to true then dont do it for real!
-     *
-     * @var bool
      */
     protected bool $dryRun = false;
 
-    /**
-     * @var bool
-     */
     protected bool $verbose = true;
 
     protected array $fieldCache = [];
@@ -69,7 +62,6 @@ class SortOutFolders
     }
 
     /**
-     * @param string $unusedFolderName
      * @param array $data
      *                    Create test jobs for the purposes of testing.
      *                    The array must contains arrays with
@@ -128,8 +120,6 @@ class SortOutFolders
      *
      * uses the standard perfect_cms_images configuration to create a list of folders
      * and the associated Model.Method pairs that should be in the folder.
-     * @param array $data
-     * @return array
      */
     protected function setFolderArray(array $data): void
     {
@@ -172,7 +162,6 @@ class SortOutFolders
      * get a list of image IDs that should be in the folder.
      *
      * @param array $this->folderArray
-     * @return array
      */
     protected function setListOfImages(): void
     {
@@ -248,7 +237,6 @@ class SortOutFolders
     /**
      * find any images and move them into the specified folder.
      *
-     * @param string $folderName
      * @return void
      */
     public function moveUsedFilesIntoFolder(string $folderName)
@@ -283,7 +271,6 @@ class SortOutFolders
      *
      * find any superfluous images in the folder, not listed in the database at all,
      * and move them to the unused folder.
-     * @param string $folderName
      * @return void
      */
     public function findRoqueFilesInFolder(string $folderName)
