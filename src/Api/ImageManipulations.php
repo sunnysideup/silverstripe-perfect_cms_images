@@ -9,7 +9,6 @@ use SilverStripe\Core\Config\Config;
 use SilverStripe\Core\Config\Configurable;
 use SilverStripe\Core\Convert;
 use SilverStripe\Core\Injector\Injectable;
-use SilverStripe\Core\Injector\Injector;
 use SilverStripe\SiteConfig\SiteConfig;
 use Sunnysideup\PerfectCmsImages\Control\PlaceHolderImageCreator;
 
@@ -17,7 +16,6 @@ class ImageManipulations
 {
     use Configurable;
     use Injectable;
-
 
     private static $imageLinkCache = [];
 
@@ -189,7 +187,6 @@ class ImageManipulations
         }
         return PlaceHolderImageCreator::get_link(1500, 1500, 'no size set');
     }
-
 
     public static function add_fake_parts($image, string $link): string
     {

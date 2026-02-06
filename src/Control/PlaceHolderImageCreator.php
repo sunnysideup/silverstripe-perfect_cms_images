@@ -7,19 +7,19 @@ namespace Sunnysideup\PerfectCmsImages\Control;
 use SilverStripe\Control\Controller;
 use SilverStripe\Control\Director;
 use SilverStripe\Core\Convert;
-use SilverStripe\Core\Injector\Injectable;
-
 
 /**
  * Class \Sunnysideup\PerfectCmsImages\Control\PlaceHolderImageCreator
- *
  */
 class PlaceHolderImageCreator extends Controller
 {
-
     public static function get_link(int $width, int $height, ?string $text = null)
     {
-        $actions = ['width' => $width, 'height' => $height, 'text' => $text];
+        $actions = [
+            'width' => $width,
+            'height' => $height,
+            'text' => $text,
+        ];
         $actions = http_build_query($actions);
         return Controller::join_links(Director::absoluteBaseURL(), self::$url_segment, 'myimage') .
             '?' . $actions;
@@ -42,7 +42,7 @@ class PlaceHolderImageCreator extends Controller
         'myimage',
     ];
 
-    function myimage($request): void
+    public function myimage($request): void
     {
         if (Director::isLive()) {
             echo '404-image';
@@ -59,7 +59,7 @@ class PlaceHolderImageCreator extends Controller
             return;
         }
 
-        if (!extension_loaded('gd')) {
+        if (! extension_loaded('gd')) {
             http_response_code(500);
             header('Content-Type: text/plain; charset=utf-8');
             echo 'GD extension is not enabled.';

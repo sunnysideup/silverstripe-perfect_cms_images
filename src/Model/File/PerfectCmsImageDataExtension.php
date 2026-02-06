@@ -2,6 +2,7 @@
 
 namespace Sunnysideup\PerfectCmsImages\Model\File;
 
+use Exception;
 use Psr\SimpleCache\CacheInterface;
 use SilverStripe\Assets\Folder;
 use SilverStripe\Assets\Image;
@@ -15,7 +16,6 @@ use SilverStripe\ORM\FieldType\DBHTMLText;
 use SilverStripe\View\ArrayData;
 use Sunnysideup\PerfectCmsImages\Api\ImageManipulations;
 use Sunnysideup\PerfectCmsImages\Api\PerfectCMSImages;
-use Exception;
 
 /**
  * defines the image sizes
@@ -64,35 +64,6 @@ class PerfectCmsImageDataExtension extends Extension
         return '';
     }
 
-    private function isMemoryUsageHigh(float $threshold = 0.9): bool
-    {
-        $currentUsage = memory_get_usage();
-        $memoryLimit = ini_get('memory_limit');
-        $memoryLimitBytes = $this->convertToBytes($memoryLimit);
-
-        return ($currentUsage / $memoryLimitBytes) > $threshold;
-    }
-
-    private function convertToBytes(string $memoryLimit): int
-    {
-        $last = strtolower($memoryLimit[-1]);
-        $value = (int) $memoryLimit;
-
-        switch ($last) {
-            case 'g':
-                $value *= 1024 * 1024 * 1024;
-                break;
-            case 'm':
-                $value *= 1024 * 1024;
-                break;
-            case 'k':
-                $value *= 1024;
-                break;
-        }
-
-        return $value;
-    }
-
     /**
      * @param string $name       PerfectCMSImages name
      * @param bool   $inline     for use within existing image tag - optional
@@ -116,7 +87,7 @@ class PerfectCmsImageDataExtension extends Extension
      */
     public function PerfectCMSImageTag(string $name, $inline = false, ?string $alt = '', ?string $attributes = '')
     {
-        $cacheKey = $this->getPerfectCMSImagesTagCacheKey($name . (string) $inline . (string) $alt . (string) $attributes);
+        $cacheKey = $this->getPerfectCMSImagesTagCacheKey($name . $inline . $alt . $attributes);
         $cache = $this->getPerfectCMSImagesTagCache();
         if ($cacheKey && $cache->has($cacheKey)) {
             return $cache->get($cacheKey);
@@ -168,7 +139,6 @@ class PerfectCmsImageDataExtension extends Extension
             $mobileMediaWidth = PerfectCMSImages::get_mobile_media_width($name);
         }
 
-
         if (! $alt) {
             $alt = $this->getOwner()->Title;
         }
@@ -215,7 +185,6 @@ class PerfectCmsImageDataExtension extends Extension
         return $this->PerfectCMSImageLink($name, true);
     }
 
-
     /**
      * @param string $name of Image Field template
      *
@@ -233,9 +202,8 @@ class PerfectCmsImageDataExtension extends Extension
      */
     public function PerfectCMSImageLinkRetinaForMobile(string $name): string
     {
-        return $this->PerfectCMSImageLink($name, true,  true);
+        return $this->PerfectCMSImageLink($name, true, true);
     }
-
 
     /**
      * @return string (link)
@@ -348,8 +316,7 @@ class PerfectCmsImageDataExtension extends Extension
         $owner = $this->getOwner();
         if ($this->IsSVG()) {
             $data = file_get_contents(PUBLIC_PATH . $owner->Link());
-            $obj = DBHTMLText::create_field('HTMLText', $data);
-            return $obj;
+            return DBHTMLText::create_field('HTMLText', $data);
         }
         return null;
     }

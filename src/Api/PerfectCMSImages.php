@@ -26,6 +26,7 @@ class PerfectCMSImages implements Flushable
     private static array $perfect_cms_images_image_definitions = [];
 
     public const MULTI_USE_CODE = 'multiuse';
+
     public const UNUSED_CODE = 'unused';
 
     /**
@@ -94,6 +95,7 @@ EOT;
         $sizes = self::get_all_values_for_images();
         return isset($sizes[$name]) && is_array($sizes[$name]);
     }
+
     public static function get_description_for_cms(string $name): string
     {
         $widthRecommendation = (int) PerfectCMSImages::get_width($name);

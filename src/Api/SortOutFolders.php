@@ -8,7 +8,6 @@ use SilverStripe\Assets\Image;
 use SilverStripe\Control\Controller;
 use SilverStripe\Core\ClassInfo;
 use SilverStripe\Core\Config\Config;
-use SilverStripe\Core\Config\Configurable;
 use SilverStripe\Core\Injector\Injectable;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\ORM\DB;
@@ -37,6 +36,7 @@ class SortOutFolders
     protected array $fieldCache = [];
 
     protected $folderArray = [];
+
     protected $listOfImageIds = [];
 
     public function setVerbose(?bool $b = true): static
@@ -117,7 +117,6 @@ class SortOutFolders
     }
 
     /**
-     *
      * uses the standard perfect_cms_images configuration to create a list of folders
      * and the associated Model.Method pairs that should be in the folder.
      */
@@ -157,11 +156,8 @@ class SortOutFolders
 
     }
 
-
     /**
      * get a list of image IDs that should be in the folder.
-     *
-     * @param array $this->folderArray
      */
     protected function setListOfImages(): void
     {
@@ -205,7 +201,6 @@ class SortOutFolders
      * returns the images in the ID list that were not found in the folder.
      *
      * @param string $folderName     Folder moving to
-     * @param array  $this->listOfImageIds Images that should be in the folder
      */
     public function removeUnusedFiles(string $folderName)
     {
@@ -236,8 +231,6 @@ class SortOutFolders
 
     /**
      * find any images and move them into the specified folder.
-     *
-     * @return void
      */
     public function moveUsedFilesIntoFolder(string $folderName)
     {
@@ -268,10 +261,8 @@ class SortOutFolders
     }
 
     /**
-     *
      * find any superfluous images in the folder, not listed in the database at all,
      * and move them to the unused folder.
-     * @return void
      */
     public function findRoqueFilesInFolder(string $folderName)
     {
@@ -389,7 +380,7 @@ class SortOutFolders
         $pathInfo = pathinfo($newNameFromAssetRoot);
         while (file_exists(Controller::join_links(ASSETS_PATH, $newNameFromAssetRoot)) && $x < 100) {
             $x++;
-            $newNameFromAssetRoot = $pathInfo['dirname']  . '/' . $pathInfo['filename'] . '-v'. $x . '.' . $pathInfo['extension'];
+            $newNameFromAssetRoot = $pathInfo['dirname'] . '/' . $pathInfo['filename'] . '-v' . $x . '.' . $pathInfo['extension'];
         }
         return $newNameFromAssetRoot;
     }
