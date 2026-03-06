@@ -52,7 +52,7 @@ class ImageManipulations
                     ]
                 )
             );
-        if (! isset(self::$imageLinkCache[$cacheKey])) {
+        if (! array_key_exists($cacheKey, self::$imageLinkCache)) {
             $link = '';
             if ($forMobile) {
                 $perfectWidth = (int) PerfectCMSImages::get_mobile_width($name, true);
