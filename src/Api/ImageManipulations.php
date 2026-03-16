@@ -39,6 +39,7 @@ class ImageManipulations
         if ($useRetina) {
             $useRetina = PerfectCMSImages::use_retina($name);
         }
+
         $cacheKey =
             implode(
                 '_',
@@ -141,6 +142,7 @@ class ImageManipulations
                 // not for mobile, we definitely want to have some sort of link!
                 $link = $image->getUrl();
             }
+
             self::$imageLinkCache[$cacheKey] = (string) $link;
         }
 
@@ -182,9 +184,10 @@ class ImageManipulations
                 $perfectHeight = $perfectWidth;
             }
 
-            $text = "{$perfectWidth} x {$perfectHeight} /2 = " . round($perfectWidth / 2) . ' x ' . round($perfectHeight / 2) . '';
+            $text = sprintf('%s x %s /2 = ', $perfectWidth, $perfectHeight) . round($perfectWidth / 2) . ' x ' . round($perfectHeight / 2) . '';
             return PlaceHolderImageCreator::get_link($perfectWidth, $perfectHeight, $text);
         }
+
         return PlaceHolderImageCreator::get_link(1500, 1500, 'no size set');
     }
 

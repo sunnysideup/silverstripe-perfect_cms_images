@@ -2,6 +2,7 @@
 
 namespace Sunnysideup\PerfectCmsImages\Filesystem;
 
+use Override;
 use SilverStripe\Assets\Upload_Validator;
 use Sunnysideup\PerfectCmsImages\Api\PerfectCMSImages;
 
@@ -21,6 +22,7 @@ class PerfectCmsImageValidator extends Upload_Validator
      *
      * @return bool
      */
+    #[Override]
     public function validate()
     {
         $hasError = false;

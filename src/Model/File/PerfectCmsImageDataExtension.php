@@ -2,6 +2,7 @@
 
 namespace Sunnysideup\PerfectCmsImages\Model\File;
 
+use SilverStripe\Model\ArrayData;
 use Exception;
 use Psr\SimpleCache\CacheInterface;
 use SilverStripe\Assets\Folder;
@@ -13,7 +14,6 @@ use SilverStripe\Core\Extension;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\ORM\FieldType\DBField;
 use SilverStripe\ORM\FieldType\DBHTMLText;
-use SilverStripe\View\ArrayData;
 use Sunnysideup\PerfectCmsImages\Api\ImageManipulations;
 use Sunnysideup\PerfectCmsImages\Api\PerfectCMSImages;
 
@@ -41,6 +41,7 @@ class PerfectCmsImageDataExtension extends Extension
         if (! $image->canView()) {
             return '';
         }
+
         $args = func_get_args();
         //remove the method argument
         array_shift($args);
@@ -57,10 +58,11 @@ class PerfectCmsImageDataExtension extends Extension
                 if ($resizeImage) {
                     return $resizeImage->Link();
                 }
-            } catch (Exception $e) {
+            } catch (Exception) {
                 return $image->Link();
             }
         }
+
         return '';
     }
 
@@ -92,24 +94,28 @@ class PerfectCmsImageDataExtension extends Extension
         if ($cacheKey && $cache->has($cacheKey)) {
             return $cache->get($cacheKey);
         }
+
         $arrayData = $this->getPerfectCMSImageTagArrayData($name, $alt, $attributes);
         $template = 'Includes/PerfectCMSImageTag';
         if (true === $inline || 1 === (int) $inline || 'true' === strtolower($inline)) {
             $template .= 'Inline';
         }
+
         $string = DBField::create_field('HTMLText', $arrayData->renderWith($template));
         if ($cacheKey && $cache) {
             $cache->set($cacheKey, $string);
         }
+
         return $string;
     }
 
     protected function getPerfectCMSImagesTagCacheKey($toAdd)
     {
-        if (! $this->owner->isPublished()) {
+        if (! $this->getOwner()->isPublished()) {
             return null;
         }
-        return 'PCI' . $this->owner->ID . '_' . strtotime($this->owner->LastEdited) . $toAdd;
+
+        return 'PCI' . $this->getOwner()->ID . '_' . strtotime($this->getOwner()->LastEdited) . $toAdd;
     }
 
     protected function getPerfectCMSImagesTagCache()
@@ -122,7 +128,7 @@ class PerfectCmsImageDataExtension extends Extension
      * @param string $alt        alt tag for image -optional
      * @param string $attributes additional attributes
      *
-     * @return ArrayData
+     * @return \SilverStripe\Model\ArrayData
      */
     private function getPerfectCMSImageTagArrayData(string $name, ?string $alt = '', ?string $attributes = '')
     {
@@ -142,13 +148,14 @@ class PerfectCmsImageDataExtension extends Extension
         if (! $alt) {
             $alt = $this->getOwner()->Title;
         }
+
         $myArray = [
             'Width' => $width,
             'Height' => $height,
             'Alt' => Convert::raw2att($alt),
             'RetinaLink' => $retinaLink,
             'NonRetinaLink' => $nonRetinaLink,
-            'Type' => $this->owner->getMimeType(),
+            'Type' => $this->getOwner()->getMimeType(),
             'Attributes' => DBField::create_field('HTMLText', $attributes),
         ];
         if ($hasMobile) {
@@ -222,7 +229,7 @@ class PerfectCmsImageDataExtension extends Extension
         ?bool $forMobile = false
     ): string {
         /** @var null|Image $image */
-        $image = $this->owner;
+        $image = $this->getOwner();
         $allOk = false;
         if ($image && $image->exists() && $image instanceof Image) {
             $allOk = true;
@@ -241,6 +248,7 @@ class PerfectCmsImageDataExtension extends Extension
             if (! $link || $link === '0' || $link === '') {
                 $link = $image->Link();
             }
+
             return ImageManipulations::add_fake_parts($image, $link);
         } elseif (Director::isDev()) {
             // no image -> provide placeholder if in DEV MODE only!!!
@@ -260,6 +268,7 @@ class PerfectCmsImageDataExtension extends Extension
         if (! $name) {
             $name = 'Uploads';
         }
+
         $folder = null;
         if (PerfectCMSImages::move_to_right_folder($name) || $folderName) {
             $image = $this->getOwner();
@@ -267,10 +276,12 @@ class PerfectCmsImageDataExtension extends Extension
                 if (! $folderName) {
                     $folderName = PerfectCMSImages::get_folder($name);
                 }
+
                 $folder = Folder::find_or_make($folderName);
                 if (! $folder->ID) {
                     $folder->write();
                 }
+
                 if ($image->ParentID !== $folder->ID) {
                     $wasPublished = $image->isPublished() && ! $image->isModifiedOnDraft();
                     $image->ParentID = $folder->ID;
@@ -280,6 +291,7 @@ class PerfectCmsImageDataExtension extends Extension
                     }
                 }
             }
+
             // user_error('could not find image');
         }
 
@@ -298,7 +310,7 @@ class PerfectCmsImageDataExtension extends Extension
 
     public function IsSVG(): bool
     {
-        return 'svg' === $this->owner->getExtension();
+        return 'svg' === $this->getOwner()->getExtension();
     }
 
     public function getSVGFormat()
@@ -318,13 +330,14 @@ class PerfectCmsImageDataExtension extends Extension
             $data = file_get_contents(PUBLIC_PATH . $owner->Link());
             return DBHTMLText::create_field('HTMLText', $data);
         }
+
         return null;
     }
 
     public function updatePreviewLink(&$link, $action)
     {
         $owner = $this->getOwner();
-        if ('svg' === $this->owner->getExtension()) {
+        if ('svg' === $this->getOwner()->getExtension()) {
             return $owner->Link();
         }
 

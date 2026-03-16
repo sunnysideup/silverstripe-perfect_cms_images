@@ -128,7 +128,7 @@ EOT;
         if ('flexible' === $actualWidthDescription) {
             $rightTitle .= 'Image width is flexible';
         } else {
-            $rightTitle .= "Image should to be <strong>{$actualWidthDescription}</strong> wide";
+            $rightTitle .= sprintf('Image should to be <strong>%s</strong> wide', $actualWidthDescription);
         }
 
         $rightTitle .= ' and ';
@@ -136,7 +136,7 @@ EOT;
         if ('flexible' === $actualHeightDescription) {
             $rightTitle .= 'height is flexible.';
         } else {
-            $rightTitle .= " <strong>{$actualHeightDescription}</strong> tall.";
+            $rightTitle .= sprintf(' <strong>%s</strong> tall.', $actualHeightDescription);
         }
 
         $rightTitle .= '<br />';
@@ -151,6 +151,7 @@ EOT;
         } else {
             $rightTitle .= '<strong>' . $recommendedFileType . '</strong>.';
         }
+
         $rightTitle .= '<br />Not sure how to proceed? Use a service <a href="https://tinypng.com/" target="_blank" rel="noreferrer">TinyPNG</a> to reduce the file size and convert it.';
 
         return $rightTitle . '</span>';
@@ -315,6 +316,7 @@ EOT;
                 'perfect_cms_images_image_definitions'
             ) ?: [];
         }
+
         return self::$_cache_image_info;
     }
 
@@ -328,6 +330,7 @@ EOT;
             Injector::inst()->get(LoggerInterface::class)->info('PerfectCmsImageDataExtension is deprecated. Please use PerfectCMSImages instead: ' . self::class);
             user_error('PerfectCmsImageDataExtension is deprecated. Please use PerfectCMSImages instead: ' . self::class, E_USER_ERROR);
         }
+
         $test = Config::inst()->get(
             PerfectCMSImages::class,
             'perfect_cms_images_image_definitions'
@@ -386,6 +389,7 @@ EOT;
                 E_USER_WARNING
             );
         }
+
         return $sizes[$name][$key] ?? $default;
         // Injector::inst()->get(LoggerInterface::class)->info('no information for image with the name: ' . $name . '.' . $key);
     }

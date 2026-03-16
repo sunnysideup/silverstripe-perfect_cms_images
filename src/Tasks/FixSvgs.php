@@ -2,6 +2,7 @@
 
 namespace Sunnysideup\PerfectCmsImages\Tasks;
 
+use Override;
 use SilverStripe\Assets\File;
 use SilverStripe\Assets\Image;
 use SilverStripe\Control\HTTPRequest;
@@ -16,11 +17,13 @@ use SilverStripe\ORM\DB;
  */
 class FixSvgs extends BuildTask
 {
+    #[Override]
     public function getTitle(): string
     {
         return 'Fix Svg Images that are saved as Files rather than Images';
     }
 
+    #[Override]
     public function getDescription(): string
     {
         return 'Go through all the Files, check if they are SVGs and then change the classname to Image.';
@@ -46,6 +49,7 @@ class FixSvgs extends BuildTask
                     }
                 }
             }
+
             $files = $this->getBatchOfFiles();
         }
     }

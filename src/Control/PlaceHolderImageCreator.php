@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Sunnysideup\PerfectCmsImages\Control;
 
+use Override;
 use SilverStripe\Control\Controller;
 use SilverStripe\Control\Director;
 use SilverStripe\Core\Convert;
@@ -25,6 +26,7 @@ class PlaceHolderImageCreator extends Controller
             '?' . $actions;
     }
 
+    #[Override]
     public function Link($actions = null)
     {
         if (is_array($actions)) {
@@ -32,6 +34,7 @@ class PlaceHolderImageCreator extends Controller
         } elseif (is_string($actions)) {
             // do nothing
         }
+
         return Controller::join_links(Director::absoluteBaseURL(), self::$url_segment, 'myimage') .
             '?' . $actions;
     }
@@ -48,6 +51,7 @@ class PlaceHolderImageCreator extends Controller
             echo '404-image';
             return;
         }
+
         $width = (int) $request->getVar('width');
         $height = (int) $request->getVar('height');
         $text = Convert::raw2htmlid($request->getVar('text'));
@@ -83,7 +87,7 @@ class PlaceHolderImageCreator extends Controller
         imagefilledrectangle($img, 0, 0, $width - 1, $height - 1, $bg);
 
         // Label
-        $label = $text ? $text : $width . 'x' . $height;
+        $label = $text ?: $width . 'x' . $height;
 
         // Choose a readable text colour based on brightness
         $brightness = (int) (0.299 * $bgR + 0.587 * $bgG + 0.114 * $bgB);

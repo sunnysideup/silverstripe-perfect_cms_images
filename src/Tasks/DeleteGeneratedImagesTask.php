@@ -2,6 +2,7 @@
 
 namespace Sunnysideup\PerfectCmsImages\Tasks;
 
+use Override;
 use League\Flysystem\Filesystem;
 use ReflectionMethod;
 use SilverStripe\Assets\Flysystem\FlysystemAssetStore;
@@ -10,7 +11,6 @@ use SilverStripe\Assets\Storage\AssetStore;
 use SilverStripe\Control\HTTPRequest;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Dev\BuildTask;
-use SilverStripe\ORM\DataObject;
 
 /**
  * SOURCE: https://gist.github.com/blueo/6598bc349b406cf678f9a8f009587a95
@@ -29,6 +29,7 @@ class DeleteGeneratedImagesTask extends BuildTask
 
     protected $description = 'Delete all generated images for a specific asset';
 
+    #[Override]
     public function getDescription(): string
     {
         return 'Regenerate Images for an asset';
@@ -48,7 +49,7 @@ class DeleteGeneratedImagesTask extends BuildTask
             return;
         }
 
-        $image = DataObject::get_by_id(Image::class, $Id);
+        $image = Image::get()->byID($Id);
 
         if (! $image) {
             echo 'No Image found with that ID';
@@ -61,19 +62,15 @@ class DeleteGeneratedImagesTask extends BuildTask
 
         // warning - super hacky as accessing private methods
         $getID = new ReflectionMethod(FlysystemAssetStore::class, 'getFileID');
-        $getID->setAccessible(true);
 
         $flyID = $getID->invoke($store, $asetValues['Filename'], $asetValues['Hash']);
         $getFileSystem = new ReflectionMethod(FlysystemAssetStore::class, 'getFilesystemFor');
-
-        $getFileSystem->setAccessible(true);
         /** @var Filesystem $system */
         $system = $getFileSystem->invoke($store, $flyID);
 
         $findVariants = new ReflectionMethod(FlysystemAssetStore::class, 'findVariants');
-        $findVariants->setAccessible(true);
         foreach ($findVariants->invoke($store, $flyID, $system) as $variant) {
-            $isGenerated = strpos($variant, '__');
+            $isGenerated = strpos((string) $variant, '__');
             if (! $isGenerated) {
                 continue;
             }
@@ -81,6 +78,6 @@ class DeleteGeneratedImagesTask extends BuildTask
             $system->delete($variant);
         }
 
-        echo "Deleted generated images for {$image->Name}";
+        echo 'Deleted generated images for ' . $image->Name;
     }
 }

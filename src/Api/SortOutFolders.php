@@ -76,6 +76,7 @@ class SortOutFolders
         if ($unusedFolderName === '' || $unusedFolderName === '0') {
             $unusedFolderName = 'unused-images';
         }
+
         $this->unusedImagesFolder = Folder::find_or_make($unusedFolderName);
 
         $this->setFolderArray($data);
@@ -93,6 +94,7 @@ class SortOutFolders
             if ($this->verbose) {
                 DB::alteration_message('<br /><br /><br />==== Checking for images to remove from <u>' . $folderName . '</u>; there are ' . count($listOfIds) . ' images to keep');
             }
+
             $this->removeUnusedFiles($folderName);
         }
 
@@ -102,6 +104,7 @@ class SortOutFolders
             if ($this->verbose) {
                 DB::alteration_message('<br /><br /><br />==== Checking for images to move to <u>' . $folderName . '</u>');
             }
+
             $this->moveUsedFilesIntoFolder($folderName);
         }
 
@@ -112,6 +115,7 @@ class SortOutFolders
             if ($this->verbose) {
                 DB::alteration_message('<br /><br /><br />==== Checking for rogue FILES in <u>' . $folderName . '</u>');
             }
+
             $this->findRoqueFilesInFolder($folderName);
         }
     }
@@ -142,6 +146,7 @@ class SortOutFolders
                 }
             }
         }
+
         $test = [];
         foreach ($this->folderArray as $folderData) {
             $classAndMethodList = $folderData['classesAndMethods'];
@@ -168,11 +173,12 @@ class SortOutFolders
             // find all images that should be there...
             $listOfIds = [];
             foreach ($classAndMethodList as $classAndMethod) {
-                list($className, $method) = explode('.', $classAndMethod);
+                [$className, $method] = explode('.', (string) $classAndMethod);
                 $fieldDetails = $this->getFieldDetails($className, $method);
                 if ($fieldDetails === []) {
                     user_error('Could not find relation: ' . $className . '.' . $method);
                 }
+
                 if ('has_one' === $fieldDetails['dataType']) {
                     $list = $className::get()->columnUnique($method . 'ID');
                 } else {
@@ -181,8 +187,10 @@ class SortOutFolders
                     foreach ($outerList as $obj) {
                         $list = array_merge($list, $obj->{$method}()->columnUnique('ID'));
                     }
+
                     $list = array_unique($list);
                 }
+
                 DB::alteration_message($className . '::' . $method . ' resulted in ' . count($list));
                 $listOfIds = array_unique(
                     array_merge(
@@ -191,6 +199,7 @@ class SortOutFolders
                     )
                 );
             }
+
             if ($listOfIds !== []) {
                 $this->listOfImageIds[$folderName] = $listOfIds;
             }
@@ -216,6 +225,7 @@ class SortOutFolders
                 if ($this->verbose) {
                     DB::alteration_message('moving ' . $file->getFilename() . ' to ' . $unusedFolderName);
                 }
+
                 if (false === $this->dryRun) {
                     $newNameFromAssetRoot = Controller::join_links($this->unusedImagesFolder->getFileName(), $file->Name);
                     $file = $this->moveToNewFolder($file, $this->unusedImagesFolder, $newNameFromAssetRoot);
@@ -247,6 +257,7 @@ class SortOutFolders
                 if ($this->verbose) {
                     DB::alteration_message('moving ' . $file->getFilename() . ' to ' . $newFolderName, 'created');
                 }
+
                 if (false === $this->dryRun) {
                     $newNameFromAssetRoot = Controller::join_links($newFolderName, $file->Name);
                     $file = $this->moveToNewFolder($file, $folder, $newNameFromAssetRoot);
@@ -283,6 +294,7 @@ class SortOutFolders
                             if ($this->verbose) {
                                 DB::alteration_message('moving ' . $oldNameFromAssetRoot . ' to ' . $unusedFolderName);
                             }
+
                             if (false === $this->dryRun) {
                                 $this->physicallyMovingImage($oldNameFromAssetRoot, $newNameFromAssetRoot);
                             }
@@ -337,6 +349,7 @@ class SortOutFolders
                 if ($this->verbose) {
                     DB::alteration_message('... Moving ' . $oldNameFullPath . ' to ' . $newNameFullPath . ' (file only)', 'created');
                 }
+
                 if (false === $this->dryRun) {
                     rename($oldNameFullPath, $newNameFullPath);
                 }
@@ -355,6 +368,7 @@ class SortOutFolders
         if ($isPublished) {
             $fileOrFolder->publishSingle();
         }
+
         $fileOrFolder->flushCache();
         return $fileOrFolder;
     }
@@ -382,6 +396,7 @@ class SortOutFolders
             $x++;
             $newNameFromAssetRoot = $pathInfo['dirname'] . '/' . $pathInfo['filename'] . '-v' . $x . '.' . $pathInfo['extension'];
         }
+
         return $newNameFromAssetRoot;
     }
 }

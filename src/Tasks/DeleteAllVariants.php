@@ -2,6 +2,7 @@
 
 namespace Sunnysideup\PerfectCmsImages\Tasks;
 
+use Override;
 use SilverStripe\Control\Director;
 use SilverStripe\Control\HTTPRequest;
 use SilverStripe\Dev\BuildTask;
@@ -19,11 +20,13 @@ use SilverStripe\ORM\DB;
  */
 class DeleteAllVariants extends BuildTask
 {
+    #[Override]
     public function getTitle(): string
     {
         return 'Careful: experimental - DELETE ALL IMAGE VARIANTS';
     }
 
+    #[Override]
     public function getDescription(): string
     {
         return 'Delete all the variants';
@@ -52,6 +55,6 @@ class DeleteAllVariants extends BuildTask
             DB::alteration_message($key);
         }
 
-        echo "Returned with status {$retval}";
+        echo 'Returned with status ' . $retval;
     }
 }
