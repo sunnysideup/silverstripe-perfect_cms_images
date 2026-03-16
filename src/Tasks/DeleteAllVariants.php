@@ -2,11 +2,12 @@
 
 namespace Sunnysideup\PerfectCmsImages\Tasks;
 
-use Override;
 use SilverStripe\Control\Director;
-use SilverStripe\Control\HTTPRequest;
 use SilverStripe\Dev\BuildTask;
-use SilverStripe\ORM\DB;
+use SilverStripe\PolyExecution\PolyOutput;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 
 /**
  * Class DeleteGeneratedImagesTask.
@@ -20,49 +21,48 @@ use SilverStripe\ORM\DB;
  */
 class DeleteAllVariants extends BuildTask
 {
-    /** @TODO SSU RECTOR UPGRADE TASK - BuildTask::getTitle: Changed return type for method BuildTask::getTitle() from dynamic to string */
-    #[Override]
-    public function getTitle(): string
-    {
-        return 'Careful: experimental - DELETE ALL IMAGE VARIANTS';
-    }
+    protected static string $commandName = 'delete-all-variants';
 
-    /** @TODO SSU RECTOR UPGRADE TASK - SilverStripe\Dev\BuildTask::getDescription: Method BuildTask::getDescription() is now static
-     * @TODO SSU RECTOR UPGRADE TASK - BuildTask::getDescription: Changed return type for method BuildTask::getDescription() from dynamic to string
-     */
-    #[Override]
-    public function getDescription(): string
-    {
-        return 'Delete all the variants';
-    }
+    protected string $title = 'Careful: experimental - DELETE ALL IMAGE VARIANTS';
 
-    /**
-     * Create test jobs for the purposes of testing.
-     *
-     * @param HTTPRequest $request
-     * @TODO SSU RECTOR UPGRADE TASK - BuildTask::run: Added new parameter $output in BuildTask::run()
-     * @TODO SSU RECTOR UPGRADE TASK - BuildTask::run: Changed type of parameter $request in BuildTask::run() from dynamic to Symfony\Component\Console\Input\InputInterface
-     * @TODO SSU RECTOR UPGRADE TASK - BuildTask::run: Renamed parameter $request in BuildTask::run() to $input
-     * @TODO SSU RECTOR UPGRADE TASK - BuildTask::run: Changed return type for method BuildTask::run() from dynamic to int
-     */
-    public function run($request) // phpcs:ignore
+    protected static string $description = 'Delete all the variants';
+
+    protected function execute(InputInterface $input, PolyOutput $output): int
     {
         Director::baseFolder();
-        $go = $request->getVar('go');
+        $shouldRemove = (bool) $input->getOption('go');
         $rm = '-exec rm {} \;';
-        $find = 'find . -regextype posix-extended -regex \'.*__(Fit|Fill|ResizedImage|Scale|Resampled).*\.(jpg|webp|png|JPG|jpeg)\' ';
-        if ($go) {
-            exec($find . ' ' . $rm);
-            exec($find . ' ' . $rm, $output, $retval);
+        $find = "find . -regextype posix-extended -regex '.*__(Fit|Fill|ResizedImage|Scale|Resampled).*\\.(jpg|webp|png|JPG|jpeg)' ";
+        $commandOutput = [];
+        $retval = 0;
+
+        if ($shouldRemove) {
+            exec($find . ' ' . $rm, $commandOutput, $retval);
         } else {
-            exec($find);
-            exec($find, $output, $retval);
+            exec($find, $commandOutput, $retval);
         }
 
-        foreach ($output as $key) {
-            DB::alteration_message($key);
+        foreach ($commandOutput as $message) {
+            $output->writeln($message);
         }
 
-        echo 'Returned with status ' . $retval;
+        $output->writeln('Returned with status ' . $retval);
+
+        return $retval === 0 ? Command::SUCCESS : $retval;
+    }
+
+    protected function getOptions(): array
+    {
+        return array_merge(
+            parent::getOptions(),
+            [
+                new InputOption(
+                    'go',
+                    'g',
+                    InputOption::VALUE_NONE,
+                    'Execute removal commands instead of dry run'
+                ),
+            ]
+        );
     }
 }

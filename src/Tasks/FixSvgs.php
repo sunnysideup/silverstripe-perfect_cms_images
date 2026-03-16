@@ -2,12 +2,12 @@
 
 namespace Sunnysideup\PerfectCmsImages\Tasks;
 
-use Override;
 use SilverStripe\Assets\File;
 use SilverStripe\Assets\Image;
-use SilverStripe\Control\HTTPRequest;
 use SilverStripe\Dev\BuildTask;
-use SilverStripe\ORM\DB;
+use SilverStripe\PolyExecution\PolyOutput;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputInterface;
 
 /**
  * Class DeleteGeneratedImagesTask.
@@ -17,39 +17,20 @@ use SilverStripe\ORM\DB;
  */
 class FixSvgs extends BuildTask
 {
-    /** @TODO SSU RECTOR UPGRADE TASK - BuildTask::getTitle: Changed return type for method BuildTask::getTitle() from dynamic to string */
-    #[Override]
-    public function getTitle(): string
-    {
-        return 'Fix Svg Images that are saved as Files rather than Images';
-    }
+    protected static string $commandName = 'fix-svgs';
 
-    /** @TODO SSU RECTOR UPGRADE TASK - SilverStripe\Dev\BuildTask::getDescription: Method BuildTask::getDescription() is now static
-     * @TODO SSU RECTOR UPGRADE TASK - BuildTask::getDescription: Changed return type for method BuildTask::getDescription() from dynamic to string
-     */
-    #[Override]
-    public function getDescription(): string
-    {
-        return 'Go through all the Files, check if they are SVGs and then change the classname to Image.';
-    }
+    protected string $title = 'Fix Svg Images that are saved as Files rather than Images';
 
-    /**
-     * Create test jobs for the purposes of testing.
-     *
-     * @param HTTPRequest $request
-     * @TODO SSU RECTOR UPGRADE TASK - BuildTask::run: Added new parameter $output in BuildTask::run()
-     * @TODO SSU RECTOR UPGRADE TASK - BuildTask::run: Changed type of parameter $request in BuildTask::run() from dynamic to Symfony\Component\Console\Input\InputInterface
-     * @TODO SSU RECTOR UPGRADE TASK - BuildTask::run: Renamed parameter $request in BuildTask::run() to $input
-     * @TODO SSU RECTOR UPGRADE TASK - BuildTask::run: Changed return type for method BuildTask::run() from dynamic to int
-     */
-    public function run($request) // phpcs:ignore
+    protected static string $description = 'Go through all the Files, check if they are SVGs and then change the classname to Image.';
+
+    protected function execute(InputInterface $input, PolyOutput $output): int
     {
         $files = $this->getBatchOfFiles();
         while ($files && $files->exists()) {
             foreach ($files as $file) {
                 if ('svg' === $file->getExtension()) {
-                    DB::alteration_message('Fixing ' . $file->Link());
-                    $isPublished = $file->isPublished() && ! $file->isModifiedOnDraft();
+                    $output->writeln('Fixing ' . $file->Link());
+                    $isPublished = $file->isPublished() && !$file->isModifiedOnDraft();
                     $file->ClassName = Image::class;
                     $file->write();
                     if ($isPublished) {
@@ -60,6 +41,8 @@ class FixSvgs extends BuildTask
 
             $files = $this->getBatchOfFiles();
         }
+
+        return Command::SUCCESS;
     }
 
     protected function getBatchOfFiles()

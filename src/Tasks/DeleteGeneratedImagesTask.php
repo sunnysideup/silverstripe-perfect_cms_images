@@ -2,15 +2,17 @@
 
 namespace Sunnysideup\PerfectCmsImages\Tasks;
 
-use Override;
 use League\Flysystem\Filesystem;
 use ReflectionMethod;
 use SilverStripe\Assets\Flysystem\FlysystemAssetStore;
 use SilverStripe\Assets\Image;
 use SilverStripe\Assets\Storage\AssetStore;
-use SilverStripe\Control\HTTPRequest;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Dev\BuildTask;
+use SilverStripe\PolyExecution\PolyOutput;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 
 /**
  * SOURCE: https://gist.github.com/blueo/6598bc349b406cf678f9a8f009587a95
@@ -25,43 +27,25 @@ use SilverStripe\Dev\BuildTask;
  */
 class DeleteGeneratedImagesTask extends BuildTask
 {
-    protected $title = 'Delete Generated Images';
+    protected static string $commandName = 'delete-generated-images';
 
-    protected $description = 'Delete all generated images for a specific asset';
+    protected string $title = 'Delete Generated Images';
 
-    /** @TODO SSU RECTOR UPGRADE TASK - SilverStripe\Dev\BuildTask::getDescription: Method BuildTask::getDescription() is now static
-     * @TODO SSU RECTOR UPGRADE TASK - BuildTask::getDescription: Changed return type for method BuildTask::getDescription() from dynamic to string
-     */
-    #[Override]
-    public function getDescription(): string
+    protected static string $description = 'Delete all generated images for a specific asset';
+
+    protected function execute(InputInterface $input, PolyOutput $output): int
     {
-        return 'Regenerate Images for an asset';
-    }
-
-    /**
-     * Create test jobs for the purposes of testing.
-     *
-     * @param HTTPRequest $request
-     * @TODO SSU RECTOR UPGRADE TASK - BuildTask::run: Added new parameter $output in BuildTask::run()
-     * @TODO SSU RECTOR UPGRADE TASK - BuildTask::run: Changed type of parameter $request in BuildTask::run() from dynamic to Symfony\Component\Console\Input\InputInterface
-     * @TODO SSU RECTOR UPGRADE TASK - BuildTask::run: Renamed parameter $request in BuildTask::run() to $input
-     * @TODO SSU RECTOR UPGRADE TASK - BuildTask::run: Changed return type for method BuildTask::run() from dynamic to int
-     */
-    public function run($request) // phpcs:ignore
-    {
-        $Id = $request->getVar('ID');
-        if (! $Id) {
-            echo 'No ID provided, make sure to supply an ID to the URL eg ?ID=2';
-
-            return;
+        $id = $input->getOption('id');
+        if (!$id) {
+            $output->writeln('No ID provided, make sure to supply an ID with --id=<ID>');
+            return Command::FAILURE;
         }
 
-        $image = Image::get()->byID($Id);
+        $image = Image::get()->byID($id);
 
-        if (! $image) {
-            echo 'No Image found with that ID';
-
-            return;
+        if (!$image) {
+            $output->writeln('No Image found with that ID');
+            return Command::FAILURE;
         }
 
         $asetValues = $image->File->getValue();
@@ -85,6 +69,23 @@ class DeleteGeneratedImagesTask extends BuildTask
             $system->delete($variant);
         }
 
-        echo 'Deleted generated images for ' . $image->Name;
+        $output->writeln('Deleted generated images for ' . $image->Name);
+
+        return Command::SUCCESS;
+    }
+
+    protected function getOptions(): array
+    {
+        return array_merge(
+            parent::getOptions(),
+            [
+                new InputOption(
+                    'id',
+                    'i',
+                    InputOption::VALUE_REQUIRED,
+                    'ID of the image to clean up'
+                ),
+            ]
+        );
     }
 }
