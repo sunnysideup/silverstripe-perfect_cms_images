@@ -13,6 +13,11 @@ class PerfectCmsImagesBuildTaskCheckImages extends BuildTask
 
     protected $description = 'Checks the size of certain images to make sure they match specifications';
 
+    /** @TODO SSU RECTOR UPGRADE TASK - BuildTask::run: Added new parameter $output in BuildTask::run()
+     * @TODO SSU RECTOR UPGRADE TASK - BuildTask::run: Changed type of parameter $request in BuildTask::run() from dynamic to Symfony\Component\Console\Input\InputInterface
+     * @TODO SSU RECTOR UPGRADE TASK - BuildTask::run: Renamed parameter $request in BuildTask::run() to $input
+     * @TODO SSU RECTOR UPGRADE TASK - BuildTask::run: Changed return type for method BuildTask::run() from dynamic to int
+     */
     public function run($request)
     {
         $this->outputToScreen('Expected URL parameters: ?parent=SiteTree&fieldname=MyImage&width=100&height=200', 'created');

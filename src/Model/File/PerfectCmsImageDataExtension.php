@@ -115,7 +115,7 @@ class PerfectCmsImageDataExtension extends Extension
             return null;
         }
 
-        return 'PCI' . $this->getOwner()->ID . '_' . strtotime($this->getOwner()->LastEdited) . $toAdd;
+        return 'PCI' . $this->getOwner()->ID . '_' . strtotime((string) $this->getOwner()->LastEdited) . $toAdd;
     }
 
     protected function getPerfectCMSImagesTagCache()
