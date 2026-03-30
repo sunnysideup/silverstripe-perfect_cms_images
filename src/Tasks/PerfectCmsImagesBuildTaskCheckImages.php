@@ -5,21 +5,30 @@ namespace Sunnysideup\PerfectCmsImages\Tasks;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Dev\BuildTask;
 use SilverStripe\ORM\DataObject;
-use SilverStripe\ORM\DB;
+use SilverStripe\PolyExecution\PolyOutput;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 
 class PerfectCmsImagesBuildTaskCheckImages extends BuildTask
 {
-    protected $title = 'Check Size of Images Uploaded';
+    protected static string $commandName = 'check-image-sizes';
 
-    protected $description = 'Checks the size of certain images to make sure they match specifications';
+    protected string $title = 'Check Size of Images Uploaded';
 
-    public function run($request)
+    protected static string $description = 'Checks the size of certain images to make sure they match specifications';
+
+    protected function execute(InputInterface $input, PolyOutput $output): int
     {
-        $this->outputToScreen('Expected URL parameters: ?parent=SiteTree&fieldname=MyImage&width=100&height=200', 'created');
-        $parent = $request->getVar('parent');
-        $fieldName = $request->getVar('fieldname');
-        $width = $request->getVar('width');
-        $height = $request->getVar('height');
+        $this->outputToScreen(
+            $output,
+            'Expected parameters: --parent=SiteTree --fieldname=MyImage --width=100 --height=200',
+            'created'
+        );
+        $parent = $input->getOption('parent');
+        $fieldName = $input->getOption('fieldname');
+        $width = $input->getOption('width');
+        $height = $input->getOption('height');
         if ($height || $width) {
             if (class_exists($parent)) {
                 $singleton = Injector::inst()->get($parent);
@@ -37,53 +46,104 @@ class PerfectCmsImagesBuildTaskCheckImages extends BuildTask
                             if ($image && $image instanceof $image && $image->exists()) {
                                 if ($width) {
                                     $realWidth = $image->getWidth();
-                                    if ($realWidth !== $width) {
+                                    if ($realWidth !== (int) $width) {
                                         $array[] = 'width is ' . round($width / $realWidth, 2) . '% of what it should be';
                                     }
                                 }
 
                                 if ($height) {
                                     $realHeight = $image->getHeight();
-                                    if ($realHeight !== $height) {
+                                    if ($realHeight !== (int) $height) {
                                         $array[] = 'height is ' . round($height / $realHeight, 2) . '% of what it should be';
                                     }
                                 }
 
                                 if ($array !== []) {
-                                    $this->outputToScreen('ERRORS WITH: ' . $obj->getTitle() . ' --- ' . implode('; ', $array), 'deleted');
+                                    $this->outputToScreen(
+                                        $output,
+                                        'ERRORS WITH: ' . $obj->getTitle() . ' --- ' . implode('; ', $array),
+                                        'deleted'
+                                    );
                                 } else {
-                                    $this->outputToScreen('PERFECT PASS FOR: ' . $obj->getTitle());
+                                    $this->outputToScreen($output, 'PERFECT PASS FOR: ' . $obj->getTitle());
                                 }
                             } else {
-                                $this->outputToScreen('Skipping ' . $obj->getTitle() . ' as it does not have a valid image attached to it.');
+                                $this->outputToScreen(
+                                    $output,
+                                    'Skipping ' . $obj->getTitle() . ' as it does not have a valid image attached to it.'
+                                );
                             }
                         }
                     } else {
-                        $this->outputToScreen('Please specify a valid field name like this fieldname=xxx, where xxx is the field name (e.g. Image).', 'deleted');
+                        $this->outputToScreen(
+                            $output,
+                            'Please specify a valid field name with --fieldname=xxx where xxx is the field name (e.g. Image).',
+                            'deleted'
+                        );
                     }
                 } else {
-                    $this->outputToScreen('Please specify a valid class name like this parent=xxx, where xxx is the class name that is a valid data object.', 'deleted');
+                    $this->outputToScreen(
+                        $output,
+                        'Please specify a valid class name with --parent=xxx where xxx is the class name that is a valid data object.',
+                        'deleted'
+                    );
                 }
             } else {
-                $this->outputToScreen('Please specify a valid class name like this parent=xxx, where xxx is the class name.', 'deleted');
+                $this->outputToScreen(
+                    $output,
+                    'Please specify a valid class name with --parent=xxx where xxx is the class name.',
+                    'deleted'
+                );
             }
         } else {
-            $this->outputToScreen('Please specify at least one of height or width.', 'deleted');
+            $this->outputToScreen($output, 'Please specify at least one of height or width.', 'deleted');
         }
 
-        echo '<h1>--- COMPLETED ---</h1>';
+        $output->writeln('--- COMPLETED ---');
+
+        return Command::SUCCESS;
+    }
+
+    protected function getOptions(): array
+    {
+        return array_merge(
+            parent::getOptions(),
+            [
+                new InputOption(
+                    'parent',
+                    'p',
+                    InputOption::VALUE_REQUIRED,
+                    'Class name of the parent DataObject'
+                ),
+                new InputOption(
+                    'fieldname',
+                    'f',
+                    InputOption::VALUE_REQUIRED,
+                    'Image relationship field name'
+                ),
+                new InputOption(
+                    'width',
+                    'w',
+                    InputOption::VALUE_REQUIRED,
+                    'Expected width in pixels'
+                ),
+                new InputOption(
+                    'height',
+                    'h',
+                    InputOption::VALUE_REQUIRED,
+                    'Expected height in pixels'
+                ),
+            ]
+        );
     }
 
     /**
      * @param string $message
      * @param string $type
      */
-    protected function outputToScreen($message, $type = '')
+    protected function outputToScreen(PolyOutput $output, $message, $type = '')
     {
-        echo ' ';
-        flush();
-        ob_end_flush();
-        DB::alteration_message($message, $type);
-        ob_start();
+        unset($type);
+        $output->writeln($message);
     }
 }

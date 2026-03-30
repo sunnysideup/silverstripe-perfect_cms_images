@@ -1,43 +1,49 @@
 {
-  "name": "sunnysideup/perfect_cms_images",
-  "type": "silverstripe-vendormodule",
-  "description": "Silverstripe Module that makes it easier for CMS Editors to upload the right size image. It allows the developer to set the size for each image (width, height or both) in one place and apply this throughout the project in the CMS and on the front-end.",
-  "keywords": [
-    "Silverstripe-CMS",
-    "CMS",
-    "Silverstripe",
-    "Image",
-    "Images",
-    "Width",
-    "Height",
-    "Resize",
-    "SVG",
-    "SVG Support",
-    "CMS Editing",
-    "Upload Field",
-    "Upload",
-    "Form Field",
-    "assets",
-    "files"
-  ],
-  "license": "BSD-3-Clause",
-  "authors": [
-    {
-      "name": "Nicolaas Francken",
-      "email": "modules@sunnysideup.co.nz",
-      "role": "lead developer"
+    "name": "sunnysideup/perfect_cms_images",
+    "type": "silverstripe-vendormodule",
+    "description": "Silverstripe Module that makes it easier for CMS Editors to upload the right size image. It allows the developer to set the size for each image (width, height or both) in one place and apply this throughout the project in the CMS and on the front-end.",
+    "keywords": [
+        "Silverstripe-CMS",
+        "CMS",
+        "Silverstripe",
+        "Image",
+        "Images",
+        "Width",
+        "Height",
+        "Resize",
+        "SVG",
+        "SVG Support",
+        "CMS Editing",
+        "Upload Field",
+        "Upload",
+        "Form Field",
+        "assets",
+        "files"
+    ],
+    "license": "BSD-3-Clause",
+    "authors": [
+        {
+            "name": "Nicolaas Francken",
+            "email": "modules@sunnysideup.co.nz",
+            "role": "lead developer"
+        }
+    ],
+    "require": {
+        "silverstripe/recipe-cms": "^6.0"
+    },
+    "suggests": {
+        "heyday/silverstripe-hashpath": "not sure if this is still useful."
+    },
+    "autoload": {
+        "psr-4": {
+            "Sunnysideup\\PerfectCmsImages\\": "src/"
+        }
+    },
+    "yet-to-update": {
+        "sunnysideup/resize-all-images": {
+            "section": "require",
+            "current": "dev-main",
+            "reason": "no-compatible-stable-release"
+        }
     }
-  ],
-  "require": {
-    "silverstripe/recipe-cms": "^5.0",
-    "sunnysideup/resize-all-images": "dev-main"
-  },
-  "suggests": {
-    "heyday/silverstripe-hashpath": "not sure if this is still useful."
-  },
-  "autoload": {
-    "psr-4": {
-      "Sunnysideup\\PerfectCmsImages\\": "src/"
-    }
-  }
 }

@@ -2,6 +2,8 @@
 
 namespace Sunnysideup\PerfectCmsImages\Forms;
 
+use SilverStripe\Model\List\SS_List;
+use Override;
 use SilverStripe\AssetAdmin\Forms\UploadField;
 use SilverStripe\Assets\Folder;
 use SilverStripe\Control\HTTPRequest;
@@ -9,7 +11,6 @@ use SilverStripe\Control\HTTPResponse;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\ORM\DataObjectInterface;
 use SilverStripe\ORM\FieldType\DBField;
-use SilverStripe\ORM\SS_List;
 use Sunnysideup\PerfectCmsImages\Api\PerfectCMSImages;
 use Sunnysideup\PerfectCmsImages\Filesystem\PerfectCmsImageValidator;
 
@@ -40,7 +41,7 @@ class PerfectCmsImagesUploadField extends UploadField
     /**
      * @param string       $name            the internal field name, passed to forms
      * @param null|string  $title           the field label
-     * @param null|SS_List $items           If no items are defined, the field will try to auto-detect an existing relation
+     * @param null|\SilverStripe\Model\List\SS_List $items If no items are defined, the field will try to auto-detect an existing relation
      * @param null|string  $alternativeName - name used for formatting
      */
     public function __construct(
@@ -55,7 +56,7 @@ class PerfectCmsImagesUploadField extends UploadField
             $items
         );
         PerfectCMSImages::legacy_check();
-        $perfectCMSImageValidator = new PerfectCmsImageValidator();
+        $perfectCMSImageValidator = PerfectCmsImageValidator::create();
         $this->setValidator($perfectCMSImageValidator);
         $finalName = $alternativeName ?: $name;
         if (PerfectCMSImages::is_valid_image_name($finalName)) {
@@ -64,6 +65,7 @@ class PerfectCmsImagesUploadField extends UploadField
         }
     }
 
+    #[Override]
     public function setDescription($string): self
     {
         parent::setDescription(
@@ -113,6 +115,7 @@ class PerfectCmsImagesUploadField extends UploadField
      *
      * @return HTTPResponse
      */
+    #[Override]
     public function upload(HTTPRequest $request)
     {
         $response = parent::upload($request);
@@ -149,11 +152,13 @@ class PerfectCmsImagesUploadField extends UploadField
         if ($folderName === '' || $folderName === '0') {
             $folderName = 'Uploads';
         }
+
         Folder::find_or_make($folderName);
         //set folder
         $this->setFolderName($folderName);
     }
 
+    #[Override]
     public function saveInto(DataObject|DataObjectInterface $record): static
     {
         parent::saveInto($record);

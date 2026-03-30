@@ -4,9 +4,10 @@ namespace Sunnysideup\PerfectCmsImages\Tasks;
 
 use SilverStripe\Assets\File;
 use SilverStripe\Assets\Image;
-use SilverStripe\Control\HTTPRequest;
 use SilverStripe\Dev\BuildTask;
-use SilverStripe\ORM\DB;
+use SilverStripe\PolyExecution\PolyOutput;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputInterface;
 
 /**
  * Class DeleteGeneratedImagesTask.
@@ -16,29 +17,20 @@ use SilverStripe\ORM\DB;
  */
 class FixSvgs extends BuildTask
 {
-    public function getTitle(): string
-    {
-        return 'Fix Svg Images that are saved as Files rather than Images';
-    }
+    protected static string $commandName = 'fix-svgs';
 
-    public function getDescription(): string
-    {
-        return 'Go through all the Files, check if they are SVGs and then change the classname to Image.';
-    }
+    protected string $title = 'Fix Svg Images that are saved as Files rather than Images';
 
-    /**
-     * Create test jobs for the purposes of testing.
-     *
-     * @param HTTPRequest $request
-     */
-    public function run($request) // phpcs:ignore
+    protected static string $description = 'Go through all the Files, check if they are SVGs and then change the classname to Image.';
+
+    protected function execute(InputInterface $input, PolyOutput $output): int
     {
         $files = $this->getBatchOfFiles();
         while ($files && $files->exists()) {
             foreach ($files as $file) {
                 if ('svg' === $file->getExtension()) {
-                    DB::alteration_message('Fixing ' . $file->Link());
-                    $isPublished = $file->isPublished() && ! $file->isModifiedOnDraft();
+                    $output->writeln('Fixing ' . $file->Link());
+                    $isPublished = $file->isPublished() && !$file->isModifiedOnDraft();
                     $file->ClassName = Image::class;
                     $file->write();
                     if ($isPublished) {
@@ -46,8 +38,11 @@ class FixSvgs extends BuildTask
                     }
                 }
             }
+
             $files = $this->getBatchOfFiles();
         }
+
+        return Command::SUCCESS;
     }
 
     protected function getBatchOfFiles()

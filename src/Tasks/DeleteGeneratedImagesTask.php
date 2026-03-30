@@ -7,10 +7,12 @@ use ReflectionMethod;
 use SilverStripe\Assets\Flysystem\FlysystemAssetStore;
 use SilverStripe\Assets\Image;
 use SilverStripe\Assets\Storage\AssetStore;
-use SilverStripe\Control\HTTPRequest;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Dev\BuildTask;
-use SilverStripe\ORM\DataObject;
+use SilverStripe\PolyExecution\PolyOutput;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 
 /**
  * SOURCE: https://gist.github.com/blueo/6598bc349b406cf678f9a8f009587a95
@@ -25,35 +27,25 @@ use SilverStripe\ORM\DataObject;
  */
 class DeleteGeneratedImagesTask extends BuildTask
 {
-    protected $title = 'Delete Generated Images';
+    protected static string $commandName = 'delete-generated-images';
 
-    protected $description = 'Delete all generated images for a specific asset';
+    protected string $title = 'Delete Generated Images';
 
-    public function getDescription(): string
+    protected static string $description = 'Delete all generated images for a specific asset';
+
+    protected function execute(InputInterface $input, PolyOutput $output): int
     {
-        return 'Regenerate Images for an asset';
-    }
-
-    /**
-     * Create test jobs for the purposes of testing.
-     *
-     * @param HTTPRequest $request
-     */
-    public function run($request) // phpcs:ignore
-    {
-        $Id = $request->getVar('ID');
-        if (! $Id) {
-            echo 'No ID provided, make sure to supply an ID to the URL eg ?ID=2';
-
-            return;
+        $id = $input->getOption('id');
+        if (!$id) {
+            $output->writeln('No ID provided, make sure to supply an ID with --id=<ID>');
+            return Command::FAILURE;
         }
 
-        $image = DataObject::get_by_id(Image::class, $Id);
+        $image = Image::get()->byID($id);
 
-        if (! $image) {
-            echo 'No Image found with that ID';
-
-            return;
+        if (!$image) {
+            $output->writeln('No Image found with that ID');
+            return Command::FAILURE;
         }
 
         $asetValues = $image->File->getValue();
@@ -61,19 +53,15 @@ class DeleteGeneratedImagesTask extends BuildTask
 
         // warning - super hacky as accessing private methods
         $getID = new ReflectionMethod(FlysystemAssetStore::class, 'getFileID');
-        $getID->setAccessible(true);
 
         $flyID = $getID->invoke($store, $asetValues['Filename'], $asetValues['Hash']);
         $getFileSystem = new ReflectionMethod(FlysystemAssetStore::class, 'getFilesystemFor');
-
-        $getFileSystem->setAccessible(true);
         /** @var Filesystem $system */
         $system = $getFileSystem->invoke($store, $flyID);
 
         $findVariants = new ReflectionMethod(FlysystemAssetStore::class, 'findVariants');
-        $findVariants->setAccessible(true);
         foreach ($findVariants->invoke($store, $flyID, $system) as $variant) {
-            $isGenerated = strpos($variant, '__');
+            $isGenerated = strpos((string) $variant, '__');
             if (! $isGenerated) {
                 continue;
             }
@@ -81,6 +69,23 @@ class DeleteGeneratedImagesTask extends BuildTask
             $system->delete($variant);
         }
 
-        echo "Deleted generated images for {$image->Name}";
+        $output->writeln('Deleted generated images for ' . $image->Name);
+
+        return Command::SUCCESS;
+    }
+
+    protected function getOptions(): array
+    {
+        return array_merge(
+            parent::getOptions(),
+            [
+                new InputOption(
+                    'id',
+                    'i',
+                    InputOption::VALUE_REQUIRED,
+                    'ID of the image to clean up'
+                ),
+            ]
+        );
     }
 }
