@@ -29,7 +29,8 @@
         }
     ],
     "require": {
-        "silverstripe/recipe-cms": "^6.0"
+        "silverstripe/recipe-cms": "^6.0",
+        "sunnysideup/resize-all-images": "dev-main"
     },
     "suggests": {
         "heyday/silverstripe-hashpath": "not sure if this is still useful."
@@ -37,13 +38,6 @@
     "autoload": {
         "psr-4": {
             "Sunnysideup\\PerfectCmsImages\\": "src/"
-        }
-    },
-    "yet-to-update": {
-        "sunnysideup/resize-all-images": {
-            "section": "require",
-            "current": "dev-main",
-            "reason": "no-compatible-stable-release"
         }
     }
 }
