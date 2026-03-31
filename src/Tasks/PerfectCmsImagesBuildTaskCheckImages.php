@@ -104,7 +104,7 @@ class PerfectCmsImagesBuildTaskCheckImages extends BuildTask
         return Command::SUCCESS;
     }
 
-    protected function getOptions(): array
+    public function getOptions(): array
     {
         return array_merge(
             parent::getOptions(),

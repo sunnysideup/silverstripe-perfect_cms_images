@@ -51,7 +51,7 @@ class DeleteAllVariants extends BuildTask
         return $retval === 0 ? Command::SUCCESS : $retval;
     }
 
-    protected function getOptions(): array
+    public function getOptions(): array
     {
         return array_merge(
             parent::getOptions(),
