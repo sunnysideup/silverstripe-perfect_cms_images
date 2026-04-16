@@ -30,7 +30,7 @@
   ],
   "require": {
     "silverstripe/recipe-cms": "^6.0",
-    "sunnysideup/resize-all-images": "6.x-dev"
+    "sunnysideup/resize-all-images": "dev-main"
   },
   "suggests": {
     "heyday/silverstripe-hashpath": "not sure if this is still useful."
