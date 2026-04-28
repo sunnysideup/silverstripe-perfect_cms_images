@@ -2,6 +2,7 @@
 
 namespace Sunnysideup\PerfectCmsImages\Tasks;
 
+use Override;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Dev\BuildTask;
 use SilverStripe\ORM\DataObject;
@@ -104,6 +105,7 @@ class PerfectCmsImagesBuildTaskCheckImages extends BuildTask
         return Command::SUCCESS;
     }
 
+    #[Override]
     public function getOptions(): array
     {
         return array_merge(

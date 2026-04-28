@@ -2,6 +2,7 @@
 
 namespace Sunnysideup\PerfectCmsImages\Tasks;
 
+use Override;
 use League\Flysystem\Filesystem;
 use ReflectionMethod;
 use SilverStripe\Assets\Flysystem\FlysystemAssetStore;
@@ -74,6 +75,7 @@ class DeleteGeneratedImagesTask extends BuildTask
         return Command::SUCCESS;
     }
 
+    #[Override]
     public function getOptions(): array
     {
         return array_merge(

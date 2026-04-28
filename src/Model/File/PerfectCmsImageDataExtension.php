@@ -128,7 +128,7 @@ class PerfectCmsImageDataExtension extends Extension
      * @param string $alt        alt tag for image -optional
      * @param string $attributes additional attributes
      *
-     * @return \SilverStripe\Model\ArrayData
+     * @return ArrayData
      */
     private function getPerfectCMSImageTagArrayData(string $name, ?string $alt = '', ?string $attributes = '')
     {

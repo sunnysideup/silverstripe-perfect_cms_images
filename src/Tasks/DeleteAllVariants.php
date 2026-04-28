@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Sunnysideup\PerfectCmsImages\Tasks;
 
+use Override;
 use SilverStripe\Control\Director;
 use SilverStripe\Dev\BuildTask;
 use SilverStripe\PolyExecution\PolyOutput;
@@ -48,9 +51,10 @@ class DeleteAllVariants extends BuildTask
 
         $output->writeln('Returned with status ' . $retval);
 
-        return $retval === 0 ? Command::SUCCESS : $retval;
+        return Command::SUCCESS;
     }
 
+    #[Override]
     public function getOptions(): array
     {
         return array_merge(
