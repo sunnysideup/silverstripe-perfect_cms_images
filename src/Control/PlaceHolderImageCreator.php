@@ -10,6 +10,7 @@ use SilverStripe\Core\Convert;
 
 /**
  * Class \Sunnysideup\PerfectCmsImages\Control\PlaceHolderImageCreator
+ *
  */
 class PlaceHolderImageCreator extends Controller
 {
