@@ -2,6 +2,7 @@
 
 namespace Sunnysideup\PerfectCmsImages\Api;
 
+use LogicException;
 use Psr\Log\LoggerInterface;
 use SilverStripe\Assets\Filesystem;
 use SilverStripe\Assets\Image;
@@ -328,7 +329,7 @@ EOT;
         ) ?: [];
         if (! empty($test)) {
             Injector::inst()->get(LoggerInterface::class)->info('PerfectCmsImageDataExtension is deprecated. Please use PerfectCMSImages instead: ' . self::class);
-            user_error('PerfectCmsImageDataExtension is deprecated. Please use PerfectCMSImages instead: ' . self::class, E_USER_ERROR);
+            throw new LogicException('PerfectCmsImageDataExtension is deprecated. Please use PerfectCMSImages instead: ' . self::class);
         }
 
         $test = Config::inst()->get(
@@ -337,7 +338,7 @@ EOT;
         ) ?: [];
         if (empty($test)) {
             Injector::inst()->get(LoggerInterface::class)->info('PerfectCMSImages is now used for image definitions, but it is empty!');
-            user_error('PerfectCMSImages is now used for image definitions, but it is empty!', E_USER_ERROR);
+            throw new LogicException('PerfectCMSImages is now used for image definitions, but it is empty!');
         }
     }
 
