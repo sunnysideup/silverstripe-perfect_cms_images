@@ -20,7 +20,7 @@ class MyPage extends Page
             PerfectCmsImagesUploadField::create(
                 "MyImage",
                 "My Image"
-            )
+            )->setFormattingStandard('my-image-format-standard') // these can be used across several image fields
         );
 
         return $fields;

@@ -14,8 +14,8 @@ Sunnysideup\PerfectCmsImages\Api\PerfectCMSImages:
   perfect_cms_images_background_padding_color: "#cccccc"
   perfect_cms_images_image_definitions:
     "MyImage":
-      width: 900 (could be zero)
-      height: 300 (could be zero)
+      width: 900
+      height: 300
       folder: uploaded-my-images
       filetype: "png"
     "MyOtherImage":

@@ -35,6 +35,9 @@ class ImageManipulations
      */
     public static function get_image_link($image, string $name, ?bool $useRetina = null, ?bool $forMobile = null, ?int $resizeToWidth = 0): string
     {
+        if ($image->IsSVG()) {
+            return $image->getURL();
+        }
         // if specified to use retina, then check if it is needed at all.
         if ($useRetina) {
             $useRetina = PerfectCMSImages::use_retina($name);

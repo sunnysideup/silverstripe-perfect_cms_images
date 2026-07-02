@@ -6,9 +6,9 @@ title: Add fallback Image
 
 A fallback (or backup) image can be assigned to the SiteConfig and used when there is no image available.
 
-## Add DataExtension to SiteConfig
+## Add Extension to SiteConfig
 
-An example DataExtension to decorate SiteConfig;
+An example Extension to decorate SiteConfig;
 
 ```php
 class MySiteConfigExtension extends Extension

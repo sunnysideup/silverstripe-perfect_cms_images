@@ -27,46 +27,12 @@ class PerfectCmsImageDataExtension extends Extension
 {
     private static $casting = [
         'PerfectCMSImageTag' => 'HTMLText',
+        'SVGFormatInner' => 'Text',
     ];
 
-    /**
-     * you can provide as many arguments as needed here
-     *
-     * @param string $method
-     * @param [mixed] $args- zero to many arguments
-     */
-    public function getImageLinkCachedIfExists($method, $args = null): string
-    {
-        $image = $this->getOwner();
-        if (! $image->canView()) {
-            return '';
-        }
-
-        $args = func_get_args();
-        //remove the method argument
-        array_shift($args);
-
-        $variant = $image->variantName($method, ...$args);
-        $store = Injector::inst()->get(AssetStore::class);
-        if ($store->exists($image->getFilename(), $image->getHash(), $variant)) {
-            return $store->getAsURL($image->getFilename(), $image->getHash(), $variant, false);
-        } else {
-            try {
-                $resizeImage = $image->$method(
-                    ...$args
-                );
-                if ($resizeImage) {
-                    return $resizeImage->Link();
-                }
-            } catch (Exception) {
-                return $image->Link();
-            }
-        }
-
-        return '';
-    }
 
     /**
+     * provides a simple way to get the image tag for a specific PerfectCMSImages name.
      * @param string $name       PerfectCMSImages name
      * @param bool   $inline     for use within existing image tag - optional
      * @param string $alt        alt tag for image -optional
@@ -109,70 +75,8 @@ class PerfectCmsImageDataExtension extends Extension
         return $string;
     }
 
-    protected function getPerfectCMSImagesTagCacheKey($toAdd)
-    {
-        if (! $this->getOwner()->isPublished()) {
-            return null;
-        }
-
-        return 'PCI' . $this->getOwner()->ID . '_' . strtotime((string) $this->getOwner()->LastEdited) . $toAdd;
-    }
-
-    protected function getPerfectCMSImagesTagCache()
-    {
-        return Injector::inst()->get(CacheInterface::class . '.perfectcmsimages');
-    }
-
     /**
-     * @param string $name       PerfectCMSImages name
-     * @param string $alt        alt tag for image -optional
-     * @param string $attributes additional attributes
-     *
-     * @return ArrayData
-     */
-    private function getPerfectCMSImageTagArrayData(string $name, ?string $alt = '', ?string $attributes = '')
-    {
-        $retinaLink = $this->PerfectCMSImageLinkRetina($name);
-        $nonRetinaLink = $this->PerfectCMSImageLinkNonRetina($name);
-
-        $width = PerfectCMSImages::get_width($name, true);
-        $height = PerfectCMSImages::get_height($name, true);
-        $hasMobile = PerfectCMSImages::has_mobile($name);
-
-        if ($hasMobile) {
-            $mobileRetinaLink = $this->PerfectCMSImageLinkRetinaForMobile($name);
-            $mobileNonRetinaLink = $this->PerfectCMSImageLinkNonRetinaForMobile($name);
-            $mobileMediaWidth = PerfectCMSImages::get_mobile_media_width($name);
-        }
-
-        if (! $alt) {
-            $alt = $this->getOwner()->Title;
-        }
-
-        $myArray = [
-            'Width' => $width,
-            'Height' => $height,
-            'Alt' => Convert::raw2att($alt),
-            'RetinaLink' => $retinaLink,
-            'NonRetinaLink' => $nonRetinaLink,
-            'Type' => $this->getOwner()->getMimeType(),
-            'Attributes' => DBField::create_field('HTMLText', $attributes),
-        ];
-        if ($hasMobile) {
-            $myArray += [
-                'MobileMediaWidth' => $mobileMediaWidth,
-                'MobileRetinaLink' => $mobileRetinaLink,
-                'MobileNonRetinaLink' => $mobileNonRetinaLink,
-
-            ];
-        }
-
-        return ArrayData::create(
-            $myArray
-        );
-    }
-
-    /**
+     * Non-Retina Link for PerfectCMSImages name.
      * @param string $name of Image Field template
      *
      * @return string (link)
@@ -183,6 +87,7 @@ class PerfectCmsImageDataExtension extends Extension
     }
 
     /**
+     * Retina Link for PerfectCMSImages name.
      * @param string $name of Image Field template
      *
      * @return string (link)
@@ -193,6 +98,7 @@ class PerfectCmsImageDataExtension extends Extension
     }
 
     /**
+     * Non-Retina Link for PerfectCMSImages name for mobile.
      * @param string $name of Image Field template
      *
      * @return string (link)
@@ -203,6 +109,7 @@ class PerfectCmsImageDataExtension extends Extension
     }
 
     /**
+     * Retina Link for PerfectCMSImages name for mobile.
      * @param string $name of Image Field template
      *
      * @return string (link)
@@ -213,6 +120,9 @@ class PerfectCmsImageDataExtension extends Extension
     }
 
     /**
+     * Absolute Link for PerfectCMSImages name.
+     * @param string $link
+     *
      * @return string (link)
      */
     public function getPerfectCMSImageAbsoluteLink(string $link): string
@@ -302,7 +212,9 @@ class PerfectCmsImageDataExtension extends Extension
     {
         $owner = $this->getOwner();
         if ($owner->ID) {
-            return $this->getImageAsSVG() ?? $owner->CMSThumbnail();
+            if ($owner->IsSVG()) {
+                return $this->getImageAsSVG() ?? $owner->CMSThumbnail();
+            }
         }
 
         return $owner->CMSThumbnail();
@@ -313,7 +225,7 @@ class PerfectCmsImageDataExtension extends Extension
         return 'svg' === $this->getOwner()->getExtension();
     }
 
-    public function getSVGFormat()
+    public function getSVGFormat(): DBHTMLText|DBField|null
     {
         $owner = $this->getOwner();
         if ($owner->ID) {
@@ -322,25 +234,148 @@ class PerfectCmsImageDataExtension extends Extension
 
         return $owner->forTemplate();
     }
+    public function getSVGFormatInner(): string
+    {
+        $svgString = $this->getImageAsSVGRaw();
+        if ($svgString) {
+            return 'data:image/svg+xml;utf8,' . rawurlencode($svgString);
+        }
+        return 'error';
+    }
 
     public function getImageAsSVG(): DBHTMLText|null
     {
         $owner = $this->getOwner();
-        if ($this->IsSVG()) {
-            $data = file_get_contents(PUBLIC_PATH . $owner->Link());
-            return DBHTMLText::create_field('HTMLText', $data);
+        if ($owner->IsSVG()) {
+            $data = $this->getImageAsSVGRaw();
+            return DBHTMLText::create_field('HTMLText', (string)$data);
         }
 
         return null;
     }
 
+
     public function updatePreviewLink(&$link, $action)
     {
         $owner = $this->getOwner();
-        if ('svg' === $this->getOwner()->getExtension()) {
+        if ($owner->IsSVG()) {
             return $owner->Link();
         }
 
         return $link;
     }
+
+
+    private function getImageAsSVGRaw(): ?string
+    {
+        $owner = $this->getOwner();
+        if ($owner->IsSVG()) {
+            return file_get_contents(PUBLIC_PATH . $owner->Link());
+        }
+
+        return null;
+    }
+
+
+    protected function getPerfectCMSImagesTagCacheKey($toAdd)
+    {
+        if (! $this->getOwner()->isPublished()) {
+            return null;
+        }
+
+        return 'PCI' . $this->getOwner()->ID . '_' . strtotime((string) $this->getOwner()->LastEdited) . $toAdd;
+    }
+
+    protected function getPerfectCMSImagesTagCache()
+    {
+        return Injector::inst()->get(CacheInterface::class . '.perfectcmsimages');
+    }
+
+    /**
+     * @param string $name       PerfectCMSImages name
+     * @param string $alt        alt tag for image -optional
+     * @param string $attributes additional attributes
+     *
+     * @return ArrayData
+     */
+    private function getPerfectCMSImageTagArrayData(string $name, ?string $alt = '', ?string $attributes = '')
+    {
+        $retinaLink = $this->PerfectCMSImageLinkRetina($name);
+        $nonRetinaLink = $this->PerfectCMSImageLinkNonRetina($name);
+
+        $width = PerfectCMSImages::get_width($name, true);
+        $height = PerfectCMSImages::get_height($name, true);
+        $hasMobile = PerfectCMSImages::has_mobile($name);
+
+        if ($hasMobile) {
+            $mobileRetinaLink = $this->PerfectCMSImageLinkRetinaForMobile($name);
+            $mobileNonRetinaLink = $this->PerfectCMSImageLinkNonRetinaForMobile($name);
+            $mobileMediaWidth = PerfectCMSImages::get_mobile_media_width($name);
+        }
+
+        if (! $alt) {
+            $alt = $this->getOwner()->Title;
+        }
+
+        $myArray = [
+            'Width' => $width,
+            'Height' => $height,
+            'Alt' => Convert::raw2att($alt),
+            'RetinaLink' => $retinaLink,
+            'NonRetinaLink' => $nonRetinaLink,
+            'Type' => $this->getOwner()->getMimeType(),
+            'Attributes' => DBField::create_field('HTMLText', $attributes),
+        ];
+        if ($hasMobile) {
+            $myArray += [
+                'MobileMediaWidth' => $mobileMediaWidth,
+                'MobileRetinaLink' => $mobileRetinaLink,
+                'MobileNonRetinaLink' => $mobileNonRetinaLink,
+
+            ];
+        }
+
+        return ArrayData::create(
+            $myArray
+        );
+    }
+
+
+    /**
+     * you can provide as many arguments as needed here
+     *
+     * @param string $method
+     * @param [mixed] $args- zero to many arguments
+     */
+    protected function getImageLinkCachedIfExists($method, $args = null): string
+    {
+        $image = $this->getOwner();
+        if (! $image->canView()) {
+            return '';
+        }
+
+        $args = func_get_args();
+        //remove the method argument
+        array_shift($args);
+
+        $variant = $image->variantName($method, ...$args);
+        $store = Injector::inst()->get(AssetStore::class);
+        if ($store->exists($image->getFilename(), $image->getHash(), $variant)) {
+            return $store->getAsURL($image->getFilename(), $image->getHash(), $variant, false);
+        } else {
+            try {
+                $resizeImage = $image->$method(
+                    ...$args
+                );
+                if ($resizeImage) {
+                    return $resizeImage->Link();
+                }
+            } catch (Exception) {
+                return $image->Link();
+            }
+        }
+
+        return '';
+    }
+
 }
