@@ -246,7 +246,9 @@ EOT;
 
     public static function get_folder(string $name): string
     {
-        return self::get_one_value_for_image($name, 'folder', 'other-images');
+        $defaultName = strtolower(str_replace('_', '-', $name));
+        $defaultName = preg_replace('/[^a-zA-Z0-9]/', '', $defaultName);
+        return self::get_one_value_for_image($name, 'folder', $defaultName);
     }
 
     public static function move_to_right_folder(string $name): bool
