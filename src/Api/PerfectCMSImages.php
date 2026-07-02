@@ -246,9 +246,32 @@ EOT;
 
     public static function get_folder(string $name): string
     {
-        $defaultName = strtolower(str_replace('_', '-', $name));
-        $defaultName = preg_replace('/[^a-zA-Z0-9]/', '', $defaultName);
+        $defaultName = self::name_to_url_segment($name);
+
         return self::get_one_value_for_image($name, 'folder', $defaultName);
+    }
+
+    private static function name_to_url_segment(string $name): string
+    {
+        // 1. Add a hyphen before any capital letter (except at the very start of the string)
+        $name = preg_replace('/(?<!^)([A-Z])/', '-$1', $name);
+
+        // 2. Replace spaces and underscores with hyphens in one go
+        $name = str_replace([' ', '_'], '-', $name);
+
+        // 3. Convert to lowercase
+        $name = strtolower($name);
+
+        // 4. Strip everything except lowercase letters, numbers, and hyphens
+        $name = preg_replace('/[^a-z0-9\-]/', '', $name);
+
+        // 5. Clean up any consecutive hyphens (e.g., if "My_Folder" became "my--folder")
+        $name = preg_replace('/-+/', '-', $name);
+
+        // 6. Trim hyphens off the very start or end of the string
+        $name = trim($name, '-');
+
+        return $name;
     }
 
     public static function move_to_right_folder(string $name): bool
