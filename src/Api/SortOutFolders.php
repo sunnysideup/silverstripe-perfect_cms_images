@@ -215,7 +215,7 @@ class SortOutFolders
     {
         $unusedFolderName = $this->unusedImagesFolder->Name;
         $folder = Folder::find_or_make($folderName);
-        $listAsString = implode(',', $this->listOfImageIds);
+        $listAsString = implode(',', $this->listOfImageIds[$folderName] ?? []);
         $where = ' ParentID = ' . $folder->ID . ' AND File.ID NOT IN(' . $listAsString . ')';
         $unused = Image::get()->where($where);
         if ($unused->exists()) {
@@ -245,7 +245,7 @@ class SortOutFolders
     public function moveUsedFilesIntoFolder(string $folderName)
     {
         $folder = Folder::find_or_make($folderName);
-        $listAsString = implode(',', $this->listOfImageIds);
+        $listAsString = implode(',', $this->listOfImageIds[$folderName] ?? []);
         $where = ' ParentID <> ' . $folder->ID . ' AND File.ID IN(' . $listAsString . ')';
         $used = Image::get()->where($where);
         if ($used->exists()) {

@@ -2,7 +2,14 @@
 
 ```ss
 
-$MyImage.PerfectCMSImageTag
+$MyImage.PerfectCMSImageTag(MyType)
+
+```
+
+Or you can do this:
+
+```ss
+<img $MyImage.PerfectCMSImageTagAttributes(MyType) >
 
 ```
 
@@ -12,13 +19,14 @@ Below are a list of all public methods on Images.
 
 ## Image Tag & Link Generation
 
-### `getPerfectCMSImageTag(string $name, $inline = false, ?string $alt = '', ?string $attributes = '')`
-
-A convenience wrapper method that passes all arguments directly to `PerfectCMSImageTag`. Returns the HTML string for the image.
 
 ### `PerfectCMSImageTag(string $name, $inline = false, ?string $alt = '', ?string $attributes = '')`
 
-Generates and returns the complete HTML `<img>` tag (or an inline template) for a specific image configuration name. It handles caching the generated HTML to improve performance and dynamically applies alt text and extra HTML attributes.
+Generates and returns the complete HTML `<img>` tag for a specific image configuration name. It handles caching the generated HTML to improve performance and dynamically applies alt text and extra HTML attributes.
+
+### `PerfectCMSImageTagAttributes(string $name, $inline = false, ?string $alt = '', ?string $attributes = '')`
+
+Generates and returns the inner attributes for `<img>` tagfor a specific image configuration name. It handles caching the generated HTML to improve performance and dynamically applies alt text and extra HTML attributes.
 
 ### `PerfectCMSImageLink(string $name, ?bool $useRetina = true, ?bool $forMobile = false)`
 
@@ -40,7 +48,7 @@ Returns a standard resolution URL string specifically sized for mobile viewports
 
 Returns a high-resolution (retina) URL string specifically sized for mobile viewports.
 
-### `getPerfectCMSImageAbsoluteLink(string $link)`
+### `PerfectCMSImageAbsoluteLink(string $link)`
 
 Takes a relative image URL and converts it into a full, absolute URL (including the domain) using SilverStripe's `Director`.
 
@@ -52,17 +60,9 @@ Takes a relative image URL and converts it into a full, absolute URL (including 
 
 Returns a boolean (`true` or `false`) indicating whether the current image file is an SVG by checking its file extension.
 
-### `getSVGFormat()`
-
-Returns the SVG for template rendering. If the file is an SVG, it returns the raw SVG wrapped safely as a `DBHTMLText` object. Otherwise, it falls back to the default SilverStripe `forTemplate()` rendering.
-
-### `getSVGFormatInner()`
-
-Fetches the raw SVG file contents and converts it into a URL-encoded Data URI string (prefixed with `data:image/svg+xml;utf8,`). Returns the string `"error"` if no SVG data is found.
-
-### `getImageAsSVG()`
-
-Reads the physical SVG file from the server's public path and returns it safely wrapped in a `DBHTMLText` object so it can be injected directly into HTML templates. Returns `null` if the file is not an SVG.
+> **Note:** SVGs are referenced via their URL (`<img src>` / `<source srcset>`) rather than
+> having their raw markup inlined into the page. Inlining raw SVG contents was removed because
+> uploaded SVGs can contain `<script>`/event-handler payloads, which would result in stored XSS.
 
 ---
 

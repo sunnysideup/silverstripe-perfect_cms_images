@@ -9,13 +9,15 @@ use SilverStripe\Assets\Folder;
 use SilverStripe\Assets\Image;
 use SilverStripe\Assets\Storage\AssetStore;
 use SilverStripe\Control\Director;
+use SilverStripe\Core\Config\Config;
 use SilverStripe\Core\Convert;
 use SilverStripe\Core\Extension;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\ORM\FieldType\DBField;
-use SilverStripe\ORM\FieldType\DBHTMLText;
+use SilverStripe\View\HTML;
 use Sunnysideup\PerfectCmsImages\Api\ImageManipulations;
 use Sunnysideup\PerfectCmsImages\Api\PerfectCMSImages;
+use Sunnysideup\PerfectCmsImages\Cache\TagCache;
 
 /**
  * defines the image sizes
@@ -27,7 +29,13 @@ class PerfectCmsImageDataExtension extends Extension
 {
     private static $casting = [
         'PerfectCMSImageTag' => 'HTMLText',
-        'SVGFormatInner' => 'Text',
+        'PerfectCMSImageTagAttributes' => 'HTMLText',
+        'PerfectCMSImageLink' => 'HTMLText',
+        'PerfectCMSImageLinkNonRetina' => 'Varchar',
+        'PerfectCMSImageLinkRetina' => 'Varchar',
+        'PerfectCMSImageLinkNonRetinaForMobile' => 'Varchar',
+        'PerfectCMSImageLinkRetinaForMobile' => 'Varchar',
+        'PerfectCMSImageAbsoluteLink' => 'Varchar',
     ];
 
 
@@ -40,10 +48,11 @@ class PerfectCmsImageDataExtension extends Extension
      *
      * @return string (HTML)
      */
-    public function getPerfectCMSImageTag(string $name, $inline = false, ?string $alt = '', ?string $attributes = '')
+    public function getPerfectCMSImageTag(string $name, ?bool $inline = false, ?string $alt = '', ?string $attributes = ''): string
     {
         return $this->PerfectCMSImageTag($name, $inline, $alt, $attributes);
     }
+
 
     /**
      * @param string $name       PerfectCMSImages name
@@ -53,26 +62,37 @@ class PerfectCmsImageDataExtension extends Extension
      *
      * @return string (HTML)
      */
-    public function PerfectCMSImageTag(string $name, $inline = false, ?string $alt = '', ?string $attributes = '')
+    public function PerfectCMSImageTag(string $name, ?bool $inline = false, ?string $alt = '', ?string $attributes = ''): string
     {
-        $cacheKey = $this->getPerfectCMSImagesTagCacheKey($name . $inline . $alt . $attributes);
-        $cache = $this->getPerfectCMSImagesTagCache();
+        $tagCache = Injector::inst()->get(TagCache::class);
+        $cacheKey = $tagCache->getPerfectCMSImagesTagCacheKey($this->owner, $name . $inline . $alt . $attributes);
+        $cache = $tagCache->getPerfectCMSImagesTagCache();
         if ($cacheKey && $cache->has($cacheKey)) {
             return $cache->get($cacheKey);
         }
 
         $arrayData = $this->getPerfectCMSImageTagArrayData($name, $alt, $attributes);
         $template = 'Includes/PerfectCMSImageTag';
-        if (true === $inline || 1 === (int) $inline || 'true' === strtolower($inline)) {
+        if ($inline) {
             $template .= 'Inline';
         }
-
         $string = DBField::create_field('HTMLText', $arrayData->renderWith($template));
         if ($cacheKey && $cache) {
             $cache->set($cacheKey, $string);
         }
 
         return $string;
+    }
+
+
+    public function PerfectCMSImageTagAttributes(string $name, ?string $alt = '', ?string $attributes = '')
+    {
+        return $this->getPerfectCMSImageTagAttributes($name, $alt, $attributes);
+    }
+
+    public function getPerfectCMSImageTagAttributes(string $name, ?string $alt = '', ?string $attributes = '')
+    {
+        return $this->PerfectCMSImageTag($name, true, $alt, $attributes);
     }
 
     /**
@@ -83,7 +103,7 @@ class PerfectCmsImageDataExtension extends Extension
      */
     public function PerfectCMSImageLinkNonRetina(string $name): string
     {
-        return $this->PerfectCMSImageLink($name);
+        return $this->PerfectCMSImageLink($name, false);
     }
 
     /**
@@ -125,6 +145,10 @@ class PerfectCmsImageDataExtension extends Extension
      *
      * @return string (link)
      */
+    public function PerfectCMSImageAbsoluteLink(string $link): string
+    {
+        return $this->getPerfectCMSImageAbsoluteLink($link);
+    }
     public function getPerfectCMSImageAbsoluteLink(string $link): string
     {
         return Director::absoluteURL($link);
@@ -211,10 +235,22 @@ class PerfectCmsImageDataExtension extends Extension
     public function getCMSThumbnail()
     {
         $owner = $this->getOwner();
-        if ($owner->ID) {
-            if ($owner->IsSVG()) {
-                return $this->getImageAsSVG() ?? $owner->CMSThumbnail();
-            }
+        if ($owner->ID && $owner->IsSVG()) {
+            // Reference the SVG by URL rather than inlining its raw markup.
+            // The core CMSThumbnail() cannot resize SVGs, so it would fall back to a
+            // generic file icon. Loading the SVG via <img src> restores a real preview
+            // AND is safe: browsers do not execute scripts in img-embedded SVGs, so this
+            // avoids the stored-XSS risk of inlining raw SVG contents.
+            $height = (int) Config::inst()->get('SilverStripe\\Assets\\ImageManipulation', 'cms_thumbnail_height');
+
+            return DBField::create_field(
+                'HTMLFragment',
+                HTML::createTag('img', [
+                    'src' => $owner->getURL(),
+                    'alt' => $owner->getTitle(),
+                    'height' => $height ?: 60,
+                ])
+            );
         }
 
         return $owner->CMSThumbnail();
@@ -225,55 +261,14 @@ class PerfectCmsImageDataExtension extends Extension
         return 'svg' === $this->getOwner()->getExtension();
     }
 
-    public function getSVGFormat(): DBHTMLText|DBField|null
-    {
-        $owner = $this->getOwner();
-        if ($owner->ID) {
-            return $this->getImageAsSVG() ?? $owner->forTemplate();
-        }
-
-        return $owner->forTemplate();
-    }
-    public function getSVGFormatInner(): string
-    {
-        $svgString = $this->getImageAsSVGRaw();
-        if ($svgString) {
-            return 'data:image/svg+xml;utf8,' . rawurlencode($svgString);
-        }
-        return 'error';
-    }
-
-    public function getImageAsSVG(): DBHTMLText|null
-    {
-        $owner = $this->getOwner();
-        if ($owner->IsSVG()) {
-            $data = $this->getImageAsSVGRaw();
-            return DBHTMLText::create_field('HTMLText', (string)$data);
-        }
-
-        return null;
-    }
-
-
     public function updatePreviewLink(&$link, $action)
     {
         $owner = $this->getOwner();
         if ($owner->IsSVG()) {
-            return $owner->Link();
+            $link = $owner->Link();
         }
 
         return $link;
-    }
-
-
-    private function getImageAsSVGRaw(): ?string
-    {
-        $owner = $this->getOwner();
-        if ($owner->IsSVG()) {
-            return file_get_contents(PUBLIC_PATH . $owner->Link());
-        }
-
-        return null;
     }
 
 
@@ -325,6 +320,7 @@ class PerfectCmsImageDataExtension extends Extension
             'NonRetinaLink' => $nonRetinaLink,
             'Type' => $this->getOwner()->getMimeType(),
             'Attributes' => DBField::create_field('HTMLText', $attributes),
+            'LoadingStyle' => PerfectCMSImages::get_loading_style($name),
         ];
         if ($hasMobile) {
             $myArray += [
@@ -347,7 +343,7 @@ class PerfectCmsImageDataExtension extends Extension
      * @param string $method
      * @param [mixed] $args- zero to many arguments
      */
-    protected function getImageLinkCachedIfExists($method, $args = null): string
+    public function getImageLinkCachedIfExists($method, $args = null): string
     {
         $image = $this->getOwner();
         if (! $image->canView()) {

@@ -3,6 +3,7 @@
 namespace Sunnysideup\PerfectCmsImages\Tasks;
 
 use Override;
+use SilverStripe\Assets\Image;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Dev\BuildTask;
 use SilverStripe\ORM\DataObject;
@@ -35,7 +36,7 @@ class PerfectCmsImagesBuildTaskCheckImages extends BuildTask
                 $singleton = Injector::inst()->get($parent);
                 if ($singleton instanceof DataObject) {
                     if ($singleton->hasMethod($fieldName)) {
-                        $objects = $parent::get()->where('"' . $fieldName . 'ID" <> 0 AND "' . $fieldName . 'ID" IS NOT NULL');
+                        $objects = $parent::get()->filter([$fieldName . 'ID:GreaterThan' => 0]);
                         for ($i = 0; $i < 100000; ++$i) {
                             $array = [];
                             $obj = $objects->limit(1, $i)->first();
@@ -44,7 +45,7 @@ class PerfectCmsImagesBuildTaskCheckImages extends BuildTask
                             }
 
                             $image = $obj->{$fieldName}();
-                            if ($image && $image instanceof $image && $image->exists()) {
+                            if ($image && $image instanceof Image && $image->exists()) {
                                 if ($width) {
                                     $realWidth = $image->getWidth();
                                     if ($realWidth !== (int) $width) {

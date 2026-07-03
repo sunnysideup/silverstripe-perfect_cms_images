@@ -41,7 +41,7 @@ RewriteBase /
 
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.+)\.(v[A-Za-z0-9]+)\.(png|jpg|gif|svg|webp)$ $1.$3 [L]
+RewriteRule ^(.+)\.(v[A-Za-z0-9]+)\.(png|jpg|gif|svg|webp|avif)$ $1.$3 [L]
 
 EOT;
 
@@ -173,8 +173,13 @@ EOT;
         if (! $multiplier) {
             $multiplier = 1;
         }
-
-        return $multiplier;
+        if ($multiplier < 1) {
+            $multiplier = 1;
+        }
+        if ($multiplier > 4) {
+            $multiplier = 4;
+        }
+        return (int) $multiplier;
     }
 
     public static function is_crop(string $name): bool
@@ -279,10 +284,6 @@ EOT;
         return self::get_one_value_for_image($name, 'move_to_right_folder', true);
     }
 
-    public static function loading_style(string $name): string
-    {
-        return self::get_one_value_for_image($name, 'loading_style', 'lazy');
-    }
 
     public static function max_size_in_kilobytes(string $name): int
     {
@@ -344,6 +345,11 @@ EOT;
         }
 
         return self::$_cache_image_info;
+    }
+
+    public static function get_loading_style(string $name): string
+    {
+        return self::get_one_value_for_image($name, 'loading_style', 'lazy');
     }
 
     public static function legacy_check(): void

@@ -7,6 +7,8 @@ namespace Sunnysideup\PerfectCmsImages\Control;
 use Override;
 use SilverStripe\Control\Controller;
 use SilverStripe\Control\Director;
+use SilverStripe\Control\HTTPRequest;
+use SilverStripe\Control\HTTPResponse;
 use SilverStripe\Core\Convert;
 
 /**
@@ -45,11 +47,10 @@ class PlaceHolderImageCreator extends Controller
         'myimage',
     ];
 
-    public function myimage($request): void
+    public function myimage(HTTPRequest $request): HTTPResponse
     {
         if (Director::isLive()) {
-            echo '404-image';
-            return;
+            return $this->plainTextResponse('404-image', 404);
         }
 
         $width = (int) $request->getVar('width');
@@ -57,25 +58,16 @@ class PlaceHolderImageCreator extends Controller
         $text = Convert::raw2htmlid($request->getVar('text'));
 
         if ($width < 1 || $height < 1) {
-            http_response_code(400);
-            header('Content-Type: text/plain; charset=utf-8');
-            echo 'Width/height must be >= 1.';
-            return;
+            return $this->plainTextResponse('Width/height must be >= 1.', 400);
         }
 
         if (! extension_loaded('gd')) {
-            http_response_code(500);
-            header('Content-Type: text/plain; charset=utf-8');
-            echo 'GD extension is not enabled.';
-            return;
+            return $this->plainTextResponse('GD extension is not enabled.', 500);
         }
 
         $img = imagecreatetruecolor($width, $height);
         if ($img === false) {
-            http_response_code(500);
-            header('Content-Type: text/plain; charset=utf-8');
-            echo 'Failed to create image.';
-            return;
+            return $this->plainTextResponse('Failed to create image.', 500);
         }
 
         // Random background (avoid very dark)
@@ -91,7 +83,7 @@ class PlaceHolderImageCreator extends Controller
 
         // Choose a readable text colour based on brightness
         $brightness = (int) (0.299 * $bgR + 0.587 * $bgG + 0.114 * $bgB);
-        $text = $brightness > 140
+        $textColour = $brightness > 140
             ? imagecolorallocate($img, 0, 0, 0)
             : imagecolorallocate($img, 255, 255, 255);
 
@@ -109,10 +101,31 @@ class PlaceHolderImageCreator extends Controller
             : imagecolorallocate($img, 0, 0, 0);
 
         imagestring($img, $font, $x + 1, $y + 1, $label, $shadow);
-        imagestring($img, $font, $x, $y, $label, $text);
+        imagestring($img, $font, $x, $y, $label, $textColour);
+
+        // Capture the PNG output so it can be returned via the response body
+        // rather than being echoed directly.
+        ob_start();
+        imagepng($img);
+        $body = (string) ob_get_clean();
+
+        // Free the image resource.
+        imagedestroy($img);
 
         $response = $this->getResponse();
         $response->addHeader('Content-Type', 'image/png');
-        imagepng($img);
+        $response->setBody($body);
+
+        return $response;
+    }
+
+    protected function plainTextResponse(string $message, int $statusCode): HTTPResponse
+    {
+        $response = $this->getResponse();
+        $response->setStatusCode($statusCode);
+        $response->addHeader('Content-Type', 'text/plain; charset=utf-8');
+        $response->setBody($message);
+
+        return $response;
     }
 }
