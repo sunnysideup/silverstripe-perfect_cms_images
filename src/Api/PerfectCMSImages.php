@@ -129,7 +129,7 @@ EOT;
         if ('flexible' === $actualWidthDescription) {
             $rightTitle .= 'Image width is flexible';
         } else {
-            $rightTitle .= sprintf('Image should to be <strong>%s</strong> wide', $actualWidthDescription);
+            $rightTitle .= sprintf('Ideally, this is image is <strong>%s</strong> wide', $actualWidthDescription);
         }
 
         $rightTitle .= ' and ';
@@ -150,7 +150,7 @@ EOT;
         if (strlen($recommendedFileType) < 5) {
             $rightTitle .= 'The recommend file type (file extension) is <strong>' . $recommendedFileType . '</strong>.';
         } else {
-            $rightTitle .= '<strong>' . $recommendedFileType . '</strong>.';
+            $rightTitle .= 'File type recommendation: <strong>' . $recommendedFileType . '</strong>.';
         }
 
         $rightTitle .= '<br />Not sure how to proceed? Use a service <a href="https://tinypng.com/" target="_blank" rel="noreferrer">TinyPNG</a> to reduce the file size and convert it.';
