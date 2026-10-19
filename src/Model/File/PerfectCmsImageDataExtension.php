@@ -106,10 +106,13 @@ class PerfectCmsImageDataExtension extends Extension
 
     protected function getPerfectCMSImagesTagCacheKey($toAdd)
     {
-        if (! $this->owner->isPublished()) {
+        $owner = $this->getOwner();
+        $image = $owner;
+
+        if (! $owner->isPublished()) {
             return null;
         }
-        return 'PCI' . $this->owner->ID . '_' . strtotime($this->owner->LastEdited) . $toAdd;
+        return 'PCI' . $owner->ID . '_' . strtotime($owner->LastEdited) . $toAdd;
     }
 
     protected function getPerfectCMSImagesTagCache()
@@ -126,6 +129,8 @@ class PerfectCmsImageDataExtension extends Extension
      */
     private function getPerfectCMSImageTagArrayData(string $name, ?string $alt = '', ?string $attributes = '')
     {
+        $owner = $this->getOwner();
+
         $retinaLink = $this->PerfectCMSImageLinkRetina($name);
         $nonRetinaLink = $this->PerfectCMSImageLinkNonRetina($name);
 
@@ -140,7 +145,7 @@ class PerfectCmsImageDataExtension extends Extension
         }
 
         if (! $alt) {
-            $alt = $this->getOwner()->Title;
+            $alt = $owner->Title;
         }
         $myArray = [
             'Width' => $width,
@@ -148,7 +153,7 @@ class PerfectCmsImageDataExtension extends Extension
             'Alt' => Convert::raw2att($alt),
             'RetinaLink' => $retinaLink,
             'NonRetinaLink' => $nonRetinaLink,
-            'Type' => $this->owner->getMimeType(),
+            'Type' => $owner->getMimeType(),
             'Attributes' => DBField::create_field('HTMLText', $attributes),
         ];
         if ($hasMobile) {
@@ -298,7 +303,9 @@ class PerfectCmsImageDataExtension extends Extension
 
     public function IsSVG(): bool
     {
-        return 'svg' === $this->owner->getExtension();
+        $owner = $this->getOwner();
+
+        return 'svg' === $owner->getExtension();
     }
 
     public function getSVGFormat()
@@ -324,7 +331,7 @@ class PerfectCmsImageDataExtension extends Extension
     public function updatePreviewLink(&$link, $action)
     {
         $owner = $this->getOwner();
-        if ('svg' === $this->owner->getExtension()) {
+        if ('svg' === $owner->getExtension()) {
             return $owner->Link();
         }
 
