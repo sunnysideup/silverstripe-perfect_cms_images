@@ -37,6 +37,8 @@ class PlaceHolderImageCreator extends Controller
             '?' . $actions;
     }
 
+    private const MAX_DIMENSION = 4000;
+
     private static $url_segment = 'placeholderimagecreator';
 
     private static array $allowed_actions = [
@@ -57,6 +59,13 @@ class PlaceHolderImageCreator extends Controller
             http_response_code(400);
             header('Content-Type: text/plain; charset=utf-8');
             echo 'Width/height must be >= 1.';
+            return;
+        }
+
+        if ($width > self::MAX_DIMENSION || $height > self::MAX_DIMENSION) {
+            http_response_code(400);
+            header('Content-Type: text/plain; charset=utf-8');
+            echo 'Width/height must be <= ' . self::MAX_DIMENSION . '.';
             return;
         }
 

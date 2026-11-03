@@ -5,6 +5,7 @@ namespace Sunnysideup\PerfectCmsImages\Api;
 use Psr\Log\LoggerInterface;
 use SilverStripe\Assets\Filesystem;
 use SilverStripe\Assets\Image;
+use SilverStripe\Control\Director;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Core\Config\Configurable;
 use SilverStripe\Core\Flushable;
@@ -73,7 +74,8 @@ EOT;
      */
     public static function flush()
     {
-        if (isset($_GET['forceresample'])) {
+        // flush runs before any authentication: only dev mode or the command line may use this (no member is available yet at flush time).
+        if (isset($_GET['forceresample']) && (Director::isDev() || Director::is_cli())) {
             Config::modify()->set(Image::class, 'force_resample', true);
         }
 
